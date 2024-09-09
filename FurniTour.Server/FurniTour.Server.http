@@ -1,0 +1,6 @@
+@FurniTour.Server_HostAddress = http://localhost:5150
+
+GET {{FurniTour.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
