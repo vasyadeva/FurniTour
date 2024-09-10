@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { UserClaim } from './auth.interface';
+import { UserClaim } from '../models/auth.interface';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 @Injectable({

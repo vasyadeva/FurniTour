@@ -78,7 +78,7 @@ namespace FurniTour.Server.Services
                     {
                         IsPersistent = true,
                         AllowRefresh = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(80000),
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24),
                     });
             }
 

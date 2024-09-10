@@ -2,8 +2,8 @@ import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { AuthInterceptor } from './app.interceptor';
-import { AuthGuard } from './app.auth.guard';
+import { AuthInterceptor } from './services/app.interceptor';
+import { AuthGuard } from './services/app.auth.guard';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../auth.service'; // Update the path as needed
+import { AuthService } from '../services/auth.service'; // Update the path as needed
 import { Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AppStatusService } from '../app.status.service'; 
+import { AppStatusService } from '../services/app.status.service'; 
 @Component({
   selector: 'app-root',
   standalone: true,
