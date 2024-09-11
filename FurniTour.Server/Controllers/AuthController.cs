@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 
 namespace FurniTour.Server.Controllers
@@ -21,13 +22,13 @@ namespace FurniTour.Server.Controllers
         public async Task<IActionResult> SignInAsync([FromBody] LoginModel loginModel)
         {
             var state = authService.SignInAsync(loginModel);
-            if (state.Result)
+            if (state.Result.IsNullOrEmpty())
             {
                 return Ok(new Response(true, "Signed in successfully"));
             }
             else
             {
-                return BadRequest(new Response(false, "Invalid credentials"));
+                return BadRequest(new Response(false, state.Result));
             }
         }
 
@@ -50,24 +51,23 @@ namespace FurniTour.Server.Controllers
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel registerModel)
         {
             var state = authService.RegisterAsync(registerModel);
-            if (state.Result)
+            if (state.Result.IsNullOrEmpty())
             {
                 return Ok(new Response(true, "Registered successfully"));
             }
             else
             {
-                return BadRequest(new Response(false, "Failed to register"));
+                return BadRequest(new Response(false, state.Result));
             }
         }
 
         [HttpGet("getrole")]
+        [Authorize]
         public IActionResult GetUserRole()
         {
             var role = authService.GetUserRole();
             return Ok(new { role });
         }
-
-
     }
 
     public record Response(bool IsSuccess, string Message);

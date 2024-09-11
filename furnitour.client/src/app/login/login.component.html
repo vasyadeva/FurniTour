@@ -10,11 +10,10 @@
           <input class="col form-field" type="password" name="password" formControlName="password" autocomplete="on" />
       </div>
       <div class="row m-3" *ngIf="authFailed">
-          <label style="color: red">Invalid credentials</label>
+          <label style="color: red">{{error}}</label>
       </div>
       <div class="row m-3">
-          <button class="col btn btn-primary" type="submit">Sign In</button>
-          <!--[disabled]="!loginForm.valid"-->
+          <button class="col btn btn-primary" type="submit" [disabled]="!loginForm.valid">Sign In</button>
       </div>
   </form>
 

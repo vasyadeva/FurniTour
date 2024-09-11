@@ -22,13 +22,17 @@ namespace FurniTour.Server.Services
             this.userManager = userManager;
         }
 
-        public async Task<bool> RegisterAsync(RegisterModel registerModel)
+        public async Task<string> RegisterAsync(RegisterModel registerModel)
         {
             var user = new IdentityUser
             {
                 UserName = registerModel.UserName
             };
-
+            var userExists = await userManager.FindByNameAsync(registerModel.UserName);
+            if (userExists != null)
+            {
+                return "The user already exists";
+            }
             var result = await userManager.CreateAsync(user, registerModel.Password);
             if (result.Succeeded)
             {
@@ -40,31 +44,34 @@ namespace FurniTour.Server.Services
                     Password = registerModel.Password
                 });
             }
-            return result.Succeeded;
+            else
+            {
+                return result.Errors.ToString();
+            }
+            return "";
         }
 
-        public async Task<bool> SignInAsync(LoginModel loginModel)
+        public async Task<string> SignInAsync(LoginModel loginModel)
         {
             var hasher = new PasswordHasher<IdentityUser>();
             var user = context.Users.FirstOrDefault(x => x.UserName == loginModel.UserName);
 
             if (user is null)
             {
-                return false;
+                return "The user doesn't exists";
             }
 
             var isCorrectPassword = hasher.VerifyHashedPassword(user, user.PasswordHash, loginModel.Password);
 
             if (isCorrectPassword != PasswordVerificationResult.Success)
             {
-                return false;
+                return "Wrong password";
             }
 
             var role = await userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
             {
-               // new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Role, role.FirstOrDefault() ?? "User")
             };
@@ -85,7 +92,7 @@ namespace FurniTour.Server.Services
                     });
             }
 
-            return true;
+            return "";
         }
 
         public bool SignOut()

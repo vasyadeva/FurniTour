@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   authFailed: boolean = false;
   signedIn: boolean = false;
+  error: string = '';
   constructor(private authService: AuthService,
       private formBuilder: FormBuilder,
       private router: Router,
@@ -64,7 +65,9 @@ export class LoginComponent implements OnInit {
           error => {
               if (!error?.error?.isSuccess) {
                   this.authFailed = true;
+                  this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
               }
+
           });
   }
   public logout() {

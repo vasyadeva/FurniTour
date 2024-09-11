@@ -5,8 +5,8 @@ import { AppStatusService } from '../services/app.status.service';
   selector: 'app-root',
   standalone: true,
   imports: [],
-  templateUrl: './sign-out.component.html',
-  styleUrl: './sign-out.component.css'
+  templateUrl: './logout.component.html',
+  styleUrl: './logout.component.css'
 })
 export class SignOutComponent {
   constructor(private authService: AuthService, private status: AppStatusService) {
