@@ -60,10 +60,13 @@ namespace FurniTour.Server.Services
                 return false;
             }
 
+            var role = await userManager.GetRolesAsync(user);
+
             var claims = new List<Claim>
             {
                // new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, role.FirstOrDefault() ?? "User")
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -93,6 +96,12 @@ namespace FurniTour.Server.Services
                 return true;
             }
             return false;
+        }
+
+        public string GetUserRole()
+        {
+            var role = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            return role;
         }
     }
 }

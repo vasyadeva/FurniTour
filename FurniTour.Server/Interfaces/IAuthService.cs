@@ -7,7 +7,7 @@ namespace FurniTour.Server.Interfaces
     {
         public Task<bool> RegisterAsync(RegisterModel model);
         public Task<bool> SignInAsync(LoginModel loginModel);
-
         public bool SignOut();
+        public string GetUserRole();
     }
 }

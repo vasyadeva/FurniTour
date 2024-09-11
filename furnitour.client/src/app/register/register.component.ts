@@ -36,15 +36,14 @@ export class RegisterComponent {
     return password === confirmPassword ? null : { mismatch: true };
   }
 
-  // Custom method for form submission
   registerUser() {
     if (this.registerForm.valid) {
       const { username, password } = this.registerForm.value;
       this.authService.register(username, password).subscribe(
         () => { 
           this.status.isSignedIn = true, 
-          this.router.navigate(['/login'])}, // Redirect after successful registration
-        error => console.error('Registration error:', error) // Handle errors
+          this.router.navigate(['/login'])}, 
+        error => console.error('Registration error:', error) 
       );
     }
   }

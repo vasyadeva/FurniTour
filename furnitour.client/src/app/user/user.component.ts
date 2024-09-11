@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { UserClaim } from '../models/auth.interface';
+import { UserClaim } from '../models/userclaim.model';
 import { AuthService } from '../services/auth.service';
 
 @Component({

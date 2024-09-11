@@ -27,7 +27,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
             context.Response.StatusCode = 401;
             return Task.CompletedTask;
         };
-
         options.ExpireTimeSpan = TimeSpan.FromDays(1);
     });
 

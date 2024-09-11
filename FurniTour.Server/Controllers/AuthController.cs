@@ -60,19 +60,16 @@ namespace FurniTour.Server.Controllers
             }
         }
 
-
-
-        /*
-        private List<User> users = new()
+        [HttpGet("getrole")]
+        public IActionResult GetUserRole()
         {
-            new("user1@test.com", "User 1", "user1"),
-            new("user2@test.com", "User 2", "user2"),
-        };
-        */
+            var role = authService.GetUserRole();
+            return Ok(new { role });
+        }
+
+
     }
 
-    public record SignInRequest(string Email, string Password);
     public record Response(bool IsSuccess, string Message);
     public record UserClaim(string Type, string Value);
-    public record User(string Email, string Name, string Password);
 }

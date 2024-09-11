@@ -15,5 +15,7 @@ export class SignOutComponent {
   public signout() {
       this.authService.signOut().subscribe();
       this.status.isSignedIn = false;
+      this.status.isAdmin = false;
+      this.status.isMaster = false;
   }
 }

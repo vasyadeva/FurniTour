@@ -38,16 +38,26 @@ export class LoginComponent implements OnInit {
           });
   }
   public signIn(event: any) {
-      /*if (!this.loginForm.valid) {
-          return;
-      }*/
       const userName = this.loginForm.get('username')?.value;
       const password = this.loginForm.get('password')?.value;
       this.authService.signIn(userName, password).subscribe(
           (response : any)=> {
               if (response.isSuccess) {
                 this.status.isSignedIn = true;
-                  this.router.navigateByUrl('user')
+                this.authService.getUserRole().subscribe(
+                    (response : any )=> {
+                        switch(response){
+                            case "Administrator":
+                                this.status.isAdmin = true;
+                                break;
+                            case "Master":
+                                this.status.isMaster = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                this.router.navigateByUrl('user')
               }
               console.log(response);
           },

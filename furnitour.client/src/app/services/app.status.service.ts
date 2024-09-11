@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class AppStatusService {
-  isSignedIn: boolean = false;
+  isSignedIn: boolean = false
+  isAdmin: boolean = false
+  isMaster: boolean = false
   constructor() { }
 }

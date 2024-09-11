@@ -1,25 +1,48 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { AuthService } from './auth.service';
-import { Observable } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, switchMap, catchError } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthGuard implements CanActivate {
-    constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router) { }
 
-    canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        return this.isSignedIn();
-    }
+  canActivate(
+    next: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> | Promise<boolean> | boolean {
+    // Extract roles from route data
+    const expectedRoles = next.data['roles'] as Array<string>;
 
-    isSignedIn(): Observable<boolean> {
-        return this.authService.isSignedIn().pipe(
-            map((isSignedIn) => {
-                if (!isSignedIn) {
-                    this.router.navigate(['signin']);
-                    return false;
-                }
-                return true;
-            }));
-    }
+    return this.authService.isSignedIn().pipe(
+      switchMap(isSignedIn => {
+        if (!isSignedIn) {
+          this.router.navigate(['signin']);
+          return of(false);
+        }
+        return this.authService.getUserRole().pipe(
+          map(role => {
+            console.log('User role:', role);  // Debug: Log role
+            if (expectedRoles.includes(role)) {
+              return true;
+            } else {
+              this.router.navigate(['forbidden']);
+              return false;
+            }
+          }),
+          catchError(() => {
+            this.router.navigate(['forbidden']);
+            return of(false);
+          })
+        );
+      }),
+      catchError(() => {
+        this.router.navigate(['forbidden']);
+        return of(false);
+      })
+    );
+  }
 }

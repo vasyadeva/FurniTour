@@ -21,9 +21,26 @@ export class AppComponent {
         private formBuilder: FormBuilder,
         private router: Router,
         public status: AppStatusService) {
-        this.authService.isSignedIn().subscribe(
-            isSignedIn => {
-                this.status.isSignedIn = isSignedIn;
-            });
+            this.authService.isSignedIn().subscribe(isSignedIn => {
+                if (isSignedIn) {
+                  this.status.isSignedIn = true;
+                  this.authService.getUserRole().subscribe(role => {
+                    console.log(role);
+                    switch (role) {
+                      case 'Administrator':
+                        this.status.isAdmin = true;
+                        break;
+                      case 'Master':
+                        this.status.isMaster = true;
+                        break;
+                      default:
+                        break;
+                    }
+                  });
+                } else {
+                  this.router.navigate(['signin']);
+                }
+              });
+        
     }
 }
