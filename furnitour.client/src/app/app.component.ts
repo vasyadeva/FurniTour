@@ -38,7 +38,7 @@ export class AppComponent {
                     }
                   });
                 } else {
-                  this.router.navigate(['signin']);
+                  this.router.navigate(['login']);
                 }
               });
         

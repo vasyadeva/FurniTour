@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-forbidden',
   standalone: true,
@@ -8,5 +8,13 @@ import { Component } from '@angular/core';
   styleUrl: './forbidden.component.css'
 })
 export class ForbiddenComponent {
+  errorMessage: string = '';
 
+  constructor(private route: ActivatedRoute) {}
+
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.errorMessage = params['message'] || 'Доступ заборонено.';
+    });
+  }
 }

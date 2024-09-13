@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit {
                                 break;
                         }
                     });
-                this.router.navigateByUrl('user')
+                this.router.navigateByUrl('')
               }
               console.log(response);
           },

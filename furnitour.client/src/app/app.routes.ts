@@ -14,9 +14,9 @@ export const routes: Routes = [
         canActivate: [AuthGuard],
         data: { roles: ['Administrator'] }
       },
-    {path: 'user', component: UserComponent, canActivate: [AuthGuard], data: { roles: ['Administrator', 'Master','User'] }},
+    {path: 'user', component: UserComponent, canActivate: [AuthGuard], data: { roles: ['Administrator'] }},
     {path: 'logout', component: SignOutComponent},
     {path: 'register', component: RegisterComponent},
     {path: 'login', component: LoginComponent},
-    {path: 'forbidden', component: ForbiddenComponent}
+    {path: 'forbidden', component: ForbiddenComponent},
 ];

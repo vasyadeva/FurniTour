@@ -20,7 +20,7 @@ export class AuthGuard implements CanActivate {
     return this.authService.isSignedIn().pipe(
       switchMap(isSignedIn => {
         if (!isSignedIn) {
-          this.router.navigate(['signin']);
+          this.router.navigate(['login']);
           return of(false);
         }
         return this.authService.getUserRole().pipe(

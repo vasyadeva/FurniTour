@@ -1,6 +1,6 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthInterceptor } from './services/app.interceptor';
 import { AuthGuard } from './services/app.auth.guard';
@@ -17,5 +17,5 @@ export const appConfig: ApplicationConfig = {
     deps: [Router]
   },
   AuthGuard,
-  provideHttpClient()]
+  provideHttpClient(withInterceptorsFromDi())]
 };

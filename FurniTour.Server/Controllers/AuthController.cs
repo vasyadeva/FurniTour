@@ -14,7 +14,7 @@ namespace FurniTour.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService authService;
-        public AuthController (IAuthService authService)
+        public AuthController(IAuthService authService)
         {
             this.authService = authService;
         }
@@ -69,6 +69,7 @@ namespace FurniTour.Server.Controllers
             return Ok(new { role });
         }
     }
+
 
     public record Response(bool IsSuccess, string Message);
     public record UserClaim(string Type, string Value);
