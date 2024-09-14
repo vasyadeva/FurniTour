@@ -37,7 +37,15 @@ namespace FurniTour.Server.Services
             if (result.Succeeded)
             {
                 var createdUser = await userManager.FindByNameAsync(registerModel.UserName);
-                await userManager.AddToRoleAsync(createdUser, "User");
+                switch (registerModel.isMaster)
+                {
+                    case true:
+                        await userManager.AddToRoleAsync(createdUser, "Master");
+                        break;
+                    case false:
+                        await userManager.AddToRoleAsync(createdUser, "User");
+                        break;
+                }
                 await SignInAsync(new LoginModel
                 {
                     UserName = registerModel.UserName,
@@ -97,7 +105,7 @@ namespace FurniTour.Server.Services
 
         public bool SignOut()
         {
-            var result =  httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var result = httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             if (result.IsCompletedSuccessfully)
             {
                 return true;

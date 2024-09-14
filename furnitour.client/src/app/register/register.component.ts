@@ -35,9 +35,10 @@ export class RegisterComponent {
       password: ['', [
         Validators.required, 
         Validators.minLength(8), 
-        Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]*$/) // At least one letter and one number
+        Validators.pattern(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]*$/)
       ]],
       confirmPassword: ['', Validators.required],
+      isMaster: [false]
     }, { 
       validator: this.passwordMatchValidator 
     });
@@ -55,8 +56,8 @@ export class RegisterComponent {
 
   registerUser() {
     if (this.registerForm.valid) {
-      const { username, password } = this.registerForm.value;
-      this.authService.register(username, password).subscribe(
+      const { username, password, isMaster } = this.registerForm.value;
+      this.authService.register(username, password, isMaster).subscribe(
         () => { 
           this.status.isSignedIn = true;
           this.router.navigate(['/login']);

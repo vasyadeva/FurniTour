@@ -26,6 +26,14 @@
     <div class="row m-3" *ngIf="registerFailed">
         <label style="color: red">{{errorRegister}}</label>
     </div>
+    <div class="form-check m-3">
+        <input class="form-check-input" id="isMaster" type="checkbox" formControlName="isMaster" />
+        <label class="form-check-label" for="isMaster">Register as Master</label>
+    </div>
+    
+    <div class="row m-3" *ngIf="registerFailed">
+        <label style="color: red">{{errorRegister}}</label>
+    </div>
     <div class="row m-3">
         <button class="col btn btn-primary" type="submit" [disabled]="registerForm.invalid">Register</button>
     </div>

@@ -49,8 +49,8 @@ export class AuthService {
               return of(false);
           }));
   }
-  public register(username: string, password: string) {
-      return this.http.post(this.api +'api/auth/register',{username: username, password: password}
+  public register(username: string, password: string, isMaster: boolean) {
+      return this.http.post(this.api +'api/auth/register',{username: username, password: password, isMaster: isMaster}
          ,{ withCredentials: true });
   }
 }
