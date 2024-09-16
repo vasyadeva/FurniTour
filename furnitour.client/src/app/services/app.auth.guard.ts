@@ -14,7 +14,6 @@ export class AuthGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean> | Promise<boolean> | boolean {
-    // Extract roles from route data
     const expectedRoles = next.data['roles'] as Array<string>;
 
     return this.authService.isSignedIn().pipe(
@@ -25,7 +24,7 @@ export class AuthGuard implements CanActivate {
         }
         return this.authService.getUserRole().pipe(
           map(role => {
-            console.log('User role:', role);  // Debug: Log role
+            console.log('User role:', role); 
             if (expectedRoles.includes(role)) {
               return true;
             } else {

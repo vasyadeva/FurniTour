@@ -32,11 +32,14 @@ namespace FurniTour.Server.Controllers
             }
         }
 
-        [Authorize]
         [HttpGet("user")]
         public IActionResult GetUser()
         {
             var userClaims = User.Claims.Select(x => new UserClaim(x.Type, x.Value)).ToList();
+            if (userClaims.IsNullOrEmpty())
+            {
+                return Ok();
+            }
             return Ok(userClaims);
         }
 
