@@ -15,7 +15,9 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IFurnitureService, FurnitureService>();
+builder.Services.AddScoped<ICartFurnitureService, CartFurnitureService>();
+builder.Services.AddScoped<IOrderFurnitureService, OrderFurnitureService>();
+builder.Services.AddScoped<IItemFurnitureService, ItemFurnitureService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
