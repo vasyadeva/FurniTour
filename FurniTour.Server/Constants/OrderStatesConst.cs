@@ -9,5 +9,15 @@
         public const int InDelivery = 5;
         public const int Delivered = 6;
         public const int DeliveryConfirmedByUser = 7;
+        public static readonly int[] ValidStates =
+        {
+            NewOrder,
+            CancelledByUser,
+            CancelledByAdmin,
+            Confirmed,
+            InDelivery,
+            Delivered,
+            DeliveryConfirmedByUser
+        };
     }
 }

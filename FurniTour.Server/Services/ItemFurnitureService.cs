@@ -18,17 +18,18 @@ namespace FurniTour.Server.Services
             this.httpContextAccessor = httpContextAccessor;
         }
 
-        public List<ItemModel> getAll()
+        public List<ItemViewModel> getAll()
         {
             var itemObj = context.Furnitures.ToList();
             if (itemObj != null)
             {
-                var itemListModel = new List<ItemModel>();
+                var itemListModel = new List<ItemViewModel>();
                 foreach (var item in itemObj)
                 {
                     
-                    var itemModel = new ItemModel
+                    var itemModel = new ItemViewModel
                     {
+                        Id = item.Id,
                         Name = item.Name,
                         Description = item.Description,
                         Price = item.Price,
@@ -44,7 +45,7 @@ namespace FurniTour.Server.Services
         public bool AddItem(ItemModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
-            var user = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
@@ -66,13 +67,14 @@ namespace FurniTour.Server.Services
             return true;
         }
 
-        public ItemModel Details(int id)
+        public ItemViewModel Details(int id)
         {
             var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
             if (itemObj != null)
             {
-                var itemModel = new ItemModel
+                var itemModel = new ItemViewModel
                 {
+                    Id = itemObj.Id,
                     Name = itemObj.Name,
                     Description = itemObj.Description,
                     Price = itemObj.Price,
@@ -84,10 +86,10 @@ namespace FurniTour.Server.Services
         }
         
 
-        public bool Edit(int id, ItemModel itemModel)
+        public bool Edit(int id, ItemViewModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
-            var user = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
@@ -110,7 +112,7 @@ namespace FurniTour.Server.Services
 
         public bool DeleteItem(int id)
         {
-            var user = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();

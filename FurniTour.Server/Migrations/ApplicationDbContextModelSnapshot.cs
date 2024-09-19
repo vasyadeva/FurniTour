@@ -188,6 +188,43 @@ namespace FurniTour.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("OrderStates");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "New Order"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Cancelled by User"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Cancelled by Administrator"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "In Delivery"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Delivered"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Delivery Confirmed by User"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -331,15 +368,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "ccf9bfb8-47d6-41bf-9c5d-502",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cf478e09-3ac1-4872-a70c-e9eb858b69d4",
+                            ConcurrencyStamp = "a1957f18-0c1c-4c68-b053-e9ed972f849f",
                             Email = "admin@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TEST.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAELwzjOCXdFYOQnoHzDX9Jw/F2CVE1vhepoUm/3QagUKDeWOzfA46LkSvqtIMhcVZZQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAa7g9INVcVG+xacEJaqEcwH2KfIxw1UHgCPWGeE/gc+nMpvygTuMtpo+3uf/JuIRw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0204d8cb-4a6d-4001-9ca5-7acca0d5b67f",
+                            SecurityStamp = "a71fc32f-dc89-409d-b8fe-bad19dee01dc",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -347,15 +384,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a087",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b3b18f68-b8ca-4ebd-996c-f060bf4772ce",
+                            ConcurrencyStamp = "b88072ca-29c1-4530-88bf-187d7d48bfc6",
                             Email = "user1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "USER1@TEST.COM",
                             NormalizedUserName = "USER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMvt2dgk2/A5QyEwxWsWXoV5VvxBFx3SPT/hZbYDtmMbgF6bPRWBhgVQfrsAQuj6Iw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECfG3myaDzNroiWo/S25hiFgr91Ms8FQctC+5MGn/vw+VESwtOm9AZ62ChzQQL/OLA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e65afba8-3ba8-453b-a939-d6b550dff442",
+                            SecurityStamp = "0c8761cc-50dd-4017-a56b-287f1989f115",
                             TwoFactorEnabled = false,
                             UserName = "user1"
                         },
@@ -363,15 +400,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a903",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "015b3be0-e69b-45b4-ae64-28a87eb31b20",
+                            ConcurrencyStamp = "d0890e3c-42f6-4396-bfb5-f4a962c56e02",
                             Email = "master1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MASTER1@TEST.COM",
                             NormalizedUserName = "MASTER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDVinOLtkK/muPL3nokdWnukWne8F17SyXtgImwRyW63pWpTugzKB+C2spzaShs4RQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOFu2wGTIx6wNxo2JMXHVoC9/e/zxc45woSenymfsBCK9egyYLQwH+NIUMnLhqVWDw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "553e28f4-2f84-4d98-acf5-ef8b5fc62972",
+                            SecurityStamp = "00a6ae5b-f653-4414-9f9c-f880f2804b95",
                             TwoFactorEnabled = false,
                             UserName = "master1"
                         });

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { AppStatusService } from '../services/app.status.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { AppStatusService } from '../../services/auth/app.status.service';
 @Component({
   selector: 'app-root',
   standalone: true,

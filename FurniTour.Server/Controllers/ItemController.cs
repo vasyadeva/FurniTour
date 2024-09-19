@@ -13,19 +13,40 @@ namespace FurniTour.Server.Controllers
         public ItemController(IItemFurnitureService itemFurnitureService) {
             this.itemFurnitureService = itemFurnitureService;
         }
-        [HttpGet]
+        [HttpGet("getall")]
         public IActionResult GetAll()
         {
             var items = itemFurnitureService.getAll();
             return Ok(items);
         }
 
-        [HttpPost]
-        public IActionResult AddItem(ItemModel itemModel)
+        [HttpPost("create")]
+        public IActionResult AddItem([FromBody]ItemModel itemModel)
         {
             if (itemFurnitureService.AddItem(itemModel))
             {
                 return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpDelete("delete/{id}")]
+        public IActionResult DeleteItem(int id)
+        {
+            if (itemFurnitureService.DeleteItem(id))
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpGet("details/{id}")]
+        public IActionResult Details(int id)
+        {
+            var item = itemFurnitureService.Details(id);
+            if (item != null)
+            {
+                return Ok(item);
             }
             return BadRequest();
         }

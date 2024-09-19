@@ -1,0 +1,18 @@
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="card">
+          <img *ngIf="item.image" [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+          </div>
+          <div class="card-footer text-center">
+            <button class="btn btn-primary" [routerLink]="['/items']">Go Back</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

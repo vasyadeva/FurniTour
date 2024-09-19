@@ -1,4 +1,5 @@
 ﻿using FurniTour.Configurations.Entities;
+using FurniTour.Server.Configurations.Entities;
 using FurniTour.Server.Data.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace FurniTour.Server.Data
             builder.ApplyConfiguration(new RoleSeedConfiguration());
             builder.ApplyConfiguration(new UserSeedConfiguration());
             builder.ApplyConfiguration(new UserRoleSeedConfiguration());
+            builder.ApplyConfiguration(new OrderStateSeedConfiguration());    
 
             builder.Entity<CartItem>()
            .HasOne(ci => ci.Furniture)

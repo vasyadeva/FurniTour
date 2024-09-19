@@ -14,10 +14,30 @@ namespace FurniTour.Server.Controllers
             this.cartService = cartService;
         }
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddToCartAsync([FromBody] int furnitureId, int quantity)
+        [HttpGet("getcart")]
+        public IActionResult GetCart()
         {
-            await cartService.AddToCartAsync(furnitureId, quantity);
+            var cart = cartService.GetCartFurniture();
+            return Ok(cart);
+        }
+
+        public class AddToCartRequest
+        {
+            public int Id { get; set; }
+            public int Quantity { get; set; }
+        }
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddToCartAsync([FromBody] AddToCartRequest request)
+        {
+            await cartService.AddToCartAsync(request.Id, request.Quantity);
+            return Ok();
+        }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteFromCartAsync(int id)
+        {
+            await cartService.RemoveFromCartAsync(id);
             return Ok();
         }
     }

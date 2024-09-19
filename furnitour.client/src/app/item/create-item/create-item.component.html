@@ -1,0 +1,26 @@
+<div class="item-form">
+    <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
+      <div>
+        <label for="name">Name:</label>
+        <input id="name" formControlName="name" type="text">
+      </div>
+  
+      <div>
+        <label for="description">Description:</label>
+        <textarea id="description" formControlName="description"></textarea>
+      </div>
+  
+      <div>
+        <label for="price">Price:</label>
+        <input id="price" formControlName="price" type="number" min="0">
+      </div>
+  
+      <div>
+        <label for="photo">Photo:</label>
+        <input id="photo" type="file" (change)="onFileSelected($event)">
+      </div>
+  
+      <button type="submit" [disabled]="itemForm.invalid">Submit</button>
+    </form>
+  </div>
+  

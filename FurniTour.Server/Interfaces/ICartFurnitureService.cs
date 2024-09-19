@@ -1,4 +1,5 @@
-﻿using FurniTour.Server.Models;
+﻿using FurniTour.Server.Data.Entities;
+using FurniTour.Server.Models;
 
 namespace FurniTour.Server.Interfaces
 {
@@ -8,7 +9,7 @@ namespace FurniTour.Server.Interfaces
         public Task RemoveFromCartAsync(int id);
         public Task UpdateCartAsync(int id, int quantity);
         
-        public Task<IEnumerable<CartItemViewModel>> GetCartFurnitureAsync();
+        public List<CartItemViewModel> GetCartFurniture();
 
     }
 }

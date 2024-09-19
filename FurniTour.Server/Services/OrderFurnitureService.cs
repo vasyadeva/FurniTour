@@ -20,7 +20,7 @@ namespace FurniTour.Server.Services
 
         public List<OrderViewModel> MyOrders()
         {
-            var user = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var Orders = context.Orders.Where(o => o.UserId == user.Id).ToList();
@@ -74,7 +74,7 @@ namespace FurniTour.Server.Services
         {
             if (order.Name != null && order.Address != null && order.Phone != null)
             {
-                var user = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+                var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
                 if (user != null)
                 {
                     var Cart = context.Carts.Where(c => c.UserId == user.Id).FirstOrDefault();
@@ -122,10 +122,66 @@ namespace FurniTour.Server.Services
             }
         }
 
+        public List<OrderViewModel> AdminOrders()
+        {
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+            if (user != null)
+            {
+                var isAdmin = userManager.IsInRoleAsync(user, "Administrator").Result;
+                var isMaster = userManager.IsInRoleAsync(user, "Master").Result;
+                if (isAdmin || isMaster)
+                {
+                    var Orders = context.Orders.ToList();
+                    if (Orders.Count > 0)
+                    {
+                        var OrderViewModel = new List<OrderViewModel>();
+                        foreach (var Order in Orders)
+                        {
+                            var OrderItems = context.OrderItems.Where(oi => oi.OrderId == Order.Id).ToList();
+                            if (OrderItems.Count > 0)
+                            {
+                                var OrderItemViewModel = new List<OrderItemViewModel>();
+                                foreach (var OrderItem in OrderItems)
+                                {
+                                    var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
+                                    if (Furniture != null)
+                                    {
+                                        OrderItemViewModel.Add(new OrderItemViewModel
+                                        {
+                                            Name = Furniture.Name,
+                                            Price = Furniture.Price,
+                                            Quantity = OrderItem.Quantity,
+                                            Description = Furniture.Description,
+                                            Photo = Furniture.Image
+                                        });
+                                    }
+                                }
+                                var OrderState = context.OrderStates.Where(os => os.Id == Order.OrderStateId).FirstOrDefault();
+                                var OrderStateName = OrderState != null ? OrderState.Name : "";
+                                OrderViewModel.Add(new OrderViewModel
+                                {
+                                    Id = Order.Id,
+                                    DateCreated = Order.DateCreated,
+                                    Name = Order.Name,
+                                    Address = Order.Address,
+                                    Phone = Order.Phone,
+                                    Comment = Order.Comment,
+                                    Price = Order.TotalPrice,
+                                    OrderState = OrderStateName,
+                                    OrderItems = OrderItemViewModel
+                                });
+                            }
+                        }
+                        return OrderViewModel;
+                    }
+                }
+            }
+            return null;
+        }
 
         public async Task<bool> ChangeOrderStateAsync(int id, int newState)
         {
-            var user = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user == null)
             {
                 return false;

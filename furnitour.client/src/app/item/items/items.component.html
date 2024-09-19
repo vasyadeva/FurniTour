@@ -1,0 +1,24 @@
+<div class="container mt-5">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-center">Items List</h1>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-md-4" *ngFor="let item of items">
+        <div class="card mb-4">
+          <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+            <button [routerLink]="['/details', item.id]">View Details</button>
+            <button (click)="Delete(item.id)">Delete</button>
+            <button (click)="AddToCart(item.id)">Add to Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

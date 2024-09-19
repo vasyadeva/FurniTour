@@ -1,0 +1,25 @@
+<div class="container">
+    <h2 class="my-4">Shopping Cart</h2>
+  
+    <div *ngIf="cartItems.length === 0" class="alert alert-info">
+      Your cart is empty.
+    </div>
+  
+    <div class="row">
+      <div class="col-md-4" *ngFor="let item of cartItems">
+        <div class="card mb-4">
+          <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+            <p class="card-text"><strong>Quantity:</strong> {{ item.quantity }}</p>
+            <button class="btn btn-danger" (click)="removeFromCart(item.id)">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" *ngIf="cartItems.length > 0" (click)="Order()">Checkout</button>
+  </div>
+  

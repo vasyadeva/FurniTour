@@ -1,0 +1,23 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { CartGet } from '../../models/cart.get.model';
+@Injectable({
+  providedIn: 'root'
+})
+export class CartService {
+  api : string = "https://localhost:7043/api/Cart/";
+  constructor(private http: HttpClient) { }
+
+  AddToCart(id: number, quantity: number=1) {
+      return this.http.post(this.api +'add', {id, quantity}, { withCredentials: true });
+  }
+
+  getCart(): Observable<CartGet[]> {
+      return this.http.get<CartGet[]>(this.api +'getcart',  { withCredentials: true });
+  }
+
+  removeItem(itemId: number) {
+      return this.http.delete(this.api +'delete/' + itemId, { withCredentials: true });
+  }
+}

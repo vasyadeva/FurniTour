@@ -26,7 +26,7 @@ namespace FurniTour.Server.Services
             {
                 return;
             }
-            var user = await userManager.GetUserAsync(httpContextAccessor.HttpContext.User);
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user == null)
             {
                 return;
@@ -38,10 +38,10 @@ namespace FurniTour.Server.Services
                 {
                     UserId = user.Id
                 };
-                await context.Carts.AddAsync(Cart);
-                await context.SaveChangesAsync();
+                context.Carts.Add(Cart);
+                context.SaveChanges();
             }
-            var CartExists = await context.Carts.Where(c => c.UserId == user.Id).FirstOrDefaultAsync();
+            var CartExists = context.Carts.Where(c => c.UserId == user.Id).FirstOrDefault();
             if (CartExists != null)
             {
                 var CartItemsExists = await context.CartItems.Where(ci => ci.CartId == CartExists.Id && ci.FurnitureId == furnitureId).FirstOrDefaultAsync();
@@ -54,19 +54,18 @@ namespace FurniTour.Server.Services
 
                 var CartItem = new CartItem
                 {
-                    CartId = CartExists.Id,
                     FurnitureId = furnitureId,
-                    Quantity = quantity
+                    Quantity = quantity,
+                    CartId = CartExists.Id
                 };
                 await context.CartItems.AddAsync(CartItem);
                 await context.SaveChangesAsync();
 
             }
         }
-
-        public async Task<IEnumerable<CartItemViewModel>> GetCartFurnitureAsync()
+        public List<CartItemViewModel> GetCartFurniture()
         {
-            var User = userManager.GetUserAsync(httpContextAccessor.HttpContext.User).Result;
+            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
             if (User != null)
             {
                 var Cart = context.Carts.Where(c => c.UserId == User.Id).FirstOrDefault();
@@ -77,7 +76,7 @@ namespace FurniTour.Server.Services
                         UserId = User.Id
                     };
                     context.Carts.Add(Cart);
-                    await context.SaveChangesAsync();
+                    context.SaveChanges();
                 }
                 var CartExists = context.Carts.Where(c => c.UserId == User.Id).FirstOrDefault();
                 if (CartExists != null)
@@ -89,7 +88,7 @@ namespace FurniTour.Server.Services
                         var Items = new List<CartItemViewModel>();
                         foreach (var item in CartItems)
                         {
-                            var Furniture = await context.Furnitures.Where(f => f.Id == item.FurnitureId).FirstOrDefaultAsync();
+                            var Furniture = context.Furnitures.Where(f => f.Id == item.FurnitureId).FirstOrDefault();
                             if (Furniture != null)
                             {
                                 Items.Add(new CartItemViewModel
@@ -97,7 +96,7 @@ namespace FurniTour.Server.Services
                                     Id = item.Id,
                                     Name = Furniture.Name,
                                     Description = Furniture.Description,
-                                    Image = Furniture.Image,
+                                    Image = Convert.ToBase64String(Furniture.Image),
                                     Price = Furniture.Price,
                                     Quantity = item.Quantity
                                 });

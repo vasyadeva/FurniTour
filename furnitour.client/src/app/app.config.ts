@@ -3,7 +3,7 @@ import { provideRouter } from '@angular/router';
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthInterceptor } from './services/app.interceptor';
-import { AuthGuard } from './services/app.auth.guard';
+import { AuthGuard } from './services/auth/app.auth.guard';
 import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 
