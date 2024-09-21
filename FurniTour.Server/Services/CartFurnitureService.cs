@@ -1,7 +1,7 @@
 ﻿using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
-using FurniTour.Server.Models;
+using FurniTour.Server.Models.Cart;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net.WebSockets;

@@ -7,5 +7,6 @@ export class AppStatusService {
   isSignedIn: boolean = false
   isAdmin: boolean = false
   isMaster: boolean = false
+  isUser: boolean = false
   constructor() { }
 }

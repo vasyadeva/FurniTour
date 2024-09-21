@@ -1,5 +1,5 @@
 ﻿using FurniTour.Server.Data.Entities;
-using FurniTour.Server.Models;
+using FurniTour.Server.Models.Cart;
 
 namespace FurniTour.Server.Interfaces
 {

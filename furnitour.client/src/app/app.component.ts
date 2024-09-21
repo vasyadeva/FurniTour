@@ -33,6 +33,9 @@ export class AppComponent {
                       case 'Master':
                         this.status.isMaster = true;
                         break;
+                      case 'User':
+                        this.status.isUser = true;
+                        break;
                       default:
                         break;
                     }

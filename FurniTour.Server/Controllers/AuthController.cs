@@ -1,5 +1,5 @@
 ﻿using FurniTour.Server.Interfaces;
-using FurniTour.Server.Models;
+using FurniTour.Server.Models.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;

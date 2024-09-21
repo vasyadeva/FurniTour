@@ -9,6 +9,18 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" *ngIf="status.isAdmin" routerLink="adminorders">Order managament</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" routerLink="items">Items</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" *ngIf="status.isUser" routerLink="cart">Cart</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" *ngIf="status.isUser" routerLink="myorders">Orders</a>
+          </li>
 
         </ul>
         <ul class="nav navbar-nav ms-auto">

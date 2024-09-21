@@ -1,4 +1,4 @@
-﻿using FurniTour.Server.Models;
+﻿using FurniTour.Server.Models.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FurniTour.Server.Interfaces

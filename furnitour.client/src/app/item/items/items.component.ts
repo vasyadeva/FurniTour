@@ -5,6 +5,7 @@ import { OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CartService } from '../../services/cart/cart.service';
+import { AppStatusService } from '../../services/auth/app.status.service';
 @Component({
   selector: 'app-items',
   standalone: true,
@@ -15,7 +16,7 @@ import { CartService } from '../../services/cart/cart.service';
 export class ItemsComponent implements OnInit {
   items: itemGet[] = [];
 
-  constructor(private itemService: ItemService, private cartService : CartService) {}
+  constructor(private itemService: ItemService, private cartService : CartService, public status: AppStatusService) {}
 
   ngOnInit(): void {
     this.itemService.getAllItems().subscribe(

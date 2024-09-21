@@ -2,6 +2,7 @@
     <div class="row">
       <div class="col-12">
         <h1 class="text-center">Items List</h1>
+        <button class="btn btn-primary m-1" *ngIf="status.isMaster || status.isAdmin" [routerLink]="['/create']">Add Item</button>
       </div>
     </div>
   
@@ -13,9 +14,9 @@
             <h5 class="card-title">{{ item.name }}</h5>
             <p class="card-text">{{ item.description }}</p>
             <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
-            <button [routerLink]="['/details', item.id]">View Details</button>
-            <button (click)="Delete(item.id)">Delete</button>
-            <button (click)="AddToCart(item.id)">Add to Cart</button>
+            <button class="btn btn-warning m-1" [routerLink]="['/details', item.id]">View Details</button>
+            <button class="btn btn-danger m-1" (click)="Delete(item.id)">Delete</button>
+            <button class="btn btn-success m-1" (click)="AddToCart(item.id)">Add to Cart</button>
           </div>
         </div>
       </div>

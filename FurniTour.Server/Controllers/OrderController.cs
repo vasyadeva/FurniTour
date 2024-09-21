@@ -1,6 +1,6 @@
 ﻿using FurniTour.Server.Constants;
 using FurniTour.Server.Interfaces;
-using FurniTour.Server.Models;
+using FurniTour.Server.Models.Order;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

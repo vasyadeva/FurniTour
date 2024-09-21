@@ -1,4 +1,4 @@
-﻿using FurniTour.Server.Models;
+﻿using FurniTour.Server.Models.Order;
 
 namespace FurniTour.Server.Interfaces
 {

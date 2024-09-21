@@ -1,4 +1,4 @@
-﻿namespace FurniTour.Server.Models
+﻿namespace FurniTour.Server.Models.Auth
 {
     public class LoginModel
     {

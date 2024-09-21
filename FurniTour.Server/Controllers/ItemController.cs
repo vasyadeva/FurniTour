@@ -1,5 +1,5 @@
 ﻿using FurniTour.Server.Interfaces;
-using FurniTour.Server.Models;
+using FurniTour.Server.Models.Item;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

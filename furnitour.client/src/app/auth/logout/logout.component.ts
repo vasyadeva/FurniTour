@@ -17,5 +17,6 @@ export class SignOutComponent {
       this.status.isSignedIn = false;
       this.status.isAdmin = false;
       this.status.isMaster = false;
+      this.status.isUser = false;
   }
 }

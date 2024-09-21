@@ -1,5 +1,4 @@
 ﻿using FurniTour.Server.Interfaces;
-using FurniTour.Server.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using System.Security.Claims;
 using FurniTour.Server.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using FurniTour.Server.Models.Auth;
 
 namespace FurniTour.Server.Services
 {
