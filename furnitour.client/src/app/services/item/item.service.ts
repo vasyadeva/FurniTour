@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { itemSend } from '../../models/item.send.model';
 import { Observable } from 'rxjs';
 import { itemGet } from '../../models/item.get.model';
+import { itemUpdate } from '../../models/item.update.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,5 +25,9 @@ export class ItemService {
 
   details(id: number): Observable<itemGet> {
     return this.http.get<itemGet>(this.api + 'details/' + id, { withCredentials: true });
+  }
+
+  update(item: itemUpdate) {
+    return this.http.post(this.api + 'edit/', item, { withCredentials: true });
   }
 }

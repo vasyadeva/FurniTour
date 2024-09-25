@@ -4,6 +4,7 @@ import { ItemService } from '../../services/item/item.service';
 import { itemGet } from '../../models/item.get.model';
 import { ActivatedRoute, Router,RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { PopupService } from '../../services/popup/popup.service';
 @Component({
   selector: 'app-item-info',
   standalone: true,
@@ -21,17 +22,20 @@ export class ItemInfoComponent implements OnInit {
     price: 0,
     image: ''
   };
-  constructor(private itemService: ItemService, private route: ActivatedRoute, private router: Router) {}
+  constructor(private itemService: ItemService, private route: ActivatedRoute, private router: Router, private popupService: PopupService) {}
   ngOnInit(): void {
+    this.popupService.loadingSnackBar();
     this.route.paramMap.subscribe(params => {
       this.itemId = params.get('id');
       this.id = parseInt(this.itemId!);
       this.itemService.details(this.id).subscribe(
         (response) => {
-          console.log('Item details:', response);
+          this.popupService.closeSnackBar();
           this.item = response;
         },
         (error) => {
+          this.popupService.closeSnackBar();
+          this.popupService.openSnackBar(error?.error || 'Error fetching item details');
           console.error('Error fetching item details:', error);
         }
       );

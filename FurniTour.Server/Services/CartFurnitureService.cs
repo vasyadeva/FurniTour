@@ -20,16 +20,16 @@ namespace FurniTour.Server.Services
             this.userManager = userManager;
             this.httpContextAccessor = httpContextAccessor;
         }
-        public async Task AddToCartAsync(int furnitureId, int quantity)
+        public async Task<string> AddToCartAsync(int furnitureId, int quantity)
         {
             if (quantity <= 0)
             {
-                return;
+                return "Item quantity must be greater than 0";
             }
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user == null)
             {
-                return;
+                return "You are not logged in";
             }
             var Cart = await context.Carts.Where(c => c.UserId == user.Id).FirstOrDefaultAsync();
             if (Cart == null)
@@ -60,8 +60,9 @@ namespace FurniTour.Server.Services
                 };
                 await context.CartItems.AddAsync(CartItem);
                 await context.SaveChangesAsync();
-
+                return "";
             }
+            return "Some problem occured while adding item to cart";
         }
         public List<CartItemViewModel> GetCartFurniture()
         {
@@ -109,31 +110,53 @@ namespace FurniTour.Server.Services
             return null;
         }
 
-        public async Task RemoveFromCartAsync(int id)
+        public async Task<string> RemoveFromCartAsync(int id)
         {
-            var CartItem = await context.CartItems.Where(ci => ci.Id == id).FirstOrDefaultAsync();
+            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
+            if (User == null)
+            {
+                return "You are not logged in";
+            }
+            var CartUser = await context.Carts.Where(c => c.UserId == User.Id).FirstOrDefaultAsync();
+            if (CartUser == null)
+            {
+                return "Cart is empty";
+            }
+            var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
             if (CartItem != null)
             {
                 context.CartItems.Remove(CartItem);
                 await context.SaveChangesAsync();
+                return "";
             }
-            return;
+            return "Some error occurred while removing item from cart";
         }
 
-        public async Task UpdateCartAsync(int id, int quantity)
+        public async Task<string> UpdateCartAsync(int id, int quantity)
         {
+            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
+            if (User == null)
+            {
+                return "You are not logged in";
+            }
             if (quantity <= 0)
             {
-                return;
+                return "Item quantity must be greater than 0";
             }
-            var CartItem = await context.CartItems.Where(ci => ci.Id == id).FirstOrDefaultAsync();
+            var CartUser = await context.Carts.Where(c => c.UserId == User.Id).FirstOrDefaultAsync();
+            if (CartUser == null)
+            {
+                return "Cart is empty";
+            }
+            var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
             if (CartItem != null)
             {
                 CartItem.Quantity = quantity;
                 context.CartItems.Update(CartItem);
                 await context.SaveChangesAsync();
+                return "";
             }
-            return;
+            return "Some error occurred while updating cart";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using FurniTour.Server.Data;
+﻿using FurniTour.Server.Constants;
+using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Item;
@@ -42,14 +43,14 @@ namespace FurniTour.Server.Services
             return null;
         }
 
-        public bool AddItem(ItemModel itemModel)
+        public async Task<string> AddItem(ItemModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
-                if (role == "Master")
+                if (role == "Master" || role == "Administrator")
                 {
                     var itemObj = new Furniture
                     {
@@ -59,12 +60,13 @@ namespace FurniTour.Server.Services
                         Image = photoData,
                         MasterId = user.Id
                     };
-                    context.Furnitures.Add(itemObj);
-                    context.SaveChanges();
-                    return true;
+                    await context.Furnitures.AddAsync(itemObj);
+                    await context.SaveChangesAsync();
+                    return "";
                 }
+                return "You are not a Master or Admin";
             }
-            return true;
+            return "You are not logged in";
         }
 
         public ItemViewModel Details(int id)
@@ -86,14 +88,14 @@ namespace FurniTour.Server.Services
         }
         
 
-        public bool Edit(int id, ItemViewModel itemModel)
+        public async Task<string> Edit(int id, ItemViewModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
             {
                 var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
-                if (role == "Master")
+                if (role == Roles.Master || role == Roles.Administrator)
                 {
                     var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
                     if (itemObj != null)
@@ -102,15 +104,16 @@ namespace FurniTour.Server.Services
                         itemObj.Description = itemModel.Description;
                         itemObj.Price = itemModel.Price;
                         itemObj.Image = photoData;
-                        context.SaveChanges();
-                        return true;
+                        await context.SaveChangesAsync();
+                        return "";
                     }
                 }
+                return "You are not a Master or Admin";
             }
-            return false;
+            return "You are not logged in";
         }
 
-        public bool DeleteItem(int id)
+        public async Task<string> DeleteItem(int id)
         {
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user != null)
@@ -122,12 +125,13 @@ namespace FurniTour.Server.Services
                     if (itemObj != null)
                     {
                         context.Furnitures.Remove(itemObj);
-                        context.SaveChanges();
-                        return true;
+                        await context.SaveChangesAsync();
+                        return "";
                     }
                 }
+                return "You are not a Master or Admin";
             }
-            return false;
+            return "You are not logged in";
         }
     }
 }

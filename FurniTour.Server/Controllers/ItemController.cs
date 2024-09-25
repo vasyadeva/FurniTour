@@ -1,7 +1,10 @@
-﻿using FurniTour.Server.Interfaces;
+﻿using FurniTour.Server.Constants;
+using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Item;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FurniTour.Server.Controllers
 {
@@ -20,24 +23,43 @@ namespace FurniTour.Server.Controllers
             return Ok(items);
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpPost("create")]
-        public IActionResult AddItem([FromBody]ItemModel itemModel)
+        public async Task<IActionResult> AddItem([FromBody]ItemModel itemModel)
         {
-            if (itemFurnitureService.AddItem(itemModel))
+            var state = await itemFurnitureService.AddItem(itemModel);
+            if (state.IsNullOrEmpty())
             {
                 return Ok();
             }
-            return BadRequest();
+            else
+            {
+                return BadRequest(state);
+            }
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteItem(int id)
+        public async Task<IActionResult> DeleteItem(int id)
         {
-            if (itemFurnitureService.DeleteItem(id))
+            var state = await itemFurnitureService.DeleteItem(id);
+            if (state.IsNullOrEmpty())
             {
                 return Ok();
             }
-            return BadRequest();
+            return BadRequest(state);
+        }
+
+        [Authorize(Roles = Roles.Administrator)]
+        [HttpPost("edit")]
+        public async Task<IActionResult> Edit([FromBody] ItemViewModel itemModel)
+        {
+            var state = await itemFurnitureService.Edit(itemModel.Id, itemModel);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
         }
 
         [HttpGet("details/{id}")]

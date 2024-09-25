@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using FurniTour.Server.Models.Api;
 
 namespace FurniTour.Server.Controllers
 {
@@ -24,18 +25,18 @@ namespace FurniTour.Server.Controllers
             var state = authService.SignInAsync(loginModel);
             if (state.Result.IsNullOrEmpty())
             {
-                return Ok(new Response(true, "Signed in successfully"));
+                return Ok(new Response { IsSuccess = true, Message = "Signed in successfully" });
             }
             else
             {
-                return BadRequest(new Response(false, state.Result));
+                return BadRequest(new Response { IsSuccess = false, Message = state.Result });
             }
         }
 
         [HttpGet("user")]
         public IActionResult GetUser()
         {
-            var userClaims = User.Claims.Select(x => new UserClaim(x.Type, x.Value)).ToList();
+            var userClaims = User.Claims.Select(x => new UserClaim { Type = x.Type, Value = x.Value }).ToList();
             if (userClaims.IsNullOrEmpty())
             {
                 return Ok();
@@ -56,11 +57,11 @@ namespace FurniTour.Server.Controllers
             var state = authService.RegisterAsync(registerModel);
             if (state.Result.IsNullOrEmpty())
             {
-                return Ok(new Response(true, "Registered successfully"));
+                return Ok(new Response { IsSuccess = true, Message = "Registered successfully" });
             }
             else
             {
-                return BadRequest(new Response(false, state.Result));
+                return BadRequest(new Response { IsSuccess = false, Message = state.Result });
             }
         }
 
@@ -72,8 +73,4 @@ namespace FurniTour.Server.Controllers
             return Ok(new { role });
         }
     }
-
-
-    public record Response(bool IsSuccess, string Message);
-    public record UserClaim(string Type, string Value);
 }

@@ -17,6 +17,10 @@ export class CartService {
       return this.http.get<CartGet[]>(this.api +'getcart',  { withCredentials: true });
   }
 
+  updateQuantity(itemId: number, quantity: number) {
+      return this.http.post(this.api +'update', {id:itemId, quantity}, { withCredentials: true });
+  }
+
   removeItem(itemId: number) {
       return this.http.delete(this.api +'delete/' + itemId, { withCredentials: true });
   }

@@ -1,1 +1,29 @@
-/* You can add global styles to this file, and also import other style files */
+.my-custom-snackbar {
+    position: fixed !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    background-color: #212529;
+    color: white;
+  }
+  .mat-mdc-button .mat-mdc-button-persistent-ripple::before{
+    color: #57606a63 !important;
+    color: black;
+  }
+
+
+.loading-snackbar {
+    width: 100% !important;
+    position: fixed !important; 
+    top: 35% !important;
+    border: none;
+    padding: auto;
+}
+
+.loading-snackbar .mat-mdc-snackbar-surface{
+    box-shadow: none !important;
+}
+
+.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface
+{
+    min-width: 0 !important;
+}

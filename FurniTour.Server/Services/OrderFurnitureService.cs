@@ -70,7 +70,7 @@ namespace FurniTour.Server.Services
             return null;
         }
 
-        public async Task Order(OrderModel order)
+        public async Task<string> Order(OrderModel order)
         {
             if (order.Name != null && order.Address != null && order.Phone != null)
             {
@@ -116,10 +116,15 @@ namespace FurniTour.Server.Services
                                 }
                                 await context.SaveChangesAsync();
                             }
+                            return "Some error occurred while making order";
                         }
+                        return "Cart is empty";
                     }
+                    return "Cart is empty";
                 }
+                return "You are not logged in";
             }
+            return "The form information is not valid";
         }
 
         public List<OrderViewModel> AdminOrders()
@@ -179,12 +184,12 @@ namespace FurniTour.Server.Services
             return null;
         }
 
-        public async Task<bool> ChangeOrderStateAsync(int id, int newState)
+        public async Task<string> ChangeOrderStateAsync(int id, int newState)
         {
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             if (user == null)
             {
-                return false;
+                return "You are not logged in";
             }
             var isMaster = await userManager.IsInRoleAsync(user, "Master");
             var isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
@@ -193,23 +198,23 @@ namespace FurniTour.Server.Services
             var order = context.Orders.FirstOrDefault(o => o.Id == id);
             if (order == null)
             {
-                return false;
+                return "Order not found";
             }
 
             if (isUser && !CanUserChangeState(order.OrderStateId, newState))
             {
-                return false;
+                return "Can't change state of the order from the previous one";
             }
 
             if ((isAdmin || isMaster) && !CanAdminChangeState(order.OrderStateId, newState))
             {
-                return false;
+                return "Can't change state of the order from the previous one";
             }
 
             order.OrderStateId = newState;
             context.Orders.Update(order);
             await context.SaveChangesAsync();
-            return true;
+            return "";
         }
 
         private bool CanUserChangeState(int currentStateId, int newStateId)

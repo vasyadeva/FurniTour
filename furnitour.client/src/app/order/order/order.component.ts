@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
   styleUrl: './order.component.css'
 })
 export class OrderComponent {
+  error: string = '';
   orderForm: FormGroup;
   constructor(private fb: FormBuilder, private router: Router, private orderService: OrderService) {
     this.orderForm = this.fb.group({
@@ -32,8 +33,10 @@ export class OrderComponent {
           this.router.navigate(['/myorders']);
         },
         error => {
-          console.error('Error submitting order:', error);
-        }
+          if (!error?.error?.isSuccess) {
+              this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+          }
+      }
       );
     }
   }

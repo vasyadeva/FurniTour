@@ -1,6 +1,8 @@
 ﻿using FurniTour.Server.Interfaces;
+using FurniTour.Server.Models.Api;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FurniTour.Server.Controllers
 {
@@ -21,24 +23,38 @@ namespace FurniTour.Server.Controllers
             return Ok(cart);
         }
 
-        public class AddToCartRequest
-        {
-            public int Id { get; set; }
-            public int Quantity { get; set; }
-        }
 
         [HttpPost("add")]
         public async Task<IActionResult> AddToCartAsync([FromBody] AddToCartRequest request)
         {
-            await cartService.AddToCartAsync(request.Id, request.Quantity);
-            return Ok();
+            var state = await cartService.AddToCartAsync(request.Id, request.Quantity);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteFromCartAsync(int id)
         {
-            await cartService.RemoveFromCartAsync(id);
-            return Ok();
+            var state = await cartService.RemoveFromCartAsync(id);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
+        }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateCartAsync([FromBody] UpdateCartRequest request)
+        {
+            var state = await cartService.UpdateCartAsync(request.Id, request.Quantity);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
         }
     }
 }

@@ -3,6 +3,7 @@ import { OrderModel } from '../../models/order.model';
 import { OrderService } from '../../services/order/order.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PopupService } from '../../services/popup/popup.service';
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
@@ -12,13 +13,17 @@ import { ReactiveFormsModule } from '@angular/forms';
 })
 export class AdminOrdersComponent {
   orders: OrderModel[] = [];
-  constructor(private orderService: OrderService) {
+  constructor(private orderService: OrderService, private popupService: PopupService) {
+    this.popupService.loadingSnackBar();
     this.orderService.adminorders().subscribe(
       (response) => {
+        this.popupService.closeSnackBar();
         console.log('My orders:', response);
         this.orders = response;
       },
       (error) => {
+        this.popupService.closeSnackBar();
+        this.popupService.openSnackBar(error?.error || 'Error fetching my orders');
         console.error('Error fetching my orders:', error);
       }
     );
@@ -28,9 +33,11 @@ export class AdminOrdersComponent {
     this.orderService.update(id, state).subscribe(
       (response) => {
         console.log('Order updated:', response);
+        this.popupService.openSnackBar('Order updated successfully');
       },
       (error) => {
         console.error('Error updating order:', error);
+        this.popupService.openSnackBar(error?.error|| 'An unexpected error occurred. Please try again later.');
       }
     );
   }

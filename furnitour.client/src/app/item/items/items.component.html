@@ -14,9 +14,13 @@
             <h5 class="card-title">{{ item.name }}</h5>
             <p class="card-text">{{ item.description }}</p>
             <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
-            <button class="btn btn-warning m-1" [routerLink]="['/details', item.id]">View Details</button>
-            <button class="btn btn-danger m-1" (click)="Delete(item.id)">Delete</button>
-            <button class="btn btn-success m-1" (click)="AddToCart(item.id)">Add to Cart</button>
+           <label for="quantity">Quantity:</label>
+           <input type="number" [(ngModel)]="this.quantity[item.id]" min="1" class="form-control mb-2" value="1" />
+           <button class="btn btn-warning m-1" [routerLink]="['/details', item.id]">View Details</button>
+            <button class="btn btn-primary m-1" *ngIf="this.status.isAdmin || this.status.isMaster" [routerLink]="['/edit', item.id]">Edit</button>
+           <button class="btn btn-danger m-1" *ngIf="this.status.isAdmin || this.status.isMaster" (click)="Delete(item.id)">Delete</button>
+           <button class="btn btn-success m-1" *ngIf="this.status.isUser" (click)="AddToCart(item.id, this.quantity[item.id])">Add to Cart</button>
+      
           </div>
         </div>
       </div>

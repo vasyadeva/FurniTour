@@ -1,8 +1,11 @@
 ﻿using FurniTour.Server.Constants;
 using FurniTour.Server.Interfaces;
+using FurniTour.Server.Models.Api;
 using FurniTour.Server.Models.Order;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FurniTour.Server.Controllers
 {
@@ -17,6 +20,7 @@ namespace FurniTour.Server.Controllers
         }
 
         [HttpGet("myorders")]
+        [Authorize]
         public IActionResult MyOrders()
         {
             var orders = orderService.MyOrders();
@@ -24,6 +28,7 @@ namespace FurniTour.Server.Controllers
         }
 
         [HttpGet("adminorders")]
+        [Authorize(Roles = Roles.Administrator)]
         public IActionResult AdminOrders()
         {
             var orders = orderService.AdminOrders();
@@ -31,13 +36,19 @@ namespace FurniTour.Server.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize]
         public async Task<IActionResult> AddOrderAsync([FromBody] OrderModel orderModel)
         {
-            await orderService.Order(orderModel);
-            return Ok();
+            var state = await orderService.Order(orderModel);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
         }
 
         [HttpPost("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateOrderAsync([FromBody] UpdateResponse response)
         {
             if (!OrderStatesConst.ValidStates.Contains(response.state))
@@ -45,16 +56,14 @@ namespace FurniTour.Server.Controllers
                 return BadRequest("Invalid order state.");
             }
 
-            await orderService.ChangeOrderStateAsync(response.id, response.state);
-            return Ok();
+            var state = await orderService.ChangeOrderStateAsync(response.id, response.state);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
         }
 
-    }
-
-    public class UpdateResponse
-    {
-        public int id { get; set; }
-        public int state { get; set; }
     }
 
 }

@@ -45,6 +45,6 @@
     <label for="comment" class="form-label">Comment</label>
     <textarea id="comment" formControlName="comment" class="form-control"></textarea>
   </div>
-
+  <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
   <button type="submit" class="btn btn-primary" [disabled]="orderForm.invalid">Submit</button>
 </form>

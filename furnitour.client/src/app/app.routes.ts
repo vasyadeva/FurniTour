@@ -15,24 +15,29 @@ import { CartComponent } from './cart/cart/cart.component';
 import { OrderComponent } from './order/order/order.component';
 import { MyordersComponent } from './order/myorders/myorders.component';
 import { AdminOrdersComponent } from './order/admin-orders/admin-orders.component';
+import { ItemEditComponent } from './item/item-edit/item-edit.component';
 export const routes: Routes = [
-    {
-        path: 'admin',
-        component: AdminComponent,
-        canActivate: [AuthGuard],
-        data: { roles: ['Administrator'] }
-      },
+    //login paths
+    {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
     {path: 'user', component: UserComponent},//, canActivate: [AuthGuard], data: { roles: ['Administrator'] }},
     {path: 'logout', component: SignOutComponent},
     {path: 'register', component: RegisterComponent},
     {path: 'login', component: LoginComponent},
     {path: 'forbidden', component: ForbiddenComponent},
+
+
     {path: 'home', component: HomeComponent},
     {path: '', redirectTo: '/home', pathMatch: 'full'},
+    //items paths
     {path: 'create', component: CreateItemComponent},
     {path: 'items', component: ItemsComponent},
     {path: 'details/:id', component: ItemInfoComponent},
+    {path: 'edit/:id', component: ItemEditComponent},
+
+    //cart paths
     {path: 'cart', component: CartComponent},
+
+    //order paths
     {path: 'order', component: OrderComponent},
     {path: 'myorders', component: MyordersComponent},
     {path: 'adminorders', component: AdminOrdersComponent}

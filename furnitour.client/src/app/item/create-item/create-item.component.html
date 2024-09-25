@@ -20,7 +20,7 @@
       <label for="photo" class="form-label">Photo:</label>
       <input id="photo" type="file" class="form-control" (change)="onFileSelected($event)">
     </div>
-    
+    <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
     <button type="submit" class="btn btn-primary" [disabled]="itemForm.invalid">Submit</button>
   </form>
 </div>
