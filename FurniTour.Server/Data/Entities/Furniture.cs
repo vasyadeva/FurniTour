@@ -12,8 +12,11 @@ namespace FurniTour.Server.Data.Entities
         [Precision(18, 2)]
         public decimal Price { get; set; }
         public byte[] Image { get; set; }
-        public string MasterId { get; set; }
+        public string? MasterId { get; set; }
         [ForeignKey(nameof(MasterId))]
         public IdentityUser Master { get; set; }
+        public int? ManufacturerId { get; set; }
+        [ForeignKey(nameof(ManufacturerId))]
+        public Manufacturer Manufacturer { get; set; }
     }
 }

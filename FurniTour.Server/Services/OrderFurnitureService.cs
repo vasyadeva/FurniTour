@@ -1,8 +1,10 @@
-﻿using FurniTour.Server.Data;
+﻿using FurniTour.Server.Constants;
+using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Order;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FurniTour.Server.Services
 {
@@ -11,16 +13,19 @@ namespace FurniTour.Server.Services
         private readonly ApplicationDbContext context;
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly UserManager<IdentityUser> userManager;
-        public OrderFurnitureService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager) {
+        private readonly IAuthService authService;
+
+        public OrderFurnitureService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager, IAuthService authService) {
             this.context = context;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
+            this.authService = authService;
         }
 
 
         public List<OrderViewModel> MyOrders()
         {
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+            var user = authService.GetUser();
             if (user != null)
             {
                 var Orders = context.Orders.Where(o => o.UserId == user.Id).ToList();
@@ -74,7 +79,7 @@ namespace FurniTour.Server.Services
         {
             if (order.Name != null && order.Address != null && order.Phone != null)
             {
-                var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+                var user = authService.GetUser();
                 if (user != null)
                 {
                     var Cart = context.Carts.Where(c => c.UserId == user.Id).FirstOrDefault();
@@ -129,56 +134,51 @@ namespace FurniTour.Server.Services
 
         public List<OrderViewModel> AdminOrders()
         {
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            if (user != null)
+            var check = authService.CheckRoleMasterOrAdmin();
+            if (check.IsNullOrEmpty())
             {
-                var isAdmin = userManager.IsInRoleAsync(user, "Administrator").Result;
-                var isMaster = userManager.IsInRoleAsync(user, "Master").Result;
-                if (isAdmin || isMaster)
+                var Orders = context.Orders.ToList();
+                if (Orders.Count > 0)
                 {
-                    var Orders = context.Orders.ToList();
-                    if (Orders.Count > 0)
+                    var OrderViewModel = new List<OrderViewModel>();
+                    foreach (var Order in Orders)
                     {
-                        var OrderViewModel = new List<OrderViewModel>();
-                        foreach (var Order in Orders)
+                        var OrderItems = context.OrderItems.Where(oi => oi.OrderId == Order.Id).ToList();
+                        if (OrderItems.Count > 0)
                         {
-                            var OrderItems = context.OrderItems.Where(oi => oi.OrderId == Order.Id).ToList();
-                            if (OrderItems.Count > 0)
+                            var OrderItemViewModel = new List<OrderItemViewModel>();
+                            foreach (var OrderItem in OrderItems)
                             {
-                                var OrderItemViewModel = new List<OrderItemViewModel>();
-                                foreach (var OrderItem in OrderItems)
+                                var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
+                                if (Furniture != null)
                                 {
-                                    var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
-                                    if (Furniture != null)
+                                    OrderItemViewModel.Add(new OrderItemViewModel
                                     {
-                                        OrderItemViewModel.Add(new OrderItemViewModel
-                                        {
-                                            Name = Furniture.Name,
-                                            Price = Furniture.Price,
-                                            Quantity = OrderItem.Quantity,
-                                            Description = Furniture.Description,
-                                            Photo = Furniture.Image
-                                        });
-                                    }
+                                        Name = Furniture.Name,
+                                        Price = Furniture.Price,
+                                        Quantity = OrderItem.Quantity,
+                                        Description = Furniture.Description,
+                                        Photo = Furniture.Image
+                                    });
                                 }
-                                var OrderState = context.OrderStates.Where(os => os.Id == Order.OrderStateId).FirstOrDefault();
-                                var OrderStateName = OrderState != null ? OrderState.Name : "";
-                                OrderViewModel.Add(new OrderViewModel
-                                {
-                                    Id = Order.Id,
-                                    DateCreated = Order.DateCreated,
-                                    Name = Order.Name,
-                                    Address = Order.Address,
-                                    Phone = Order.Phone,
-                                    Comment = Order.Comment,
-                                    Price = Order.TotalPrice,
-                                    OrderState = OrderStateName,
-                                    OrderItems = OrderItemViewModel
-                                });
                             }
+                            var OrderState = context.OrderStates.Where(os => os.Id == Order.OrderStateId).FirstOrDefault();
+                            var OrderStateName = OrderState != null ? OrderState.Name : "";
+                            OrderViewModel.Add(new OrderViewModel
+                            {
+                                Id = Order.Id,
+                                DateCreated = Order.DateCreated,
+                                Name = Order.Name,
+                                Address = Order.Address,
+                                Phone = Order.Phone,
+                                Comment = Order.Comment,
+                                Price = Order.TotalPrice,
+                                OrderState = OrderStateName,
+                                OrderItems = OrderItemViewModel
+                            });
                         }
-                        return OrderViewModel;
                     }
+                    return OrderViewModel;
                 }
             }
             return null;
@@ -186,35 +186,37 @@ namespace FurniTour.Server.Services
 
         public async Task<string> ChangeOrderStateAsync(int id, int newState)
         {
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            if (user == null)
+            var isAuth = authService.CheckRoleMasterOrAdmin();
+            if (isAuth.IsNullOrEmpty())
             {
-                return "You are not logged in";
-            }
-            var isMaster = await userManager.IsInRoleAsync(user, "Master");
-            var isAdmin = await userManager.IsInRoleAsync(user, "Administrator");
-            var isUser = await userManager.IsInRoleAsync(user, "User");
 
-            var order = context.Orders.FirstOrDefault(o => o.Id == id);
-            if (order == null)
-            {
-                return "Order not found";
-            }
 
-            if (isUser && !CanUserChangeState(order.OrderStateId, newState))
-            {
-                return "Can't change state of the order from the previous one";
-            }
+                var isMaster = authService.IsRole(Roles.Master);
+                var isAdmin = authService.IsRole(Roles.Administrator);
+                var isUser = authService.IsRole(Roles.User);
 
-            if ((isAdmin || isMaster) && !CanAdminChangeState(order.OrderStateId, newState))
-            {
-                return "Can't change state of the order from the previous one";
-            }
+                var order = context.Orders.FirstOrDefault(o => o.Id == id);
+                if (order == null)
+                {
+                    return "Order not found";
+                }
 
-            order.OrderStateId = newState;
-            context.Orders.Update(order);
-            await context.SaveChangesAsync();
-            return "";
+                if (isUser && !CanUserChangeState(order.OrderStateId, newState))
+                {
+                    return "Can't change state of the order from the previous one";
+                }
+
+                if ((isAdmin || isMaster) && !CanAdminChangeState(order.OrderStateId, newState))
+                {
+                    return "Can't change state of the order from the previous one";
+                }
+
+                order.OrderStateId = newState;
+                context.Orders.Update(order);
+                await context.SaveChangesAsync();
+                return string.Empty;
+            }
+            return isAuth;
         }
 
         private bool CanUserChangeState(int currentStateId, int newStateId)

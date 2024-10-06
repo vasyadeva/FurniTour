@@ -4,6 +4,7 @@ using FurniTour.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniTour.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241006134549_AddedManufacturerEntity")]
+    partial class AddedManufacturerEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,7 +123,7 @@ namespace FurniTour.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Manufacturers");
+                    b.ToTable("Manufacturer");
                 });
 
             modelBuilder.Entity("FurniTour.Server.Data.Entities.Order", b =>
@@ -389,15 +392,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "ccf9bfb8-47d6-41bf-9c5d-502",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a3264df0-be26-44f1-9417-c8a0aa8aff21",
+                            ConcurrencyStamp = "1fd2b445-7ff6-4819-8577-46f0e6303607",
                             Email = "admin@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TEST.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEP8brJ5I/Vj7NWdUyMBRux8HoefbTxv0CVFLZGpDB+vU+d/ZAVBYvJKN8QWkSOtjEA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF1UyxABGHSjJQN4Vzulk+ZFo1h97kFWd1bc1pmOPZByhXj3/N1WxxCkCOpYuYsM5A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "16ac8afd-945c-4e0a-a0e9-05d5081dd0f1",
+                            SecurityStamp = "6a9cb0a0-e3e9-4f65-bf52-e3c3f90ab338",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -405,15 +408,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a087",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4b7a9a41-f866-4229-ac89-ac5bd44500aa",
+                            ConcurrencyStamp = "18e2321c-2830-48e4-81f5-58ed7c1f015c",
                             Email = "user1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "USER1@TEST.COM",
                             NormalizedUserName = "USER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJmYv4XMfTSRWTlHtLlwwoRQjI5tc8iYxv0kjukxEp1p3y+hBaS8FY3bfaRyOpW3sQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEATxzhp4TRxszNF1StnIFR5Cz0BVTXS47nXB88sFCIYG9wtNO909ShUoOi67NhkKPQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "bf839b76-2211-4791-a6ad-97532dca35d7",
+                            SecurityStamp = "0a91833b-617d-4f06-b3be-a45e846679a5",
                             TwoFactorEnabled = false,
                             UserName = "user1"
                         },
@@ -421,15 +424,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a903",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "99eda655-6f93-4a89-99bb-7e41cdbd2159",
+                            ConcurrencyStamp = "31102271-178e-4abd-a14c-699138877b18",
                             Email = "master1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MASTER1@TEST.COM",
                             NormalizedUserName = "MASTER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEG+H5n9Vw+guxTfTyrzWUKUJIlsUyytzuP62EWjkoWSMSoa+RHN24DaoPUiZRLbzgg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKbgfXxpRupfu62VKMSerLpDFlHoGVjHMhqz292v/pTyh3nwgg0//lDIyGifw+mQug==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a0e58c02-ac1d-4bdd-9192-4c8c6b902efe",
+                            SecurityStamp = "276baabe-e139-4c2e-9401-87e653e15cbd",
                             TwoFactorEnabled = false,
                             UserName = "master1"
                         });

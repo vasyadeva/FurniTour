@@ -4,6 +4,7 @@ import { ItemService } from '../../services/item/item.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { itemSend } from '../../models/item.send.model';
 import { CommonModule } from '@angular/common';
+import { PopupService } from '../../services/popup/popup.service';
 @Component({
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
@@ -22,7 +23,7 @@ export class CreateItemComponent {
   itemForm: FormGroup;
   base64Photo: string | null = null; // Store Base64 photo
 
-  constructor(private fb: FormBuilder, private itemService: ItemService) {
+  constructor(private fb: FormBuilder, private itemService: ItemService, private popupService: PopupService) {
     this.itemForm = this.fb.group({
       name: ['', [Validators.required]],
       description: ['', [Validators.required]],
@@ -38,7 +39,7 @@ export class CreateItemComponent {
       const reader = new FileReader();
       reader.onload = () => {
         this.base64Photo = reader.result as string;
-        this.itemForm.patchValue({ photo: this.base64Photo }); // Patch Base64 value to the form control
+        this.itemForm.patchValue({ photo: this.base64Photo });
       };
       reader.readAsDataURL(file);
     }
@@ -58,10 +59,12 @@ export class CreateItemComponent {
     this.itemService.create(this.itemModel).subscribe(
       response => {
         console.log('Item added successfully!', response);
+        this.popupService.openSnackBar('Item added successfully!');
         this.itemForm.reset();
       },
       error => {
         if (!error?.error?.isSuccess) {
+            this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.')
             this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
         }
       }

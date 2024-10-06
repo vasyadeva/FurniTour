@@ -7,6 +7,8 @@ using FurniTour.Server.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using FurniTour.Server.Models.Auth;
+using Microsoft.IdentityModel.Tokens;
+using FurniTour.Server.Constants;
 
 namespace FurniTour.Server.Services
 {
@@ -56,7 +58,7 @@ namespace FurniTour.Server.Services
             {
                 return result.Errors.ToString();
             }
-            return "";
+            return string.Empty;
         }
 
         public async Task<string> SignInAsync(LoginModel loginModel)
@@ -100,23 +102,98 @@ namespace FurniTour.Server.Services
                     });
             }
 
-            return "";
+            return string.Empty;
         }
 
         public bool SignOut()
         {
             var result = httpContextAccessor.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            if (result.IsCompletedSuccessfully)
-            {
-                return true;
-            }
-            return false;
+            return result.IsCompletedSuccessfully;
         }
 
+        public IdentityUser GetUser()
+        {
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+            return user;
+        }
         public string GetUserRole()
         {
             var role = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             return role;
+        }
+
+        public bool IsRole(string role)
+        {
+            return GetUserRole() == role;
+        }
+
+        public string IsAuthenticated()
+        {
+            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+            return user != null ? string.Empty : "You are not logged in";
+        }
+
+        public string IsMaster()
+        {
+            return IsRole(Roles.Master) ? string.Empty : "You are not a Master";
+        }
+
+        public string IsAdmin()
+        {
+            return IsRole(Roles.Administrator) ? string.Empty : "You are not an Admin";
+        }
+        public string IsMasterOrAdmin()
+        {
+            return IsRole(Roles.Master) || IsRole(Roles.Administrator) ? 
+                string.Empty : "You are not a Master or Admin";
+        }
+        public string IsUser()
+        {
+            return IsRole(Roles.User) ? string.Empty : "You are not a User";
+        }
+
+        public string CheckRoleMasterOrAdmin()
+        {
+            string isAuth = IsAuthenticated();
+            if (isAuth.IsNullOrEmpty())
+            {
+                var isMasterOrAdmin = IsMasterOrAdmin();
+                return isMasterOrAdmin.IsNullOrEmpty() ? string.Empty : isMasterOrAdmin;
+            }
+            return isAuth;
+        }
+
+        public string CheckRoleUser()
+        {
+            string isAuth = IsAuthenticated();
+            if (isAuth.IsNullOrEmpty())
+            {
+                var isUser = IsUser();
+                return isUser.IsNullOrEmpty() ? string.Empty : isUser;
+            }
+            return isAuth;
+        }
+
+        public string CheckRoleMaster()
+        {
+            string isAuth = IsAuthenticated();
+            if (isAuth.IsNullOrEmpty())
+            {
+                var isMaster = IsMaster();
+                return isMaster.IsNullOrEmpty() ? string.Empty : isMaster;
+            }
+            return isAuth;
+        }
+
+        public string CheckRoleAdmin()
+        {
+            string isAuth = IsAuthenticated();
+            if (isAuth.IsNullOrEmpty())
+            {
+                var isAdmin = IsAdmin();
+                return isAdmin.IsNullOrEmpty() ? string.Empty : isAdmin;
+            }
+            return isAuth;
         }
     }
 }

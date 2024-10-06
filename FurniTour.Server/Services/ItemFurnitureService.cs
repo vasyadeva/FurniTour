@@ -4,6 +4,7 @@ using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Item;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FurniTour.Server.Services
 {
@@ -12,11 +13,14 @@ namespace FurniTour.Server.Services
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
-        public ItemFurnitureService(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
+        private readonly IAuthService authService;
+        public ItemFurnitureService(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor
+            , IAuthService authService)
         {
             this.context = context;
             this.userManager = userManager;
             this.httpContextAccessor = httpContextAccessor;
+            this.authService = authService;
         }
 
         public List<ItemViewModel> getAll()
@@ -46,27 +50,22 @@ namespace FurniTour.Server.Services
         public async Task<string> AddItem(ItemModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            if (user != null)
+            var check = authService.CheckRoleMasterOrAdmin();
+            if (check.IsNullOrEmpty())
             {
-                var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
-                if (role == "Master" || role == "Administrator")
+                var itemObj = new Furniture
                 {
-                    var itemObj = new Furniture
-                    {
-                        Name = itemModel.Name,
-                        Description = itemModel.Description,
-                        Price = itemModel.Price,
-                        Image = photoData,
-                        MasterId = user.Id
-                    };
-                    await context.Furnitures.AddAsync(itemObj);
-                    await context.SaveChangesAsync();
-                    return "";
-                }
-                return "You are not a Master or Admin";
+                    Name = itemModel.Name,
+                    Description = itemModel.Description,
+                    Price = itemModel.Price,
+                    Image = photoData,
+                    MasterId = authService.GetUser().Id
+                };
+                await context.Furnitures.AddAsync(itemObj);
+                await context.SaveChangesAsync();
+                return string.Empty;
             }
-            return "You are not logged in";
+            return check;
         }
 
         public ItemViewModel Details(int id)
@@ -91,47 +90,39 @@ namespace FurniTour.Server.Services
         public async Task<string> Edit(int id, ItemViewModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            if (user != null)
+            authService.CheckRoleMasterOrAdmin();
+            if (authService.CheckRoleMasterOrAdmin().IsNullOrEmpty())
             {
-                var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
-                if (role == Roles.Master || role == Roles.Administrator)
+                var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
+                if (itemObj != null)
                 {
-                    var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
-                    if (itemObj != null)
-                    {
-                        itemObj.Name = itemModel.Name;
-                        itemObj.Description = itemModel.Description;
-                        itemObj.Price = itemModel.Price;
-                        itemObj.Image = photoData;
-                        await context.SaveChangesAsync();
-                        return "";
-                    }
+                    itemObj.Name = itemModel.Name;
+                    itemObj.Description = itemModel.Description;
+                    itemObj.Price = itemModel.Price;
+                    itemObj.Image = photoData;
+                    await context.SaveChangesAsync();
+                    return string.Empty;
                 }
-                return "You are not a Master or Admin";
+                return "Item not found";
             }
-            return "You are not logged in";
+            return authService.CheckRoleMasterOrAdmin();
         }
 
         public async Task<string> DeleteItem(int id)
         {
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            if (user != null)
+            authService.CheckRoleMasterOrAdmin();
+            if (authService.CheckRoleMasterOrAdmin().IsNullOrEmpty())
             {
-                var role = userManager.GetRolesAsync(user).Result.FirstOrDefault();
-                if (role == "Master")
+                var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
+                if (itemObj != null)
                 {
-                    var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
-                    if (itemObj != null)
-                    {
-                        context.Furnitures.Remove(itemObj);
-                        await context.SaveChangesAsync();
-                        return "";
-                    }
+                    context.Furnitures.Remove(itemObj);
+                    await context.SaveChangesAsync();
+                    return string.Empty;
                 }
-                return "You are not a Master or Admin";
+                return "Item not found";
             }
-            return "You are not logged in";
+            return authService.CheckRoleMasterOrAdmin();
         }
     }
 }

@@ -4,6 +4,7 @@ using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Cart;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Net.WebSockets;
 
 namespace FurniTour.Server.Services
@@ -13,12 +14,15 @@ namespace FurniTour.Server.Services
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IAuthService authService;
 
-        public CartFurnitureService(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
+        public CartFurnitureService(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor
+           , IAuthService authService)
         {
             this.context = context;
             this.userManager = userManager;
             this.httpContextAccessor = httpContextAccessor;
+            this.authService = authService;
         }
         public async Task<string> AddToCartAsync(int furnitureId, int quantity)
         {
@@ -26,7 +30,7 @@ namespace FurniTour.Server.Services
             {
                 return "Item quantity must be greater than 0";
             }
-            var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
+            var user = authService.GetUser();
             if (user == null)
             {
                 return "You are not logged in";
@@ -60,13 +64,13 @@ namespace FurniTour.Server.Services
                 };
                 await context.CartItems.AddAsync(CartItem);
                 await context.SaveChangesAsync();
-                return "";
+                return string.Empty;
             }
             return "Some problem occured while adding item to cart";
         }
         public List<CartItemViewModel> GetCartFurniture()
         {
-            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
+            var User = authService.GetUser();
             if (User != null)
             {
                 var Cart = context.Carts.Where(c => c.UserId == User.Id).FirstOrDefault();
@@ -112,29 +116,30 @@ namespace FurniTour.Server.Services
 
         public async Task<string> RemoveFromCartAsync(int id)
         {
-            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
-            if (User == null)
+            var isAuth = authService.IsAuthenticated();
+            if (isAuth.IsNullOrEmpty())
             {
-                return "You are not logged in";
+
+                var CartUser = await context.Carts.Where(c => c.UserId == authService.GetUser().Id).FirstOrDefaultAsync();
+                if (CartUser == null)
+                {
+                    return "Cart is empty";
+                }
+                var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
+                if (CartItem != null)
+                {
+                    context.CartItems.Remove(CartItem);
+                    await context.SaveChangesAsync();
+                    return string.Empty;
+                }
+                return "Some error occurred while removing item from cart";
             }
-            var CartUser = await context.Carts.Where(c => c.UserId == User.Id).FirstOrDefaultAsync();
-            if (CartUser == null)
-            {
-                return "Cart is empty";
-            }
-            var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
-            if (CartItem != null)
-            {
-                context.CartItems.Remove(CartItem);
-                await context.SaveChangesAsync();
-                return "";
-            }
-            return "Some error occurred while removing item from cart";
+            return isAuth;
         }
 
         public async Task<string> UpdateCartAsync(int id, int quantity)
         {
-            var User = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User?.Identity.Name).Result;
+            var User = authService.GetUser();
             if (User == null)
             {
                 return "You are not logged in";
@@ -154,7 +159,7 @@ namespace FurniTour.Server.Services
                 CartItem.Quantity = quantity;
                 context.CartItems.Update(CartItem);
                 await context.SaveChangesAsync();
-                return "";
+                return string.Empty;
             }
             return "Some error occurred while updating cart";
         }

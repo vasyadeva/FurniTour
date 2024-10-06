@@ -53,5 +53,6 @@ namespace FurniTour.Server.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderState> OrderStates { get; set; }
         public DbSet<Cart> Carts { get; set; }
+        public DbSet<Manufacturer> Manufacturers { get; set; }
     }
 }
