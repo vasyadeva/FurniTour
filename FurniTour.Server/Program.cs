@@ -18,6 +18,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICartFurnitureService, CartFurnitureService>();
 builder.Services.AddScoped<IOrderFurnitureService, OrderFurnitureService>();
 builder.Services.AddScoped<IItemFurnitureService, ItemFurnitureService>();
+builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

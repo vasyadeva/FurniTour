@@ -16,6 +16,10 @@ import { OrderComponent } from './order/order/order.component';
 import { MyordersComponent } from './order/myorders/myorders.component';
 import { AdminOrdersComponent } from './order/admin-orders/admin-orders.component';
 import { ItemEditComponent } from './item/item-edit/item-edit.component';
+import { ManufacturersComponent } from './manufacturer/manufacturers/manufacturers.component';
+import { UpdateManufacturerComponent } from './manufacturer/update-manufacturer/update-manufacturer.component';
+import { InfoManufacturerComponent } from './manufacturer/info-manufacturer/info-manufacturer.component';
+import { AddManufacturerComponent } from './manufacturer/add-manufacturer/add-manufacturer.component';
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -40,5 +44,11 @@ export const routes: Routes = [
     //order paths
     {path: 'order', component: OrderComponent},
     {path: 'myorders', component: MyordersComponent},
-    {path: 'adminorders', component: AdminOrdersComponent}
+    {path: 'adminorders', component: AdminOrdersComponent},
+
+    //manufacturer paths
+    {path: 'manufacturers', component: ManufacturersComponent},
+    {path: 'manufacturers/update/:id', component: UpdateManufacturerComponent},
+    {path: 'manufacturers/details/:id', component: InfoManufacturerComponent},
+    {path: 'manufacturers/add', component: AddManufacturerComponent},
 ];
