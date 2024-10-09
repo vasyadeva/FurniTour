@@ -21,5 +21,6 @@ namespace FurniTour.Server.Interfaces
         public string CheckRoleAdmin();
         public string CheckRoleMaster();
         public string CheckRoleUser();
+        public string CheckMasterByUsername(string username);
     }
 }

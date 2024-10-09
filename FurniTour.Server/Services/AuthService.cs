@@ -195,5 +195,20 @@ namespace FurniTour.Server.Services
             }
             return isAuth;
         }
+
+        public string CheckMasterByUsername(string username)
+        {
+            var user = context.Users.FirstOrDefault(x => x.UserName == username);
+            if (user != null)
+            {
+                var role = userManager.GetRolesAsync(user).Result;
+                if (role.FirstOrDefault() == "Master")
+                {
+                    return string.Empty;
+                }
+                return "User is not a Master";
+            }
+            return "User not found";
+        }
     }
 }

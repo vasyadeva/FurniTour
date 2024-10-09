@@ -1,0 +1,33 @@
+<div class="profile-container" *ngIf="profile.username; else noProfile">
+    <h1>Master Profile</h1>
+    
+    <!-- Profile Information -->
+    <div class="profile-info">
+      <h2>{{ profile.username }}</h2>
+      <p>Email: {{ profile.email }}</p>
+      <p>Phone: {{ profile.phonenumber }}</p>
+    </div>
+  
+    <!-- Reviews Section -->
+    <div *ngIf="profile.reviews.length > 0; else noReviews">
+      <h3>Reviews:</h3>
+      <ul class="reviews-list">
+        <li *ngFor="let review of profile.reviews">
+          <p><strong>{{ review.username }}:</strong> {{ review.comment }}</p>
+          <p>Rating: {{ review.rating }}/5</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+  
+  <!-- No Profile Available -->
+  <ng-template #noProfile>
+    <p>No master profile found.</p>
+  </ng-template>
+  
+  <!-- No Reviews Available -->
+  <ng-template #noReviews>
+    <p>No reviews available for this master.</p>
+  </ng-template>
+  
+  <a class="btn btn-primary" [routerLink]="['/masterreview/add', profile.username]" routerLinkActive="router-link-active" >Add review</a>

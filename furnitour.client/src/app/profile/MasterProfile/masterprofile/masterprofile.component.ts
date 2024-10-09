@@ -1,0 +1,50 @@
+import { Component, OnInit } from '@angular/core';
+import { ProfileService } from '../../../services/profile/profile.service';
+import { PopupService } from '../../../services/popup/popup.service';
+import { ProfileMasterModel } from '../../../models/profile.master.model';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+@Component({
+  selector: 'app-masterprofile',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './masterprofile.component.html',
+  styleUrl: './masterprofile.component.css'
+})
+export class MasterprofileComponent implements OnInit{
+  profile : ProfileMasterModel =
+  {
+    username : '',
+    email : '',
+    phonenumber: '',
+    reviews: []
+  };
+  profileId: string | null = null;
+  id! : string;
+  constructor(private profileService: ProfileService, private popupService: PopupService,
+    private route: ActivatedRoute, private router: Router,
+  ) { }
+
+  ngOnInit(): void {
+    this.popupService.loadingSnackBar();
+
+    this.route.paramMap.subscribe(params => {
+      this.profileId = params.get('id');
+      this.id = this.profileId!;
+      this.profileService.getMasterProfile(this.id).subscribe(
+        (response) => {
+          this.popupService.closeSnackBar();
+          console.log('Master Profile:', response);
+          this.profile = response;
+        },
+        (error) => {
+          this.popupService.closeSnackBar();
+          this.popupService.openSnackBar(error?.error || 'Error fetching master profile');
+          console.error('Error fetching master profile:', error);
+        }
+      );
+    });
+
+    
+  }
+}

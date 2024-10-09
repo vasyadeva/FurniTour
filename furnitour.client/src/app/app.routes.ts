@@ -20,6 +20,8 @@ import { ManufacturersComponent } from './manufacturer/manufacturers/manufacture
 import { UpdateManufacturerComponent } from './manufacturer/update-manufacturer/update-manufacturer.component';
 import { InfoManufacturerComponent } from './manufacturer/info-manufacturer/info-manufacturer.component';
 import { AddManufacturerComponent } from './manufacturer/add-manufacturer/add-manufacturer.component';
+import { MasterprofileComponent } from './profile/MasterProfile/masterprofile/masterprofile.component';
+import { MasterAddReviewComponent } from './profile/MasterAddReview/master-add-review/master-add-review.component';
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -51,4 +53,8 @@ export const routes: Routes = [
     {path: 'manufacturers/update/:id', component: UpdateManufacturerComponent},
     {path: 'manufacturers/details/:id', component: InfoManufacturerComponent},
     {path: 'manufacturers/add', component: AddManufacturerComponent},
+
+    //profile paths
+    {path: 'profile/master/:id', component: MasterprofileComponent},
+    {path: 'masterreview/add/:id', component: MasterAddReviewComponent}
 ];

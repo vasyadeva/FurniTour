@@ -4,6 +4,7 @@ using FurniTour.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniTour.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241009102715_AddedManufacturerReview_And_MasterReview_entities")]
+    partial class AddedManufacturerReview_And_MasterReview_entities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -450,15 +453,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "ccf9bfb8-47d6-41bf-9c5d-502",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b27be7a3-faab-417e-8e7b-cef9b12fb9d6",
+                            ConcurrencyStamp = "3b477443-13d4-42e7-9b6a-6ee865d8b7e9",
                             Email = "admin@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@TEST.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOeJlRPS0KjhRerNU13RNW1QB1lkvKIDmOZlnwexXuVWAwmtVGETtM38dTYLzkA1tw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAKnQGZoVyFRqdd1O0MXyJRfBNczLZZVeNJaN3j6ockMkJzdHHEt5i7PBbZigxJJnA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "eabc9f43-856c-40de-9ec3-2e36f5e6fd2e",
+                            SecurityStamp = "69d36336-d04b-4249-a789-8a8d34e31ba6",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         },
@@ -466,15 +469,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a087",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9809b4c8-9107-468d-8379-c6400c0d8cb3",
+                            ConcurrencyStamp = "c6c4a8ad-1192-4d4d-9339-0a82e338c170",
                             Email = "user1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "USER1@TEST.COM",
                             NormalizedUserName = "USER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEB8li4g79bGCP/fhDq/iJcODLYJWyD8XlyExiub6BwO8u2+d0oOChH9KfE0JBV/nuw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGgoIlSlMZ0RQOlSA4WU25Cdk3bot3mxY/X3insWbEUQX1SICt5hUhJyHgiPqrI0Jg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "85e9002a-129a-4dd1-811d-97c7361660e5",
+                            SecurityStamp = "33d80518-8d6f-4edc-ac2c-f8e1312b2783",
                             TwoFactorEnabled = false,
                             UserName = "user1"
                         },
@@ -482,15 +485,15 @@ namespace FurniTour.Server.Migrations
                         {
                             Id = "37bb0930-ee5b-483a-88a9-9fc2dab9a903",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "876558d7-ddfb-4a28-abe3-ec684c4b36cb",
+                            ConcurrencyStamp = "8f1b48f1-b4ac-449a-aa05-031435f61be2",
                             Email = "master1@test.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "MASTER1@TEST.COM",
                             NormalizedUserName = "MASTER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKjUElx0CNO2XiPgZs9AcF6KAVx1IJ9cu367uNaoHNleG4ZeU0kpwPmBaipYDXtanQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGihpDzPcuGnwCTzXErln6Rf/IyJvA/rKF54f2C066M2jbrnhn6wDtYt4ruTgVdjoA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "83ca6c07-fc28-4919-b590-2610f221f67b",
+                            SecurityStamp = "905198ab-8ff2-46cb-89cb-783f16fb6b5a",
                             TwoFactorEnabled = false,
                             UserName = "master1"
                         });
@@ -654,7 +657,7 @@ namespace FurniTour.Server.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Manufacturer");

@@ -45,6 +45,24 @@ namespace FurniTour.Server.Data
                 .HasForeignKey(oi => oi.FurnitureId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<MasterReview>()
+       .HasOne(mr => mr.Master)
+       .WithMany()  
+       .HasForeignKey(mr => mr.MasterId)
+       .OnDelete(DeleteBehavior.NoAction); 
+
+            builder.Entity<MasterReview>()
+                .HasOne(mr => mr.User)
+                .WithMany()  
+                .HasForeignKey(mr => mr.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<ManufacturerReview>()
+                .HasOne(mr => mr.User)
+                .WithMany()
+                .HasForeignKey(mr => mr.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
 
         public DbSet<Furniture> Furnitures { get; set; }
@@ -54,5 +72,7 @@ namespace FurniTour.Server.Data
         public DbSet<OrderState> OrderStates { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
+        public DbSet<ManufacturerReview> ManufacturerReviews { get; set; }
+        public DbSet<MasterReview> MasterReviews { get; set; }
     }
 }
