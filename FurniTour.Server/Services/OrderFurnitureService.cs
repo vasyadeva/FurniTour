@@ -43,13 +43,25 @@ namespace FurniTour.Server.Services
                                 var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
                                 if (Furniture != null)
                                 {
+                                    var Manufacturer = string.Empty;
+                                    var Master = string.Empty;
+                                    if (Furniture.ManufacturerId != null)
+                                    {
+                                        Manufacturer = context.Manufacturers.Where(c => c.Id == Furniture.ManufacturerId).FirstOrDefault().Name;
+                                    }
+                                    if (Furniture.MasterId != null)
+                                    {
+                                        Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
+                                    }
                                     OrderItemViewModel.Add(new OrderItemViewModel
                                     {
                                         Name = Furniture.Name,
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,
                                         Description = Furniture.Description,
-                                        Photo = Furniture.Image
+                                        //Photo = Furniture.Image,
+                                        Master = Master,
+                                        Manufacturer = Manufacturer
                                     });
                                 }
                             }
@@ -152,13 +164,25 @@ namespace FurniTour.Server.Services
                                 var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
                                 if (Furniture != null)
                                 {
+                                    var Manufacturer = string.Empty;
+                                    var Master = string.Empty;
+                                    if (Furniture.ManufacturerId != null)
+                                    {
+                                        Manufacturer = context.Manufacturers.Where(c => c.Id == Furniture.ManufacturerId).FirstOrDefault().Name;
+                                    }
+                                    if (Furniture.MasterId != null)
+                                    {
+                                        Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
+                                    }
                                     OrderItemViewModel.Add(new OrderItemViewModel
                                     {
                                         Name = Furniture.Name,
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,
                                         Description = Furniture.Description,
-                                        Photo = Furniture.Image
+                                       // Photo = Furniture.Image,
+                                        Master = Master,
+                                        Manufacturer = Manufacturer
                                     });
                                 }
                             }

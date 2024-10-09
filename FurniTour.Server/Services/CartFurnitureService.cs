@@ -96,6 +96,16 @@ namespace FurniTour.Server.Services
                             var Furniture = context.Furnitures.Where(f => f.Id == item.FurnitureId).FirstOrDefault();
                             if (Furniture != null)
                             {
+                                var Manufacturer = string.Empty;
+                                var Master = string.Empty;
+                                if (Furniture.ManufacturerId != null)
+                                {
+                                    Manufacturer = context.Manufacturers.Where(c => c.Id == Furniture.ManufacturerId).FirstOrDefault().Name;
+                                }
+                                if (Furniture.MasterId != null)
+                                {
+                                    Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
+                                }
                                 Items.Add(new CartItemViewModel
                                 {
                                     Id = item.Id,
@@ -103,7 +113,9 @@ namespace FurniTour.Server.Services
                                     Description = Furniture.Description,
                                     Image = Convert.ToBase64String(Furniture.Image),
                                     Price = Furniture.Price,
-                                    Quantity = item.Quantity
+                                    Quantity = item.Quantity,
+                                    Manufacturer = Manufacturer,
+                                    Master = Master
                                 });
                             }
                         }

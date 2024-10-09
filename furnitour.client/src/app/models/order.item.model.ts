@@ -3,4 +3,6 @@ export interface OrderItemModel {
     name: string;
     quantity: number;
     price: number;
+    manufacturer: string;
+    master: string;
   }

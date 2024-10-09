@@ -5,4 +5,6 @@ export interface CartGet {
     image : string;
     price : number;
     quantity : number;
+    manufacturer : string;
+    master : string;
 }
