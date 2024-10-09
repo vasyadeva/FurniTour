@@ -4,4 +4,5 @@ export interface itemSend
     description: string;
     price: number;
     image: string;
+    manufacturerId: number;
 }

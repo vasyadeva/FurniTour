@@ -31,6 +31,16 @@ namespace FurniTour.Server.Services
                 var itemListModel = new List<ItemViewModel>();
                 foreach (var item in itemObj)
                 {
+                    var Manufacturer = string.Empty;
+                    var Master = string.Empty;
+                    if (item.ManufacturerId !=null)
+                    {
+                        Manufacturer = context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
+                    }
+                    if (item.MasterId != null)
+                    {
+                        Master = context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
+                    }
                     
                     var itemModel = new ItemViewModel
                     {
@@ -38,7 +48,10 @@ namespace FurniTour.Server.Services
                         Name = item.Name,
                         Description = item.Description,
                         Price = item.Price,
-                        Image = Convert.ToBase64String(item.Image)
+                        Image = Convert.ToBase64String(item.Image),
+                        Manufacturer = Manufacturer,
+                        Master = Master
+
                     };
                     itemListModel.Add(itemModel);
                 }
@@ -53,17 +66,38 @@ namespace FurniTour.Server.Services
             var check = authService.CheckRoleMasterOrAdmin();
             if (check.IsNullOrEmpty())
             {
-                var itemObj = new Furniture
+                switch(authService.IsMaster())
                 {
-                    Name = itemModel.Name,
-                    Description = itemModel.Description,
-                    Price = itemModel.Price,
-                    Image = photoData,
-                    MasterId = authService.GetUser().Id
-                };
-                await context.Furnitures.AddAsync(itemObj);
-                await context.SaveChangesAsync();
-                return string.Empty;
+                    case "":
+                        var itemObj = new Furniture
+                        {
+                            Name = itemModel.Name,
+                            Description = itemModel.Description,
+                            Price = itemModel.Price,
+                            Image = photoData,
+                            MasterId = authService.GetUser().Id
+                        };
+                        await context.Furnitures.AddAsync(itemObj);
+                        await context.SaveChangesAsync();
+                        return string.Empty;
+                    default:
+                        if (itemModel.ManufacturerId == null || itemModel.ManufacturerId == 0)
+                        {
+                            return "ManufacturerId is required";
+                        }
+                        var itemObjAdm = new Furniture
+                        {
+                            Name = itemModel.Name,
+                            Description = itemModel.Description,
+                            Price = itemModel.Price,
+                            Image = photoData,
+                            ManufacturerId = itemModel.ManufacturerId
+                        };
+                        await context.Furnitures.AddAsync(itemObjAdm);
+                        await context.SaveChangesAsync();
+                        return string.Empty;
+                }
+                
             }
             return check;
         }
@@ -73,13 +107,25 @@ namespace FurniTour.Server.Services
             var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
             if (itemObj != null)
             {
+                var Manufacturer = string.Empty;
+                var Master = string.Empty;
+                if (itemObj.ManufacturerId != null)
+                {
+                    Manufacturer = context.Manufacturers.Where(c => c.Id == itemObj.ManufacturerId).FirstOrDefault().Name;
+                }
+                if (itemObj.MasterId != null)
+                {
+                    Master = context.Users.Where(c => c.Id == itemObj.MasterId).FirstOrDefault().UserName;
+                }
                 var itemModel = new ItemViewModel
                 {
                     Id = itemObj.Id,
                     Name = itemObj.Name,
                     Description = itemObj.Description,
                     Price = itemObj.Price,
-                    Image = Convert.ToBase64String(itemObj.Image)
+                    Image = Convert.ToBase64String(itemObj.Image),
+                    Manufacturer = Manufacturer,
+                    Master = Master
                 };
                 return itemModel;
             }
@@ -87,7 +133,7 @@ namespace FurniTour.Server.Services
         }
         
 
-        public async Task<string> Edit(int id, ItemViewModel itemModel)
+        public async Task<string> Edit(int id, ItemUpdateModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
             authService.CheckRoleMasterOrAdmin();
@@ -100,6 +146,10 @@ namespace FurniTour.Server.Services
                     itemObj.Description = itemModel.Description;
                     itemObj.Price = itemModel.Price;
                     itemObj.Image = photoData;
+                    if (itemModel.ManufacturerId != null && itemModel.ManufacturerId != 0 && authService.IsAdmin() == string.Empty)
+                    {
+                        itemObj.ManufacturerId = itemModel.ManufacturerId;
+                    }
                     await context.SaveChangesAsync();
                     return string.Empty;
                 }
@@ -114,13 +164,17 @@ namespace FurniTour.Server.Services
             if (authService.CheckRoleMasterOrAdmin().IsNullOrEmpty())
             {
                 var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
-                if (itemObj != null)
+                if (itemObj == null)
+                {
+                    return "Item not found";
+                }
+                if (itemObj.MasterId == authService.GetUser().Id || authService.CheckRoleAdmin().IsNullOrEmpty())
                 {
                     context.Furnitures.Remove(itemObj);
                     await context.SaveChangesAsync();
                     return string.Empty;
                 }
-                return "Item not found";
+                return "This isn't your item or you aren't admin";
             }
             return authService.CheckRoleMasterOrAdmin();
         }

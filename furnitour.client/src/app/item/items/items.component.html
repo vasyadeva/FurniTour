@@ -13,6 +13,8 @@
           <div class="card-body">
             <h5 class="card-title">{{ item.name }}</h5>
             <p class="card-text">{{ item.description }}</p>
+            <p *ngIf="item.master!=''" class="card-text"><strong>Master:</strong>{{ item.master}}</p>
+            <p *ngIf="item.manufacturer!=''" class="card-text"><strong>Manufacturer:</strong>{{ item.manufacturer}}</p>
             <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
            <label *ngIf="this.status.isUser" for="quantity">Quantity:</label>
            <input type="number" *ngIf="this.status.isUser" [(ngModel)]="this.quantity[item.id]" min="1" class="form-control mb-2" value="1" />

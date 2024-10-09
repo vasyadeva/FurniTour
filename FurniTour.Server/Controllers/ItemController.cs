@@ -52,7 +52,7 @@ namespace FurniTour.Server.Controllers
 
         [Authorize(Roles = Roles.Administrator)]
         [HttpPost("edit")]
-        public async Task<IActionResult> Edit([FromBody] ItemViewModel itemModel)
+        public async Task<IActionResult> Edit([FromBody] ItemUpdateModel itemModel)
         {
             var state = await itemFurnitureService.Edit(itemModel.Id, itemModel);
             if (state.IsNullOrEmpty())

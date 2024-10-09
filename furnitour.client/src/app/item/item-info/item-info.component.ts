@@ -20,7 +20,9 @@ export class ItemInfoComponent implements OnInit {
     name: '',
     description: '',
     price: 0,
-    image: ''
+    image: '',
+    manufacturer: '',
+    master: ''
   };
   constructor(private itemService: ItemService, private route: ActivatedRoute, private router: Router, private popupService: PopupService) {}
   ngOnInit(): void {

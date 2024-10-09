@@ -5,4 +5,5 @@ export interface itemUpdate
     description: string;
     price: number;
     image: string;
+    manufacturerId: number;
 }

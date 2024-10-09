@@ -20,6 +20,20 @@
         <label for="photo" class="form-label">Photo:</label>
         <input id="photo" type="file" class="form-control" (change)="onFileSelected($event)">
       </div>
+      
+      <div class="form-group mb-3" *ngIf="this.status.isAdmin">
+        <label for="manufacturer" class="form-label">Manufacturer:</label>
+      
+        <input type="text" class="form-control mb-2" placeholder="Search manufacturer" [(ngModel)]="searchTerm" (ngModelChange)="filterManufacturers()" [ngModelOptions]="{standalone: true}" />
+  
+        <select id="manufacturer" formControlName="manufacturerId" name="manufacturerId" class="form-control">
+          <option value="">Select manufacturer</option>
+          <option *ngFor="let manufacturer of filteredManufacturers" [value]="manufacturer.id">
+            {{ manufacturer.name }}
+          </option>
+        </select>
+      </div>
+
       <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
       <button type="submit" class="btn btn-primary" [disabled]="itemForm.invalid">Submit</button>
     </form>

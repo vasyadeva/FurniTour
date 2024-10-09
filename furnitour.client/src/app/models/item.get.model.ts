@@ -5,4 +5,6 @@ export interface itemGet
     description: string;
     price: number;
     image: string;
+    manufacturer: string;
+    master: string;
 }
