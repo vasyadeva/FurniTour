@@ -36,5 +36,25 @@ namespace FurniTour.Server.Controllers
             }
             return BadRequest(state);
         }
+
+        [HttpGet("getmanufacturer/{name}")]
+        [Authorize]
+        public async Task<IActionResult> GetManufacturer(string name)
+        {
+            var profile = await profileService.GetManufacturerProfile(name);
+            return Ok(profile);
+        }
+
+        [HttpPost("addmanufacturer")]
+        [Authorize]
+        public IActionResult AddManufacturer([FromBody] AddManufacturerReview model)
+        {
+            var state = profileService.MakeManufacturerReview(model);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
+        }
     }
 }

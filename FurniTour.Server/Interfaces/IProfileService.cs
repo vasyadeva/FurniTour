@@ -5,6 +5,8 @@ namespace FurniTour.Server.Interfaces
     public interface IProfileService
     {
         public Task<MasterProfileModel> GetMasterProfile(string username);
+        public Task<ManufacturerProfileModel> GetManufacturerProfile(string name);
+        public string MakeManufacturerReview(AddManufacturerReview review);
         public string MakeMasterReview(AddMasterReview review);
     }
 }
