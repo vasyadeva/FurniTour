@@ -9,6 +9,8 @@ namespace FurniTour.Server.Interfaces
         public Task<string> RegisterAsync(RegisterModel model);
         public Task<string> SignInAsync(LoginModel loginModel);
         public bool SignOut();
+        public Task<ProfileModel> GetProfile();
+        public string ChangeProfile(ChangeProfileModel model);
         public IdentityUser GetUser();
         public string GetUserRole();
         public bool IsRole(string role);

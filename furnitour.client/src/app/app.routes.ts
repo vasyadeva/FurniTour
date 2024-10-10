@@ -24,6 +24,8 @@ import { MasterprofileComponent } from './profile/MasterProfile/masterprofile/ma
 import { MasterAddReviewComponent } from './profile/MasterAddReview/master-add-review/master-add-review.component';
 import { ManufacturerProfileComponent } from './profile/ManufacturerProfile/manufacturer-profile/manufacturer-profile.component';
 import { ManufacturerAddReviewComponent } from './profile/ManufacturerAddReview/manufacturer-add-review/manufacturer-add-review.component';
+import { ProfileComponent } from './auth/profile/profile/profile.component';
+import { ChangeProfileComponent } from './auth/profile/change-profile/change-profile.component';
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -32,7 +34,8 @@ export const routes: Routes = [
     {path: 'register', component: RegisterComponent},
     {path: 'login', component: LoginComponent},
     {path: 'forbidden', component: ForbiddenComponent},
-
+    {path: 'profile', component: ProfileComponent},
+    {path: 'changeprofile', component: ChangeProfileComponent},
 
     {path: 'home', component: HomeComponent},
     {path: '', redirectTo: '/home', pathMatch: 'full'},

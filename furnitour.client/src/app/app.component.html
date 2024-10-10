@@ -39,6 +39,9 @@
           
           <ng-template #signedInAlready>
             <li class="nav-item">
+              <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['profile']">Profile</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['logout']">Logout</a>
             </li>
           </ng-template>

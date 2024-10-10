@@ -210,5 +210,41 @@ namespace FurniTour.Server.Services
             }
             return "User not found";
         }
+
+        public async Task<ProfileModel> GetProfile()
+        {
+            var user = GetUser();
+
+            if (user != null)
+            {
+                var role = await userManager.GetRolesAsync(user);
+                var profile = new ProfileModel
+                {
+                    Username = user.UserName,
+                    Email = user.Email,
+                    Phonenumber = user.PhoneNumber,
+                    Role = role.FirstOrDefault()
+                };
+                return profile;
+            }
+            return null;
+        }
+
+        public string ChangeProfile(ChangeProfileModel model)
+        {
+            var user = GetUser();
+            if (user != null)
+            {
+                user.Email = model.Email;
+                user.PhoneNumber = model.Phonenumber;
+                var result = userManager.UpdateAsync(user).Result;
+                if (result.Succeeded)
+                {
+                    return string.Empty;
+                }
+                return result.Errors.ToString();
+            }
+            return "User not found";
+        }
     }
 }

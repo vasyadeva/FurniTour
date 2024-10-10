@@ -5,6 +5,8 @@ import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { CookieService } from 'ngx-cookie-service';
 import { AppStatusService } from './app.status.service';
+import { ProfileModel } from '../../models/profile.model';
+import { ProfileChangeModel } from '../../models/profile.change.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,8 +26,7 @@ export class AuthService {
     return this.http.get<{ role: string }>(this.api + 'api/auth/getrole', { withCredentials: true }).pipe(
       map(response => response.role),
       catchError(() => {
-        // Handle error appropriately
-        return of(''); // Default or error value
+        return of('');
       })
     );
   }
@@ -34,7 +35,14 @@ export class AuthService {
   public signOut() {
       return this.http.get(this.api +'api/auth/signout', { withCredentials: true });
   }
+  public getProfile(): Observable<ProfileModel> {
+    return this.http.get<ProfileModel>(this.api +'api/auth/profile', { withCredentials: true });
+  }
 
+  public changeProfile(profile: ProfileChangeModel)
+  {
+    return this.http.post(this.api +'api/auth/changeprofile', profile, { withCredentials: true });
+  }
   public user() {
       return this.http.get<UserClaim[]>(this.api +'api/auth/user',  { withCredentials: true });
   }

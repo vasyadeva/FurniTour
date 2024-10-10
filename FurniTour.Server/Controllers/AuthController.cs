@@ -72,5 +72,25 @@ namespace FurniTour.Server.Controllers
             var role = authService.GetUserRole();
             return Ok(new { role });
         }
+
+        [HttpGet("profile")]
+        [Authorize]
+        public async Task<IActionResult> GetProfile()
+        {
+            var profile = await authService.GetProfile();
+            return Ok(profile);
+        }
+
+        [HttpPost("changeprofile")]
+        [Authorize]
+        public IActionResult ChangeProfile([FromBody] ChangeProfileModel model)
+        {
+            var state =  authService.ChangeProfile(model);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok(new Response { IsSuccess = true, Message = "Profile changed successfully" });
+            }
+            return BadRequest(new Response { IsSuccess = false, Message = state });
+        }
     }
 }
