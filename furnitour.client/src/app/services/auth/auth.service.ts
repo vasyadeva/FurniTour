@@ -7,23 +7,24 @@ import { CookieService } from 'ngx-cookie-service';
 import { AppStatusService } from './app.status.service';
 import { ProfileModel } from '../../models/profile.model';
 import { ProfileChangeModel } from '../../models/profile.change.model';
+import { api } from '../../app.api';
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  api : string = "https://localhost:7043/";
+  api : string = api;
   
   constructor(private http: HttpClient,private cookieService: CookieService, private status: AppStatusService) {}
 
   public signIn(username: string, password: string) {
-      return this.http.post<Response>(this.api +'api/auth/signin', {
+      return this.http.post<Response>(this.api +'/auth/signin', {
           username: username,
           password: password
       },{withCredentials: true});
   }
 
   public getUserRole(): Observable<string> {
-    return this.http.get<{ role: string }>(this.api + 'api/auth/getrole', { withCredentials: true }).pipe(
+    return this.http.get<{ role: string }>(this.api + '/auth/getrole', { withCredentials: true }).pipe(
       map(response => response.role),
       catchError(() => {
         return of('');
@@ -33,18 +34,18 @@ export class AuthService {
 
 
   public signOut() {
-      return this.http.get(this.api +'api/auth/signout', { withCredentials: true });
+      return this.http.get(this.api +'/auth/signout', { withCredentials: true });
   }
   public getProfile(): Observable<ProfileModel> {
-    return this.http.get<ProfileModel>(this.api +'api/auth/profile', { withCredentials: true });
+    return this.http.get<ProfileModel>(this.api +'/auth/profile', { withCredentials: true });
   }
 
   public changeProfile(profile: ProfileChangeModel)
   {
-    return this.http.post(this.api +'api/auth/changeprofile', profile, { withCredentials: true });
+    return this.http.post(this.api +'/auth/changeprofile', profile, { withCredentials: true });
   }
   public user() {
-      return this.http.get<UserClaim[]>(this.api +'api/auth/user',  { withCredentials: true });
+      return this.http.get<UserClaim[]>(this.api +'/auth/user',  { withCredentials: true });
   }
 
   public isSignedIn(): Observable<boolean> {
@@ -58,7 +59,7 @@ export class AuthService {
           }));
   }
   public register(username: string, password: string, isMaster: boolean) {
-      return this.http.post(this.api +'api/auth/register',{username: username, password: password, isMaster: isMaster}
+      return this.http.post(this.api +'/auth/register',{username: username, password: password, isMaster: isMaster}
          ,{ withCredentials: true });
   }
 }

@@ -4,11 +4,12 @@ import { itemSend } from '../../models/item.send.model';
 import { Observable } from 'rxjs';
 import { itemGet } from '../../models/item.get.model';
 import { itemUpdate } from '../../models/item.update.model';
+import { api } from '../../app.api';
 @Injectable({
   providedIn: 'root'
 })
 export class ItemService {
-  api : string = "https://localhost:7043/api/Item/";
+  api : string = api+"/Item/";
   constructor(private http: HttpClient) { }
 
   create(item: itemSend) {

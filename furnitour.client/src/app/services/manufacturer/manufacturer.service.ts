@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ManufacturerModel } from '../../models/manufacturer.model';
 import { AddManufacturerModel } from '../../models/add.manufacturer.model';
+import { api } from '../../app.api';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { AddManufacturerModel } from '../../models/add.manufacturer.model';
 export class ManufacturerService {
 
   constructor(private http: HttpClient) { }
-  api : string = "https://localhost:7043/api/Manufacturer/";
+  api : string = api+"/Manufacturer/";
   
   getAll(): Observable<ManufacturerModel[]> {
     return this.http.get<ManufacturerModel[]>(this.api + 'getall', { withCredentials: true });

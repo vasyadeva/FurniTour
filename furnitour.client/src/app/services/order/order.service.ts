@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { OrderModel } from '../../models/order.model';
 import { CreateOrderModel } from '../../models/create.order.model';
+import { api } from '../../app.api';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  api : string = "https://localhost:7043/api/Order/";
+  api : string = api+"/Order/";
   constructor(private http: HttpClient) { }
 
   myorders():Observable<OrderModel[]> {

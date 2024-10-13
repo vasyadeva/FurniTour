@@ -15,6 +15,7 @@ import { AppStatusService } from './services/auth/app.status.service';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  
     constructor(private authService: AuthService,
         private formBuilder: FormBuilder,
         private router: Router,

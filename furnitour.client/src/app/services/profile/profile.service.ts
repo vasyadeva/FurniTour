@@ -5,13 +5,14 @@ import { ProfileMasterModel } from '../../models/profile.master.model';
 import { MasterAddReviewModel } from '../../models/master.add.review.model';
 import { ProfileManufacturerModel } from '../../models/profile.manufacturer.model';
 import { ManufacturerAddReviewModel } from '../../models/manufacturer.add.review.model';
+import { api } from '../../app.api';
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileService {
 
   constructor(private http: HttpClient) { }
-  api : string = "https://localhost:7043/api/Profile/";
+  api : string = api + "/Profile/";
 
   getMasterProfile(id: string): Observable<ProfileMasterModel>
   {
