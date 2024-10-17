@@ -1,29 +1,42 @@
 <div class="profile-container" *ngIf="profile.name; else noProfile">
-    <h1>Manufacturer Profile</h1>
-    
-    <div class="profile-info">
+  <h1>Manufacturer Profile</h1>
+
+  <!-- Bootstrap Card -->
+  <div class="card">
+    <div class="card-header">
       <h2>{{ profile.name }}</h2>
     </div>
-  
-    <div *ngIf="profile.reviews.length > 0; else noReviews">
-      <h3>Reviews:</h3>
-      <ul class="reviews-list">
-        <li *ngFor="let review of profile.reviews">
-          <p><strong>{{ review.username }}:</strong> {{ review.comment }}</p>
-          <p>Rating: {{ review.rating }}/5</p>
-        </li>
-      </ul>
+
+    <div class="card-body">
+      <div *ngIf="profile.reviews.length > 0; else noReviews">
+        <h3>Reviews:</h3>
+        <ul class="list-group">
+          <li class="list-group-item" *ngFor="let review of profile.reviews">
+            <p><strong>{{ review.username }}:</strong> {{ review.comment }}</p>
+            <p>Rating: {{ review.rating }}/5</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <a class="btn btn-primary" [routerLink]="['/manufacturerreview/add', profile.name]" routerLinkActive="router-link-active">
+        Add review
+      </a>
     </div>
   </div>
-  
-  <!-- No Profile Available -->
-  <ng-template #noProfile>
-    <p>No master profile found.</p>
-  </ng-template>
-  
-  <!-- No Reviews Available -->
-  <ng-template #noReviews>
-    <p>No reviews available for this master.</p>
-  </ng-template>
-  
-  <a class="btn btn-primary" [routerLink]="['/manufacturerreview/add', profile.name]" routerLinkActive="router-link-active" >Add review</a>
+</div>
+
+<!-- No Profile Available -->
+<ng-template #noProfile>
+  <div class="alert alert-warning" role="alert">
+    No manufacturer profile found.
+  </div>
+</ng-template>
+
+<!-- No Reviews Available -->
+<ng-template #noReviews>
+  <div class="alert alert-info" role="alert">
+    No reviews available for this manufacturer.
+  </div>
+</ng-template>

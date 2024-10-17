@@ -23,7 +23,7 @@ namespace FurniTour.Server.Controllers
             return Ok(items);
         }
 
-        [Authorize(Roles = Roles.Administrator)]
+        [Authorize(Roles = (Roles.Administrator + "," + Roles.Master))]
         [HttpPost("create")]
         public async Task<IActionResult> AddItem([FromBody]ItemModel itemModel)
         {

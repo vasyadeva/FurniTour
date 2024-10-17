@@ -10,7 +10,7 @@ namespace FurniTour.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = Roles.Administrator)]
+    
     public class ManufacturerController : ControllerBase
     {
         private readonly IManufacturerService manufacturerService;
@@ -19,6 +19,7 @@ namespace FurniTour.Server.Controllers
             this.manufacturerService = manufacturerService;
         }
 
+        [Authorize(Roles = Roles.Administrator + "," + Roles.Master)]
         [HttpGet("getall")]
         public IActionResult GetAll()
         {
@@ -26,6 +27,7 @@ namespace FurniTour.Server.Controllers
             return Ok(manufacturers);
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> Get(int id)
         {
@@ -37,6 +39,7 @@ namespace FurniTour.Server.Controllers
             return Ok(manufacturer);
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpPost("add")]
         public async Task<IActionResult> AddAsync([FromBody] AddManufacturerModel model)
         {
@@ -48,6 +51,7 @@ namespace FurniTour.Server.Controllers
             return BadRequest(state);
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpPost("update")]
         public async Task<IActionResult> UpdateAsync( [FromBody] ManufacturerModel model)
         {
@@ -59,6 +63,7 @@ namespace FurniTour.Server.Controllers
             return BadRequest(state);
         }
 
+        [Authorize(Roles = Roles.Administrator)]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {

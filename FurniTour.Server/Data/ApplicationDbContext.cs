@@ -21,6 +21,8 @@ namespace FurniTour.Server.Data
             builder.ApplyConfiguration(new UserSeedConfiguration());
             builder.ApplyConfiguration(new UserRoleSeedConfiguration());
             builder.ApplyConfiguration(new OrderStateSeedConfiguration());    
+            builder.ApplyConfiguration(new CategorySeedConfiguration());
+            builder.ApplyConfiguration(new ColorSeedConfiguration());
 
             builder.Entity<CartItem>()
            .HasOne(ci => ci.Furniture)
@@ -74,5 +76,7 @@ namespace FurniTour.Server.Data
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<ManufacturerReview> ManufacturerReviews { get; set; }
         public DbSet<MasterReview> MasterReviews { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Color> Colors { get; set; }
     }
 }
