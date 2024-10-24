@@ -1,9 +1,12 @@
 ﻿using FurniTour.Server.Interfaces;
+using FurniTour.Server.Models.Api;
 using FurniTour.Server.Models.Profile;
+using GroqApiLibrary;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json.Nodes;
 
 namespace FurniTour.Server.Controllers
 {
@@ -11,10 +14,14 @@ namespace FurniTour.Server.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
+
         private readonly IProfileService profileService;
-        public ProfileController(IProfileService profileService)
+        private readonly IConfiguration configuration;
+
+        public ProfileController(IProfileService profileService, IConfiguration configuration)
         {
             this.profileService = profileService;
+            this.configuration = configuration;
         }
 
         [HttpGet("getmaster/{id}")]
@@ -55,6 +62,84 @@ namespace FurniTour.Server.Controllers
                 return Ok();
             }
             return BadRequest(state);
+        }
+
+        [HttpGet("ai/master/review/{id}")]
+        public async Task<IActionResult> GetMasterReview(string id)
+        {
+            var review = await profileService.GetMasterProfile(id);
+            string reviewstext = "";
+            foreach (var rev in review.Reviews)
+            {
+                reviewstext += rev.Comment;
+            }
+            var api = configuration["key:api"];
+            var groqApi = new GroqApiClient(api);
+
+            var request = new JsonObject
+            {
+                ["model"] = "mixtral-8x7b-32768",
+                ["messages"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["role"] = "user",
+                    ["content"] = $"Summarize the reviews without for master {id}: {reviewstext}"
+                }
+            }
+            };
+
+            var result = await groqApi.CreateChatCompletionAsync(request);
+            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+            if (aiResponse != null)
+            {
+                aiResponse = aiResponse.Replace("\"", "") 
+                                       .Replace("\n", " ")
+                                       .Replace("\r", " ")
+                                       .Trim();           
+            }
+
+            return Ok(new AIReviewModel { review = aiResponse });
+        }
+
+        [HttpGet("ai/manufacturer/review/{id}")]
+        public async Task<IActionResult> GetManufacturerReview(string id)
+        {
+            var review = await profileService.GetManufacturerProfile(id);
+            string reviewstext = "";
+            foreach (var rev in review.Reviews)
+            {
+                reviewstext += "," + rev.Comment;
+            }
+            var api = configuration["key:api"];
+            var groqApi = new GroqApiClient(api);
+
+            var request = new JsonObject
+            {
+                ["model"] = "mixtral-8x7b-32768",
+                ["messages"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["role"] = "user",
+                    ["content"] = $"Summarize the reviews without for manufacturer {id}: {reviewstext}"
+                }
+            }
+            };
+
+            var result = await groqApi.CreateChatCompletionAsync(request);
+            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+            if (aiResponse != null)
+            {
+                aiResponse = aiResponse.Replace("\"", "")  
+                                       .Replace("\n", " ") 
+                                       .Replace("\r", " ") 
+                                       .Trim();            
+            }
+
+            return Ok(new AIReviewModel { review = aiResponse});
         }
     }
 }

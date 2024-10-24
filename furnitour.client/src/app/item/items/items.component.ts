@@ -18,6 +18,7 @@ import { PopupService } from '../../services/popup/popup.service';
 })
 export class ItemsComponent implements OnInit {
   items: itemGet[] = [];
+  RecomendedItems: itemGet[] = [];
   quantity: { [key: number]: number } = {}; 
   constructor(private itemService: ItemService, private cartService : CartService, public status: AppStatusService,
     private popupService: PopupService
@@ -35,6 +36,19 @@ export class ItemsComponent implements OnInit {
         console.error('Error fetching items:', error);
         this.popupService.closeSnackBar();
         this.popupService.openSnackBar('Error fetching items');
+      }
+    );
+    
+    this.popupService.loadingSnackBar();
+    this.itemService.recomended().subscribe(
+      (response) => {
+        console.log('Recomended items fetched successfully!', response);
+        this.popupService.closeSnackBar();
+        this.RecomendedItems = response;
+      },
+      (error) => {
+        this.popupService.openSnackBar('Error fetching recomended items');
+        console.error('Error fetching recomended items:', error);
       }
     );
   }

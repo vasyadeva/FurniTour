@@ -4,6 +4,7 @@ import { PopupService } from '../../../services/popup/popup.service';
 import { ProfileMasterModel } from '../../../models/profile.master.model';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AIReviewModel } from '../../../models/ai.review.model';
 @Component({
   selector: 'app-masterprofile',
   standalone: true,
@@ -20,6 +21,9 @@ export class MasterprofileComponent implements OnInit{
     reviews: []
   };
   profileId: string | null = null;
+  AIReview: AIReviewModel = {
+    review: ''
+  };
   id! : string;
   constructor(private profileService: ProfileService, private popupService: PopupService,
     private route: ActivatedRoute, private router: Router,
@@ -43,6 +47,18 @@ export class MasterprofileComponent implements OnInit{
           console.error('Error fetching master profile:', error);
         }
       );
+      this.popupService.loadingSnackBar();
+      this.profileService.getMasterAIReview(this.id).subscribe(
+        (response) => {
+          this.popupService.closeSnackBar();
+          console.log('AI Review:', response);
+          this.AIReview = response;
+        },
+        (error) => {
+          this.popupService.closeSnackBar();
+          this.popupService.openSnackBar(error?.error || 'Error fetching AI review');
+          console.error('Error fetching AI review:', error);
+        });
     });
 
     

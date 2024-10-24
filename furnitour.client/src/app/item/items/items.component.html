@@ -5,7 +5,32 @@
         <button class="btn btn-primary m-1" *ngIf="status.isMaster || status.isAdmin" [routerLink]="['/create']">Add Item</button>
       </div>
     </div>
-  
+
+    <h3>Recomended Items</h3>
+    <div class="row">
+      <div class="col-md-4" *ngFor="let item of RecomendedItems">
+        <div class="card mb-4">
+          <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <p *ngIf="item.master!=''" class="card-text"><strong>Master:</strong><a [routerLink]="['/profile/master',item.master]">{{ item.master}}</a></p>
+            <p *ngIf="item.manufacturer!=''" class="card-text"><strong>Manufacturer:</strong><a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a></p>
+            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+           <label *ngIf="this.status.isUser" for="quantity">Quantity:</label>
+           <input type="number" *ngIf="this.status.isUser" [(ngModel)]="this.quantity[item.id]" min="1" class="form-control mb-2" value="1" />
+           <button class="btn btn-warning m-1" [routerLink]="['/details', item.id]">View Details</button>
+            <button class="btn btn-primary m-1" *ngIf="this.status.isAdmin || this.status.isMaster" [routerLink]="['/edit', item.id]">Edit</button>
+           <button class="btn btn-danger m-1" *ngIf="this.status.isAdmin || this.status.isMaster" (click)="Delete(item.id)">Delete</button>
+           <button class="btn btn-success m-1" *ngIf="this.status.isUser" (click)="AddToCart(item.id, this.quantity[item.id])">Add to Cart</button>
+      
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>All items</h3>
+
     <div class="row">
       <div class="col-md-4" *ngFor="let item of items">
         <div class="card mb-4">

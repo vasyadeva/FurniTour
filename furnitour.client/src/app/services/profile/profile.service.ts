@@ -6,6 +6,7 @@ import { MasterAddReviewModel } from '../../models/master.add.review.model';
 import { ProfileManufacturerModel } from '../../models/profile.manufacturer.model';
 import { ManufacturerAddReviewModel } from '../../models/manufacturer.add.review.model';
 import { api } from '../../app.api';
+import { AIReviewModel } from '../../models/ai.review.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -22,6 +23,16 @@ export class ProfileService {
   getManufacturerProfile(name: string): Observable<ProfileManufacturerModel>
   {
     return this.http.get<ProfileManufacturerModel>(this.api + 'getmanufacturer/' + name, { withCredentials: true });
+  }
+
+  getMasterAIReview(id: string): Observable<AIReviewModel>
+  {
+    return this.http.get<AIReviewModel>(this.api + 'ai/master/review/' + id, { withCredentials: true });
+  }
+
+  getManufacturerAIReview(id: string): Observable<AIReviewModel>
+  {
+    return this.http.get<AIReviewModel>(this.api + 'ai/manufacturer/review/' + id, { withCredentials: true });
   }
 
   addMasterReview(model: MasterAddReviewModel)

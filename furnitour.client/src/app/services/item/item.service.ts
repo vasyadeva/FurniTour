@@ -31,4 +31,8 @@ export class ItemService {
   update(item: itemUpdate) {
     return this.http.post(this.api + 'edit/', item, { withCredentials: true });
   }
+
+  recomended(): Observable<itemGet[]> {
+    return this.http.get<itemGet[]>(this.api + 'recommend', { withCredentials: true });
+  }
 }

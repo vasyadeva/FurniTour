@@ -78,5 +78,8 @@ namespace FurniTour.Server.Data
         public DbSet<MasterReview> MasterReviews { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Color> Colors { get; set; }
+        public DbSet<Clicks> Clicks { get; set; }
+        public DbSet<CachedRecommendation> CachedRecommendations { get; set; }
+        public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }
     }
 }

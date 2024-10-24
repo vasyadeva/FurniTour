@@ -13,9 +13,20 @@ namespace FurniTour.Server.Controllers
     public class ItemController : ControllerBase
     {
         private readonly IItemFurnitureService itemFurnitureService;
-        public ItemController(IItemFurnitureService itemFurnitureService) {
+        private readonly IRecomendationService recomendationService;
+
+        public ItemController(IItemFurnitureService itemFurnitureService, IRecomendationService recomendationService) {
             this.itemFurnitureService = itemFurnitureService;
+            this.recomendationService = recomendationService;
         }
+        [HttpGet("recommend")]
+        public async Task<IActionResult> GetRecommendations()
+        {
+            var items = await recomendationService.GetRecommendationsAsync();
+            return Ok(items);
+        }
+
+
         [HttpGet("getall")]
         public IActionResult GetAll()
         {

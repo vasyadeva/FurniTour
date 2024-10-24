@@ -4,6 +4,7 @@ import { ProfileService } from '../../../services/profile/profile.service';
 import { PopupService } from '../../../services/popup/popup.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AIReviewModel } from '../../../models/ai.review.model';
 
 @Component({
   selector: 'app-manufacturer-profile',
@@ -18,6 +19,9 @@ export class ManufacturerProfileComponent implements OnInit {
     reviews: []
   }
   profileId: string | null = null;
+  AIReview: AIReviewModel = {
+    review: ''
+  };
   id! : string;
   constructor(private profileService: ProfileService, private popupService: PopupService,
     private route: ActivatedRoute, private router: Router,
@@ -42,5 +46,17 @@ export class ManufacturerProfileComponent implements OnInit {
         }
       );
     });
+    this.popupService.loadingSnackBar();
+    this.profileService.getManufacturerAIReview(this.id).subscribe(
+      (response) => {
+        this.popupService.closeSnackBar();
+        console.log('AI Review:', response);
+        this.AIReview = response;
+      },
+      (error) => {
+        this.popupService.closeSnackBar();
+        this.popupService.openSnackBar(error?.error || 'Error fetching AI review');
+        console.error('Error fetching AI review:', error);
+      });
   }
 }
