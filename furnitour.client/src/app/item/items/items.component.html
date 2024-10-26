@@ -5,7 +5,6 @@
         <button class="btn btn-primary m-1" *ngIf="status.isMaster || status.isAdmin" [routerLink]="['/create']">Add Item</button>
       </div>
     </div>
-
     <h3>Recomended Items</h3>
     <div class="row">
       <div class="col-md-4" *ngFor="let item of RecomendedItems">

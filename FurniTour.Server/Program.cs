@@ -25,6 +25,7 @@ builder.Services.AddScoped<IItemFurnitureService, ItemFurnitureService>();
 builder.Services.AddScoped<IManufacturerService, ManufacturerService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IRecomendationService, RecomendationService>();
+builder.Services.AddScoped<IClickService, ClickService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -5,6 +5,7 @@ import { itemGet } from '../../models/item.get.model';
 import { ActivatedRoute, Router,RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PopupService } from '../../services/popup/popup.service';
+import { ClickService } from '../../services/click/click.service';
 @Component({
   selector: 'app-item-info',
   standalone: true,
@@ -24,7 +25,9 @@ export class ItemInfoComponent implements OnInit {
     manufacturer: '',
     master: ''
   };
-  constructor(private itemService: ItemService, private route: ActivatedRoute, private router: Router, private popupService: PopupService) {}
+  constructor(private itemService: ItemService, private route: ActivatedRoute, 
+    private router: Router, private popupService: PopupService,
+    private clickService: ClickService) {}
   ngOnInit(): void {
     this.popupService.loadingSnackBar();
     this.route.paramMap.subscribe(params => {
@@ -34,6 +37,14 @@ export class ItemInfoComponent implements OnInit {
         (response) => {
           this.popupService.closeSnackBar();
           this.item = response;
+          this.clickService.sendClick(this.id).subscribe(
+            (response) => {
+              console.log('Click sent');
+            },
+            (error) => {
+              console.error('Error sending click:', error);
+            }
+          );
         },
         (error) => {
           this.popupService.closeSnackBar();

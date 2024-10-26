@@ -182,7 +182,7 @@ public class RecomendationService : IRecomendationService
 private async Task<List<Furniture>> GetCachedRecommendationsAsync(string userId)
     {
         var cachedRecommendation = await _context.CachedRecommendations
-            .Where(cr => cr.UserId == userId && cr.CachedTime > DateTime.UtcNow.AddHours(-24))
+            .Where(cr => cr.UserId == userId && cr.CachedTime > DateTime.UtcNow.AddMinutes(5))
             .OrderByDescending(cr => cr.CachedTime)
             .FirstOrDefaultAsync();
 
