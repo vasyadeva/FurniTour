@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { itemGet } from '../../models/item.get.model';
 import { itemUpdate } from '../../models/item.update.model';
 import { api } from '../../app.api';
+import {  ColorModel } from '../../models/color.model';
+import { CategoryModel } from '../../models/category.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -35,4 +37,19 @@ export class ItemService {
   recomended(): Observable<itemGet[]> {
     return this.http.get<itemGet[]>(this.api + 'recommend', { withCredentials: true });
   }
+
+  getColors(): Observable<ColorModel[]>
+  {
+    return this.http.get<ColorModel[]>(this.api + 'colors/getall', { withCredentials: true });
+  }
+
+  getCategories(): Observable<CategoryModel[]>
+  {
+    return this.http.get<CategoryModel[]>(this.api + 'categories/getall', { withCredentials: true });
+  }
+
+  getItemByDescription(description: string): Observable<itemGet> {
+    return this.http.get<itemGet>(this.api + 'search/' + description, { withCredentials: true });
+  }
+
 }

@@ -53,6 +53,9 @@ namespace FurniTour.Server.Services
                                     {
                                         Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
                                     }
+                                    var category = context.Categories.Where(c => c.Id == Furniture.CategoryId).FirstOrDefault()?.Name ?? "Unknown";
+                                    var color = context.Colors.Where(c => c.Id == Furniture.ColorId).FirstOrDefault()?.Name ?? "Unknown";
+
                                     OrderItemViewModel.Add(new OrderItemViewModel
                                     {
                                         Name = Furniture.Name,
@@ -61,7 +64,9 @@ namespace FurniTour.Server.Services
                                         Description = Furniture.Description,
                                         //Photo = Furniture.Image,
                                         Master = Master,
-                                        Manufacturer = Manufacturer
+                                        Manufacturer = Manufacturer,
+                                        Category = category,
+                                        Color = color
                                     });
                                 }
                             }
@@ -174,6 +179,9 @@ namespace FurniTour.Server.Services
                                     {
                                         Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
                                     }
+                                    var category = context.Categories.Where(c => c.Id == Furniture.CategoryId).FirstOrDefault()?.Name ?? "Unknown";
+                                    var color = context.Colors.Where(c => c.Id == Furniture.ColorId).FirstOrDefault()?.Name ?? "Unknown";
+
                                     OrderItemViewModel.Add(new OrderItemViewModel
                                     {
                                         Name = Furniture.Name,
@@ -182,7 +190,9 @@ namespace FurniTour.Server.Services
                                         Description = Furniture.Description,
                                        // Photo = Furniture.Image,
                                         Master = Master,
-                                        Manufacturer = Manufacturer
+                                        Manufacturer = Manufacturer,
+                                        Category = category,
+                                        Color = color
                                     });
                                 }
                             }

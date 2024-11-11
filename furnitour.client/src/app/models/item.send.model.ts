@@ -4,5 +4,7 @@ export interface itemSend
     description: string;
     price: number;
     image: string;
+    categoryId: number;
+    colorId: number;
     manufacturerId: number;
 }

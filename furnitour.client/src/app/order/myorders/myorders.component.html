@@ -21,6 +21,8 @@
               <th>Quantity</th>
               <th>Price</th>
               <th>Master/Manufacturer</th>
+              <th>Color</th>
+              <th>Category</th>
             </tr>
           </thead>
           <tbody>
@@ -30,6 +32,8 @@
               <td>{{ item.price | currency }}</td>
               <td *ngIf="item.master != ''">{{ item.master }}</td>
               <td *ngIf="item.manufacturer != ''">{{ item.manufacturer }}</td>
+              <td>{{item.category}}</td>
+              <td>{{item.color}}</td>
             </tr>
           </tbody>
         </table>

@@ -9,6 +9,9 @@ import { itemUpdate } from '../../models/item.update.model';
 import { AppStatusService } from '../../services/auth/app.status.service';
 import { ManufacturerModel } from '../../models/manufacturer.model';
 import { ManufacturerService } from '../../services/manufacturer/manufacturer.service';
+import { CategoryModel } from '../../models/category.model';
+import { ColorModel } from '../../models/color.model';
+
 @Component({
   selector: 'app-item-edit',
   standalone: true,
@@ -25,51 +28,75 @@ export class ItemEditComponent implements OnInit {
     description: '',
     price: 0,
     image: '',
+    categoryId: 0,
+    colorId: 0,
     manufacturerId: 0
   };
 
   manufacturers: ManufacturerModel[] = [];
-  filteredManufacturers : ManufacturerModel[]= [];
+  filteredManufacturers: ManufacturerModel[] = [];
+  categories: CategoryModel[] = [];
+  colors: ColorModel[] = [];
   searchTerm = '';
 
-  error : string = '';
+  error: string = '';
   itemForm: FormGroup;
-  base64Photo: string | null = null; 
+  base64Photo: string | null = null;
 
-  constructor(private fb: FormBuilder, private itemService: ItemService,private route: ActivatedRoute, private router: Router,
-    private popupService: PopupService, public status: AppStatusService,private manufacturerService: ManufacturerService
+  constructor(private fb: FormBuilder, private itemService: ItemService, private route: ActivatedRoute, private router: Router,
+    private popupService: PopupService, public status: AppStatusService, private manufacturerService: ManufacturerService
   ) {
-    if (status.isAdmin)
-      {
-        this.itemForm = this.fb.group({
-          name: ['', [Validators.required]],
-          description: ['', [Validators.required]],
-          price: [0, [Validators.required, Validators.min(0)]],
-          photo: ['', [Validators.required]],
-          manufacturerId: [null, [Validators.required]] 
-        });
-      }
-      else
-      {
-        this.itemForm = this.fb.group({
-          name: ['', [Validators.required]],
-          description: ['', [Validators.required]],
-          price: [0, [Validators.required, Validators.min(0)]],
-          photo: ['', [Validators.required]],
-          manufacturerId: [null] 
-        });
-      }
+    if (status.isAdmin) {
+      this.itemForm = this.fb.group({
+        name: ['', [Validators.required]],
+        description: ['', [Validators.required]],
+        price: [0, [Validators.required, Validators.min(0)]],
+        colorId: [0, [Validators.required]],
+        categoryId: [0, [Validators.required]],
+        photo: ['', [Validators.required]],
+        manufacturerId: [null, [Validators.required]]
+      });
+    } else {
+      this.itemForm = this.fb.group({
+        name: ['', [Validators.required]],
+        description: ['', [Validators.required]],
+        price: [0, [Validators.required, Validators.min(0)]],
+        colorId: [0, [Validators.required]],
+        categoryId: [0, [Validators.required]],
+        photo: ['', [Validators.required]],
+        manufacturerId: [null]
+      });
+    }
 
-      this.manufacturerService.getAll().subscribe(
-        response =>{
-          this.manufacturers = response;
-          this.filterManufacturers();
-        },
-        error => {
-          this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
-        }
-      );
-      this.filterManufacturers();
+    this.manufacturerService.getAll().subscribe(
+      response => {
+        this.manufacturers = response;
+        this.filterManufacturers();
+      },
+      error => {
+        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+      }
+    );
+
+    this.itemService.getCategories().subscribe(
+      response => {
+        this.categories = response;
+      },
+      error => {
+        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+      }
+    );
+
+    this.itemService.getColors().subscribe(
+      response => {
+        this.colors = response;
+      },
+      error => {
+        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+      }
+    );
+
+    this.filterManufacturers();
   }
 
   filterManufacturers() {
@@ -104,22 +131,23 @@ export class ItemEditComponent implements OnInit {
       return;
     }
 
-    const base64Data = this.base64Photo.split(',')[1]; 
+    const base64Data = this.base64Photo.split(',')[1];
     this.itemModel.id = this.id;
     this.itemModel.name = this.itemForm.get('name')?.value;
     this.itemModel.description = this.itemForm.get('description')?.value;
     this.itemModel.price = this.itemForm.get('price')?.value;
+    this.itemModel.categoryId = this.itemForm.get('categoryId')?.value;
+    this.itemModel.colorId = this.itemForm.get('colorId')?.value;
     this.itemModel.image = base64Data;
-    this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value; 
+    this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value;
     this.itemService.update(this.itemModel).subscribe(
       response => {
         this.popupService.openSnackBar('Item updated successfully!');
-
         this.itemForm.reset();
       },
       error => {
         if (!error?.error?.isSuccess) {
-            this.popupService.openSnackBar(error?.error || 'An unexpected error occurred. Please try again later.');
+          this.popupService.openSnackBar(error?.error || 'An unexpected error occurred. Please try again later.');
         }
       }
     );

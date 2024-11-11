@@ -83,5 +83,26 @@ namespace FurniTour.Server.Controllers
             }
             return BadRequest();
         }
+
+        [HttpGet("categories/getall")]
+        public IActionResult GetCategories()
+        {
+            var categories = itemFurnitureService.GetCategories();
+            return Ok(categories);
+        }
+
+        [HttpGet("colors/getall")]
+        public IActionResult GetColors()
+        {
+            var colors = itemFurnitureService.GetColors();
+            return Ok(colors);
+        }
+
+        [HttpGet("search/{description}")]
+        public async Task<IActionResult> GetItemsByDescription(string description)
+        {
+            var items = await itemFurnitureService.GetItemsByDescriptionAsync(description);
+            return Ok(items);
+        }
     }
 }

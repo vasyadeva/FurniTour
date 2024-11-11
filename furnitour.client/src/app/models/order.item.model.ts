@@ -5,4 +5,6 @@ export interface OrderItemModel {
     price: number;
     manufacturer: string;
     master: string;
+    color: string;
+    category: string;
   }

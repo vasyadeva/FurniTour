@@ -106,6 +106,9 @@ namespace FurniTour.Server.Services
                                 {
                                     Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
                                 }
+                                var category = context.Categories.Where(c => c.Id == Furniture.CategoryId).FirstOrDefault()?.Name ?? "Unknown";
+                                var color = context.Colors.Where(c => c.Id == Furniture.ColorId).FirstOrDefault()?.Name ?? "Unknown";
+
                                 Items.Add(new CartItemViewModel
                                 {
                                     Id = item.Id,
@@ -115,7 +118,9 @@ namespace FurniTour.Server.Services
                                     Price = Furniture.Price,
                                     Quantity = item.Quantity,
                                     Manufacturer = Manufacturer,
-                                    Master = Master
+                                    Master = Master,
+                                    Category = category,
+                                    Color = color
                                 });
                             }
                         }

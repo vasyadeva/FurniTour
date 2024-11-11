@@ -21,6 +21,8 @@ export class ItemInfoComponent implements OnInit {
     name: '',
     description: '',
     price: 0,
+    category: '',
+    color: '',
     image: '',
     manufacturer: '',
     master: ''

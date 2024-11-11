@@ -48,6 +48,8 @@ public class RecomendationService : IRecomendationService
                     Description = item.Description,
                     Price = item.Price,
                     Image = Convert.ToBase64String(item.Image),
+                    Category = item.Category.Name,
+                    Color = item.Color.Name,
                     Manufacturer = Manufacturer,
                     Master = Master
 
@@ -92,6 +94,8 @@ public class RecomendationService : IRecomendationService
                 Description = item.Description,
                 Price = item.Price,
                 Image = Convert.ToBase64String(item.Image),
+                Category = item.Category.Name,
+                Color = item.Color.Name,
                 Manufacturer = Manufacturer,
                 Master = Master
 

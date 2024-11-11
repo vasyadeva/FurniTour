@@ -14,6 +14,8 @@
             <p class="card-text">{{ item.description }}</p>
             <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
             <p class="card-text"><strong>Quantity:</strong> {{ item.quantity }}</p>
+            <p class="card-text"><strong>Category:</strong> {{ item.category }}</p>
+            <p class="card-text"><strong>Color:</strong> {{ item.color }}</p>
             <td *ngIf="item.master != ''"><strong>Master:</strong>{{ item.master }}</td>
             <td *ngIf="item.manufacturer != ''"><strong>Manufacturer:</strong>{{ item.manufacturer }}</td>          
             <button class="btn btn-sm btn-dark m-1" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>

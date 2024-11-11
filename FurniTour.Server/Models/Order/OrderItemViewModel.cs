@@ -1,4 +1,6 @@
-﻿namespace FurniTour.Server.Models.Order
+﻿using System.Reflection.Metadata;
+
+namespace FurniTour.Server.Models.Order
 {
     public class OrderItemViewModel
     {
@@ -9,6 +11,8 @@
         public string? Master { get; set; }
         public string? Manufacturer { get; set; }
         public string? Description { get; set; }
+        public string Color { get; set; }
+        public string Category { get; set; }
         //public byte[]? Photo { get; set; }
     }
 }

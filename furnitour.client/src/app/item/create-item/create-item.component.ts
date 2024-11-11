@@ -8,6 +8,9 @@ import { PopupService } from '../../services/popup/popup.service';
 import { AppStatusService } from '../../services/auth/app.status.service';
 import { ManufacturerModel } from '../../models/manufacturer.model';
 import { ManufacturerService } from '../../services/manufacturer/manufacturer.service';
+import { CategoryModel } from '../../models/category.model';
+import { ColorModel } from '../../models/color.model';
+
 @Component({
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, FormsModule],
@@ -21,41 +24,34 @@ export class CreateItemComponent {
     description: '',
     price: 0,
     image: '',
+    categoryId: 0,
+    colorId: 0,
     manufacturerId: 0
   };
   manufacturers: ManufacturerModel[] = [];
-  filteredManufacturers : ManufacturerModel[]= [];
+  filteredManufacturers: ManufacturerModel[] = [];
+  categories: CategoryModel[] = [];
+  colors: ColorModel[] = [];
   searchTerm = '';
-  error : string = '';
+  error: string = '';
   itemForm: FormGroup;
   base64Photo: string | null = null;
 
   constructor(private fb: FormBuilder, private itemService: ItemService, private popupService: PopupService,
     public status: AppStatusService, private manufacturerService: ManufacturerService
   ) {
-    if (status.isAdmin)
-    {
-      this.itemForm = this.fb.group({
-        name: ['', [Validators.required]],
-        description: ['', [Validators.required]],
-        price: [0, [Validators.required, Validators.min(0)]],
-        photo: ['', [Validators.required]],
-        manufacturerId: [null, [Validators.required]] 
-      });
-    }
-    else
-    {
-      this.itemForm = this.fb.group({
-        name: ['', [Validators.required]],
-        description: ['', [Validators.required]],
-        price: [0, [Validators.required, Validators.min(0)]],
-        photo: ['', [Validators.required]],
-        manufacturerId: [null] 
-      });
-    }
+    this.itemForm = this.fb.group({
+      name: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      price: [0, [Validators.required, Validators.min(0)]],
+      photo: ['', [Validators.required]],
+      colorId: [0, [Validators.required]],
+      categoryId: [0, [Validators.required]],
+      manufacturerId: [null, status.isAdmin ? [Validators.required] : []]
+    });
 
     this.manufacturerService.getAll().subscribe(
-      response =>{
+      response => {
         this.manufacturers = response;
         this.filterManufacturers();
       },
@@ -63,6 +59,25 @@ export class CreateItemComponent {
         this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
       }
     );
+
+    this.itemService.getCategories().subscribe(
+      response => {
+        this.categories = response;
+      },
+      error => {
+        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+      }
+    );
+
+    this.itemService.getColors().subscribe(
+      response => {
+        this.colors = response;
+      },
+      error => {
+        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+      }
+    );
+
     this.filterManufacturers();
   }
 
@@ -91,12 +106,14 @@ export class CreateItemComponent {
       return;
     }
 
-    const base64Data = this.base64Photo.split(',')[1]; 
+    const base64Data = this.base64Photo.split(',')[1];
     this.itemModel.name = this.itemForm.get('name')?.value;
     this.itemModel.description = this.itemForm.get('description')?.value;
     this.itemModel.price = this.itemForm.get('price')?.value;
+    this.itemModel.categoryId = this.itemForm.get('categoryId')?.value;
+    this.itemModel.colorId = this.itemForm.get('colorId')?.value;
     this.itemModel.image = base64Data;
-    this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value; 
+    this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value;
     this.itemService.create(this.itemModel).subscribe(
       response => {
         console.log('Item added successfully!', response);
@@ -105,8 +122,8 @@ export class CreateItemComponent {
       },
       error => {
         if (!error?.error?.isSuccess) {
-            this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.')
-            this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+          this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+          this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
         }
       }
     );

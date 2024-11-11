@@ -8,18 +8,20 @@ import { CartService } from '../../services/cart/cart.service';
 import { AppStatusService } from '../../services/auth/app.status.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'; 
 import { PopupService } from '../../services/popup/popup.service';
-
+import { SidebarModule } from '@coreui/angular';
 @Component({
   selector: 'app-items',
   standalone: true,
-  imports: [CommonModule,RouterModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule,RouterModule, ReactiveFormsModule, FormsModule, SidebarModule],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
 })
 export class ItemsComponent implements OnInit {
   items: itemGet[] = [];
   RecomendedItems: itemGet[] = [];
+  searchResult: itemGet | null = null;
   quantity: { [key: number]: number } = {}; 
+  searchDescription: string = '';
   constructor(private itemService: ItemService, private cartService : CartService, public status: AppStatusService,
     private popupService: PopupService
   ) {}
@@ -79,6 +81,23 @@ export class ItemsComponent implements OnInit {
       (error) => {
         console.error('Error adding item to cart:', error);
         this.popupService.openSnackBar('Error adding item to cart');
+      }
+    );
+  }
+
+  searchItem() {
+    if (this.searchDescription.trim() === '') {
+      this.popupService.openSnackBar('Please enter a description to search.');
+      return;
+    }
+
+    this.itemService.getItemByDescription(this.searchDescription).subscribe(
+      (response) => {
+        this.searchResult = response;
+      },
+      (error) => {
+        console.error('Error fetching item by description:', error);
+        this.popupService.openSnackBar('Error fetching item by description');
       }
     );
   }
