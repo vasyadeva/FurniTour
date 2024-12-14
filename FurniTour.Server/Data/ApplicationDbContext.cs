@@ -64,7 +64,29 @@ namespace FurniTour.Server.Data
                 .WithMany()
                 .HasForeignKey(mr => mr.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
+            builder.Entity<Guarantee>()
+                .HasOne(g => g.User)
+                .WithMany()
+                .HasForeignKey(g => g.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
+            builder.Entity<Guarantee>()
+                .HasOne(g => g.Order)
+                .WithMany()
+                .HasForeignKey(g => g.OrderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<GuaranteeItems>()
+                .HasOne(gi => gi.Guarantee)
+                .WithMany(g => g.GuaranteeItems)
+                .HasForeignKey(gi => gi.GuaranteeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<GuaranteeItems>()
+                .HasOne(gi => gi.OrderItem)
+                .WithMany()
+                .HasForeignKey(gi => gi.OrderItemId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Furniture> Furnitures { get; set; }
@@ -81,5 +103,7 @@ namespace FurniTour.Server.Data
         public DbSet<Clicks> Clicks { get; set; }
         public DbSet<CachedRecommendation> CachedRecommendations { get; set; }
         public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }
+        public DbSet<Guarantee> Guarantees { get; set; }
+        public DbSet<GuaranteeItems> GuaranteeItems { get; set; }
     }
 }

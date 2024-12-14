@@ -246,5 +246,11 @@ namespace FurniTour.Server.Services
             }
             return "User not found";
         }
+
+        public async Task<IdentityUser> GetUserById(string UserId)
+        { 
+            var user = await userManager.FindByIdAsync(UserId);
+            return user;
+        }
     }
 }
