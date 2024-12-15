@@ -10,5 +10,6 @@
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public List<GuaranteeItemModel> Items { get; set; }
+        public List<string> Photos { get; set; }
     }
 }

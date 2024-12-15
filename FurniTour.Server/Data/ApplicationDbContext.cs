@@ -105,5 +105,6 @@ namespace FurniTour.Server.Data
         public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }
         public DbSet<Guarantee> Guarantees { get; set; }
         public DbSet<GuaranteeItems> GuaranteeItems { get; set; }
+        public DbSet<GuaranteePhoto> GuaranteePhotos { get; set; } 
     }
 }

@@ -9,6 +9,7 @@ namespace FurniTour.Server.Models.Guarantee
     {
         public int OrderId { get; set; }
         public string Comment { get; set; }
+        public List<string> Photos { get; set; }
         public List<int> Items { get; set; }
     }
 }

@@ -39,7 +39,7 @@ namespace FurniTour.Server.Services
                     }
                     else
                     {
-                        if (IsGuaranteeValid(guarantee.OrderId)) return "Time for guarantee service has expired";
+                        if (!IsGuaranteeValid(guarantee.OrderId)) return "Time for guarantee service has expired";
                         var guaranteeEntity = new Guarantee
                         {
                             UserId = user.Id,
@@ -65,6 +65,16 @@ namespace FurniTour.Server.Services
                             }
                         }
                         context.SaveChanges();
+                        foreach (var photo in guarantee.Photos)
+                        {
+                            var photoEntity = new GuaranteePhoto
+                            {
+                                GuaranteeId = guaranteeEntity.Id,
+                                Photo = Convert.FromBase64String(photo)
+                            };
+                            context.GuaranteePhotos.Add(photoEntity);
+                        }
+                        context.SaveChanges();
                         return string.Empty;
                     }
                 }
@@ -74,6 +84,7 @@ namespace FurniTour.Server.Services
         public async Task<GuaranteeModel> GetGuarantee(int guaranteeId)
         {
             var guarantee = await context.Guarantees
+                .Include(c => c.GuaranteePhotos)
                 .Include(g => g.GuaranteeItems)
                 .ThenInclude(gi => gi.OrderItem)
                 .ThenInclude(oi => oi.Furniture)
@@ -95,7 +106,8 @@ namespace FurniTour.Server.Services
                     Comment = guarantee.Comment,
                     DateCreated = guarantee.DateCreated,
                     DateModified = guarantee.DateModified,
-                    Items = new List<GuaranteeItemModel>()
+                    Items = new List<GuaranteeItemModel>(),
+                    Photos = new List<string>()
                 };
                 if (guarantee.GuaranteeItems != null)
                 {
@@ -110,6 +122,13 @@ namespace FurniTour.Server.Services
                         });
                     }
                 }
+                if (guarantee.GuaranteePhotos != null)
+                {
+                    foreach (var photo in guarantee.GuaranteePhotos)
+                    {
+                        model.Photos.Add(Convert.ToBase64String(photo.Photo));
+                    }
+                }
                 return model;
             }
         }
@@ -117,6 +136,7 @@ namespace FurniTour.Server.Services
         public async Task<List<GuaranteeModel>> GetGuarantees()
         {
             var guarantees = await context.Guarantees
+                    .Include(c => c.GuaranteePhotos)
                     .Include(g => g.GuaranteeItems)
                     .ThenInclude(gi => gi.OrderItem)
                     .ThenInclude(oi => oi.Furniture)
@@ -135,7 +155,8 @@ namespace FurniTour.Server.Services
                     Comment = guarantee.Comment,
                     DateCreated = guarantee.DateCreated,
                     DateModified = guarantee.DateModified,
-                    Items = new List<GuaranteeItemModel>()
+                    Items = new List<GuaranteeItemModel>(),
+                    Photos = new List<string>()
                 };
                 foreach (var item in guarantee.GuaranteeItems)
                 {
@@ -146,6 +167,10 @@ namespace FurniTour.Server.Services
                         FurnitureName = item.OrderItem.Furniture.Name,
                         Quantity = item.OrderItem.Quantity
                     });
+                }
+                foreach (var photo in guarantee.GuaranteePhotos)
+                {
+                    model.Photos.Add(Convert.ToBase64String(photo.Photo));
                 }
                 models.Add(model);
             }
@@ -162,6 +187,7 @@ namespace FurniTour.Server.Services
             else
             {
                 var guarantees = context.Guarantees.Where(g => g.UserId == user.Id).
+                    Include(c => c.GuaranteePhotos).
                     Include(g => g.GuaranteeItems)
                     .ThenInclude(gi => gi.OrderItem)
                     .ThenInclude(oi => oi.Furniture).
@@ -178,7 +204,8 @@ namespace FurniTour.Server.Services
                         Comment = guarantee.Comment,
                         DateCreated = guarantee.DateCreated,
                         DateModified = guarantee.DateModified,
-                        Items = new List<GuaranteeItemModel>()
+                        Items = new List<GuaranteeItemModel>(),
+                        Photos = new List<string>()
                     };
                     foreach (var item in guarantee.GuaranteeItems)
                     {
@@ -189,6 +216,10 @@ namespace FurniTour.Server.Services
                             FurnitureName = item.OrderItem.Furniture.Name,
                             Quantity = item.OrderItem.Quantity
                         });
+                    }
+                    foreach (var photo in guarantee.GuaranteePhotos)
+                    {
+                        model.Photos.Add(Convert.ToBase64String(photo.Photo));
                     }
                     models.Add(model);
                 }

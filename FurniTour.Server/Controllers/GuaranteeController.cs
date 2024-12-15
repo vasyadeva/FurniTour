@@ -16,7 +16,7 @@ namespace FurniTour.Server.Controllers
             this.guaranteeService = guaranteeService;
         }
 
-        [HttpGet]
+        [HttpGet("getall")]
         [Authorize]
         public async Task<ActionResult<List<GuaranteeModel>>> GetGuarantees()
         {
@@ -24,7 +24,7 @@ namespace FurniTour.Server.Controllers
             return Ok(guarantees);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("get/{id}")]
         public async Task<ActionResult<GuaranteeModel>> GetGuarantee(int id)
         {
             var guarantee = await guaranteeService.GetGuarantee(id);
@@ -48,7 +48,7 @@ namespace FurniTour.Server.Controllers
         }
 
         [Authorize]
-        [HttpPost]
+        [HttpPost("add")]
         public ActionResult AddGuarantee([FromBody] GuaranteeAddModel model)
         {
             var result = guaranteeService.AddGuarantee(model);
@@ -60,23 +60,11 @@ namespace FurniTour.Server.Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPost("update/{id}")]
         public ActionResult UpdateGuarantee(int id, [FromBody] string status)
         {
-            var guarantee = guaranteeService.GetGuarantee(id);
-            if (guarantee == null)
-            {
-                return NotFound();
-            }
             guaranteeService.UpdateGuarantee(id, status);
             return Ok();
-        }
-
-        [HttpGet("validate/{id}")]
-        public ActionResult<bool> IsGuaranteeValid(int id)
-        {
-            var isValid = guaranteeService.IsGuaranteeValid(id);
-            return Ok(isValid);
         }
     }
 }

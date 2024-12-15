@@ -18,5 +18,6 @@ namespace FurniTour.Server.Data.Entities
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public ICollection<GuaranteeItems> GuaranteeItems { get; set; }
+        public ICollection<GuaranteePhoto> GuaranteePhotos { get; set; }
     }
 }
