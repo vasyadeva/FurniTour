@@ -3,6 +3,8 @@ using FurniTour.Server.Data;
 using FurniTour.Server.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using FurniTour.Server.Models.Item;
+using FurniTour.Server.Interfaces;
+using System.Linq;
 
 public class RecomendationService : IRecomendationService
 {
@@ -19,197 +21,294 @@ public class RecomendationService : IRecomendationService
     {
         var user = _authService.GetUser();
         if (user == null)
-        {
-            throw new ArgumentException("User not found");
-        }
+            throw new ArgumentException("Користувача не знайдено");
+
         var userId = user.Id;
 
-        var cachedRecommendation = await GetCachedRecommendationsAsync(userId);
-        if (cachedRecommendation != null)
-        {
-            var ListModel = new List<ItemViewModel>();
-            foreach (var item in cachedRecommendation)
-            {
-                var Manufacturer = string.Empty;
-                var Master = string.Empty;
-                if (item.ManufacturerId != null)
-                {
-                    Manufacturer = _context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
-                }
-                if (item.MasterId != null)
-                {
-                    Master = _context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
-                }
-
-                var itemModel = new ItemViewModel
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    Description = item.Description,
-                    Price = item.Price,
-                    Image = Convert.ToBase64String(item.Image),
-                    Category = item.Category.Name,
-                    Color = item.Color.Name,
-                    Manufacturer = Manufacturer,
-                    Master = Master
-
-                };
-                ListModel.Add(itemModel);
-            }
-            return ListModel;
-        }
         var userClicks = await _context.Clicks
             .Where(c => c.UserId == userId)
             .Include(c => c.Furniture)
+                .ThenInclude(f => f.Master)
+            .Include(c => c.Furniture)
+                .ThenInclude(f => f.Manufacturer)
+            .Include(c => c.Furniture)
+                .ThenInclude(f => f.Color)
+            .Include(c => c.Furniture)
+                .ThenInclude(f => f.Category)
             .ToListAsync();
 
         var allFurniture = await _context.Furnitures
             .Include(f => f.Category)
             .Include(f => f.Color)
             .Include(f => f.Master)
+            .Include(f => f.Manufacturer)
             .ToListAsync();
 
-        var recommendations = CalculateBayesianRecommendations(userClicks, allFurniture);
+        var recommendations = CalculateBPRRecommendations(userClicks, allFurniture);
 
-        await CacheRecommendationsAsync(userId, recommendations.Select(r => r.Id).ToList());
-
-        var itemListModel = new List<ItemViewModel>();
-        foreach (var item in recommendations)
+        return recommendations.Select(item => new ItemViewModel
         {
-            var Manufacturer = string.Empty;
-            var Master = string.Empty;
-            if (item.ManufacturerId != null)
+            Id = item.Id,
+            Name = item.Name,
+            Description = item.Description,
+            Price = item.Price,
+            Image = Convert.ToBase64String(item.Image),
+            Category = item.Category?.Name,
+            Color = item.Color?.Name,
+            Manufacturer = item.Manufacturer?.Name,
+            Master = item.Master?.UserName
+        }).ToList();
+    }
+
+    private List<Furniture> CalculateBPRRecommendations(List<Clicks> userClicks, List<Furniture> allFurniture)
+    {
+        if (!userClicks.Any())
+            return allFurniture.Take(10).ToList();
+
+        // Initialize user preferences
+        var userId = userClicks.First().UserId;
+        var userFurnitures = userClicks.Select(c => c.Furniture).Where(f => f != null).ToList();
+
+        var userPreferences = ExtractUserPreferences(userFurnitures);
+        var (userAveragePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
+
+        // BPR parameters
+        const int latentFactors = 50;
+        const double learningRate = 0.05;
+        const double regularization = 0.01;
+        const int epochs = 200;
+
+        // Initialize latent factors
+        var userFactors = InitializeUserFactors(userClicks, latentFactors);
+        var itemFactors = InitializeItemFactors(allFurniture, latentFactors);
+
+        // Training loop
+        for (int epoch = 0; epoch < epochs; epoch++)
+        {
+            foreach (var click in userClicks)
             {
-                Manufacturer = _context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
+                var negativeItemId = GetNegativeItemId(userClicks, allFurniture, userId, click.FurnitureId);
+                if (!negativeItemId.HasValue) continue;
+
+                UpdateFactors(
+                    click,
+                    negativeItemId.Value,
+                    userFactors,
+                    itemFactors,
+                    allFurniture,
+                    userPreferences,
+                    learningRate,
+                    regularization,
+                    latentFactors
+                );
             }
-            if (item.MasterId != null)
+        }
+
+        return RankItems(
+            allFurniture,
+            userId,
+            userFactors,
+            itemFactors,
+            userPreferences
+        );
+    }
+
+    private (double averagePrice, int? colorId, string masterId, int? manufacturerId) ExtractUserPreferences(List<Furniture> userFurnitures)
+    {
+        var averagePrice = userFurnitures.Count != 0 ? (double)userFurnitures.Average(f => f.Price) : 5000.0;
+
+        var colorId = userFurnitures
+            .Where(f => f.Color != null)
+            .GroupBy(f => f.Color.Id)
+            .OrderByDescending(g => g.Count())
+            .FirstOrDefault()?.Key;
+
+        var masterId = userFurnitures
+            .Where(f => f.Master != null)
+            .GroupBy(f => f.Master.Id)
+            .OrderByDescending(g => g.Count())
+            .FirstOrDefault()?.Key;
+
+        var manufacturerId = userFurnitures
+            .Where(f => f.Manufacturer != null)
+            .GroupBy(f => f.Manufacturer.Id)
+            .OrderByDescending(g => g.Count())
+            .FirstOrDefault()?.Key;
+
+        return (averagePrice, colorId, masterId, manufacturerId);
+    }
+
+    private Dictionary<string, double[]> InitializeUserFactors(List<Clicks> userClicks, int latentFactors)
+    {
+        return userClicks
+            .Select(c => c.UserId)
+            .Distinct()
+            .ToDictionary(uid => uid, uid => InitializeLatentFactors(latentFactors));
+    }
+
+    private Dictionary<int, double[]> InitializeItemFactors(List<Furniture> allFurniture, int latentFactors)
+    {
+        return allFurniture.ToDictionary(f => f.Id, f => InitializeLatentFactors(latentFactors));
+    }
+
+    private void UpdateFactors(
+        Clicks click,
+        int negativeItemId,
+        Dictionary<string, double[]> userFactors,
+        Dictionary<int, double[]> itemFactors,
+        List<Furniture> allFurniture,
+        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
+        double learningRate,
+        double regularization,
+        int latentFactors)
+    {
+        var (averagePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
+
+        var positiveFurniture = allFurniture.First(x => x.Id == click.FurnitureId);
+        var negativeFurniture = allFurniture.First(x => x.Id == negativeItemId);
+
+        var positiveMetaFactor = CalculateMetaFactor(positiveFurniture, userPreferences);
+        var negativeMetaFactor = CalculateMetaFactor(negativeFurniture, userPreferences);
+
+        var positiveScore = DotProduct(userFactors[click.UserId], itemFactors[click.FurnitureId])
+            * click.InteractionCount * positiveMetaFactor;
+        var negativeScore = DotProduct(userFactors[click.UserId], itemFactors[negativeItemId])
+            * negativeMetaFactor;
+
+        var gradientMultiplier = Sigmoid(positiveScore - negativeScore);
+
+        for (int k = 0; k < latentFactors; k++)
+        {
+            UpdateFactorValues(
+                userFactors[click.UserId],
+                itemFactors[click.FurnitureId],
+                itemFactors[negativeItemId],
+                k,
+                gradientMultiplier,
+                learningRate,
+                regularization
+            );
+        }
+    }
+
+    private void UpdateFactorValues(
+        double[] userFactor,
+        double[] positiveFactor,
+        double[] negativeFactor,
+        int index,
+        double gradientMultiplier,
+        double learningRate,
+        double regularization)
+    {
+        var userGradient = gradientMultiplier * (positiveFactor[index] - negativeFactor[index]) - regularization * userFactor[index];
+        var positiveGradient = gradientMultiplier * userFactor[index] - regularization * positiveFactor[index];
+        var negativeGradient = -gradientMultiplier * userFactor[index] - regularization * negativeFactor[index];
+
+        userFactor[index] += learningRate * userGradient;
+        positiveFactor[index] += learningRate * positiveGradient;
+        negativeFactor[index] += learningRate * negativeGradient;
+    }
+
+    private List<Furniture> RankItems(
+        List<Furniture> allFurniture,
+        string userId,
+        Dictionary<string, double[]> userFactors,
+        Dictionary<int, double[]> itemFactors,
+        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences)
+    {
+        return allFurniture
+            .Select(f =>
             {
-                Master = _context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
-            }
-
-            var itemModel = new ItemViewModel
-            {
-                Id = item.Id,
-                Name = item.Name,
-                Description = item.Description,
-                Price = item.Price,
-                Image = Convert.ToBase64String(item.Image),
-                Category = item.Category.Name,
-                Color = item.Color.Name,
-                Manufacturer = Manufacturer,
-                Master = Master
-
-            };
-            itemListModel.Add(itemModel);
-        }
-        return itemListModel;
+                var rawScore = DotProduct(userFactors[userId], itemFactors[f.Id]);
+                var metaFactor = CalculateMetaFactor(f, userPreferences);
+                return new { Item = f, Score = rawScore * metaFactor };
+            })
+            .OrderByDescending(x => x.Score)
+            .Take(10)
+            .Select(x => x.Item)
+            .ToList();
     }
 
-    /// <summary>
-    /// Calculate Bayesian recommendations based on user clicks and other factors:
-    /// P(A∣B) = P(B∣A)⋅P(A)​ / P(B)
-    /// </summary>
-    /// <param name="userClicks"></param>
-    /// <param name="allFurniture"></param>
-    /// <returns>
-    /// List of recommended furniture
-    /// </returns>
-    private List<Furniture> CalculateBayesianRecommendations(List<Clicks> userClicks, List<Furniture> allFurniture)
+    private double CalculateMetaFactor(
+        Furniture furniture,
+        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
+        int clickCount)
     {
-        var totalClicks = userClicks.Sum(c => c.InteractionCount);
-        var priorProbability = 1.0 / allFurniture.Count;
+        if (furniture == null) return 1.0;
 
-        var posteriorProbabilities = allFurniture.Select(furniture =>
-        {
-            var furnitureClicks = userClicks.Where(c => c.FurnitureId == furniture.Id).Sum(c => c.InteractionCount);
-            var likelihood = CalculateLikelihood(furniture, userClicks); // P(B∣A)
-            var evidence = CalculateEvidence(userClicks, allFurniture); // P(B)
-            var posterior = (likelihood * priorProbability) / evidence;
-            return new { Furniture = furniture, Probability = posterior };
-        }).OrderByDescending(item => item.Probability);
+        var (averagePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
 
-        return posteriorProbabilities.Take(10).Select(item => item.Furniture).ToList();
+        var priceFactor = CalculatePriceFactor((double)furniture.Price, averagePrice);
+        var colorFactor = CalculateColorFactor(furniture.Color?.Id, favoriteColorId);
+        var masterFactor = CalculateMasterFactor(furniture.Master?.Id, favoriteMasterId);
+        var manufacturerFactor = CalculateManufacturerFactor(furniture.Manufacturer?.Id, favoriteManufacturerId);
+        var clickFactor = CalculateClickFactor(clickCount);
+
+        return priceFactor * colorFactor * masterFactor * manufacturerFactor * clickFactor;
     }
 
-    /// <summary>
-    /// Calculate likelihood of a furniture being recommended based on user clicks,
-    /// category, color, master, master rating, manufacturer, manufacturer rating
-    /// </summary>
-    /// <param name="furniture"></param>
-    /// <param name="userClicks"></param>
-    /// <returns></returns>
-    private double CalculateLikelihood(Furniture furniture, List<Clicks> userClicks)
+    private double CalculateClickFactor(int clickCount)
     {
-        var totalClicks = userClicks.Sum(c => c.InteractionCount) + 6.0; // Laplacian smoothing
-
-        var categoryLikelihood = (userClicks.Count(c => c.Furniture.CategoryId == furniture.CategoryId) + 1.0) / totalClicks;
-        var colorLikelihood = (userClicks.Count(c => c.Furniture.ColorId == furniture.ColorId) + 1.0) / totalClicks;
-        var masterLikelihood = 1.0 / totalClicks;
-        var masterRatingLikelihood = 1.0 / 5.0;
-
-        var manufacturerLikelihood = 1.0 / totalClicks;
-        var manufacturerRatingLikelihood = 1.0 / 5.0;
-
-        if (furniture.MasterId == null)
-        {
-            manufacturerLikelihood = (userClicks.Count(c => c.Furniture.ManufacturerId == furniture.ManufacturerId) + 1.0) / totalClicks;
-            var manufacturerReviews = _context.ManufacturerReviews.Where(c => c.ManufacturerId == furniture.ManufacturerId).ToList();
-            var manufacturerRating = manufacturerReviews.Count > 0 ? manufacturerReviews.Average(r => r.Rating) : 1;
-            manufacturerRatingLikelihood = (manufacturerRating - 1) / 4.0 + 0.1; // avoid zero
-        }
-        else
-        {
-            masterLikelihood = (userClicks.Count(c => c.Furniture.MasterId == furniture.MasterId) + 1.0) / totalClicks;
-            var masterReviews = _context.MasterReviews.Where(c => c.MasterId == furniture.MasterId).ToList();
-            var masterRating = masterReviews.Count > 0 ? masterReviews.Average(r => r.Rating) : 1;
-            masterRatingLikelihood = (masterRating - 1) / 4.0 + 0.1; // avoid zero
-        }
-        
-
-        var normalizedClickWeight = (userClicks.Where(c => c.FurnitureId == furniture.Id).Sum(c => c.InteractionCount)+1) / (double)totalClicks;
-        // Geometric mean of all likelihoods
-        return Math.Pow(categoryLikelihood * colorLikelihood * masterLikelihood * masterRatingLikelihood * manufacturerLikelihood * manufacturerRatingLikelihood, 1.0 / 6.0) * normalizedClickWeight;
+        return 1.0 + (clickCount * 0.01);
     }
 
-
-    private double CalculateEvidence(List<Clicks> userClicks, List<Furniture> allFurniture)
+    private double CalculatePriceFactor(double price, double averagePrice)
     {
-        return allFurniture.Sum(furniture =>
-        {
-            var likelihood = CalculateLikelihood(furniture, userClicks);
-            var priorProbability = 1.0 / allFurniture.Count;
-            return likelihood * priorProbability;
-        });
+        if (averagePrice <= 0) return 1.0;
+        var diff = Math.Abs(price - averagePrice);
+        var ratio = diff / averagePrice;
+        var factor = 1.2 - ratio;
+        return Math.Clamp(factor, 0.8, 1.2);
     }
 
-
-private async Task<List<Furniture>> GetCachedRecommendationsAsync(string userId)
+    private double CalculateColorFactor(int? itemColorId, int? favoriteColorId)
     {
-        var cachedRecommendation = await _context.CachedRecommendations
-            .Where(cr => cr.UserId == userId && cr.CachedTime > DateTime.UtcNow.AddMinutes(5))
-            .OrderByDescending(cr => cr.CachedTime)
-            .FirstOrDefaultAsync();
-
-        if (cachedRecommendation != null)
-        {
-            return await _context.Furnitures
-                .Where(f => cachedRecommendation.RecommendedFurnitureIds.Contains(f.Id))
-                .ToListAsync();
-        }
-
-        return null;
+        if (!itemColorId.HasValue || !favoriteColorId.HasValue) return 1.0;
+        return itemColorId == favoriteColorId ? 1.1 : 1.0;
     }
 
-    private async Task CacheRecommendationsAsync(string userId, List<int> recommendedFurnitureIds)
+    private double CalculateMasterFactor(string itemMasterId, string favoriteMasterId)
     {
-        var cachedRecommendation = new CachedRecommendation
-        {
-            UserId = userId,
-            CachedTime = DateTime.UtcNow,
-            RecommendedFurnitureIds = recommendedFurnitureIds
-        };
+        if (string.IsNullOrEmpty(itemMasterId) || string.IsNullOrEmpty(favoriteMasterId)) return 1.0;
+        return itemMasterId == favoriteMasterId ? 1.1 : 1.0;
+    }
 
-        _context.CachedRecommendations.Add(cachedRecommendation);
-        await _context.SaveChangesAsync();
+    private double CalculateManufacturerFactor(int? itemManufacturerId, int? favoriteManufacturerId)
+    {
+        if (!itemManufacturerId.HasValue || !favoriteManufacturerId.HasValue) return 1.0;
+        return itemManufacturerId == favoriteManufacturerId ? 1.1 : 1.0;
+    }
+
+    private int? GetNegativeItemId(List<Clicks> userClicks, List<Furniture> allFurniture, string userId, int positiveItemId)
+    {
+        var viewedItemIds = userClicks
+            .Where(c => c.UserId == userId)
+            .Select(c => c.FurnitureId)
+            .ToList();
+
+        var notViewedItemId = allFurniture
+            .Where(f => !viewedItemIds.Contains(f.Id))
+            .OrderBy(_ => Guid.NewGuid())
+            .FirstOrDefault()?.Id;
+
+        return notViewedItemId ?? viewedItemIds.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
+    }
+
+    private double[] InitializeLatentFactors(int count)
+    {
+        var random = new Random();
+        return Enumerable.Range(0, count)
+            .Select(_ => random.NextDouble() * 0.1)
+            .ToArray();
+    }
+
+    private double DotProduct(double[] v1, double[] v2)
+    {
+        return v1.Zip(v2, (a, b) => a * b).Sum();
+    }
+
+    private double Sigmoid(double x)
+    {
+        return 1.0 / (1.0 + Math.Exp(-x));
     }
 }

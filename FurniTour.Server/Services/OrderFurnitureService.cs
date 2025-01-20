@@ -220,11 +220,9 @@ namespace FurniTour.Server.Services
 
         public async Task<string> ChangeOrderStateAsync(int id, int newState)
         {
-            var isAuth = authService.CheckRoleMasterOrAdmin();
+            var isAuth = authService.IsAuthenticated();
             if (isAuth.IsNullOrEmpty())
             {
-
-
                 var isMaster = authService.IsRole(Roles.Master);
                 var isAdmin = authService.IsRole(Roles.Administrator);
                 var isUser = authService.IsRole(Roles.User);
@@ -232,17 +230,13 @@ namespace FurniTour.Server.Services
                 var order = context.Orders.FirstOrDefault(o => o.Id == id);
                 if (order == null)
                 {
-                    return "Order not found";
+                    return "Замовлення не знайдено.";
                 }
 
-                if (isUser && !CanUserChangeState(order.OrderStateId, newState))
+                var validationMessage = ValidateStateChange(order.OrderStateId, newState, isUser, isAdmin || isMaster);
+                if (!string.IsNullOrEmpty(validationMessage))
                 {
-                    return "Can't change state of the order from the previous one";
-                }
-
-                if ((isAdmin || isMaster) && !CanAdminChangeState(order.OrderStateId, newState))
-                {
-                    return "Can't change state of the order from the previous one";
+                    return validationMessage;
                 }
 
                 order.OrderStateId = newState;
@@ -250,52 +244,71 @@ namespace FurniTour.Server.Services
                 await context.SaveChangesAsync();
                 return string.Empty;
             }
-            return isAuth;
+            return "Користувач неавторизований.";
         }
 
-        private bool CanUserChangeState(int currentStateId, int newStateId)
+        private string ValidateStateChange(int currentStateId, int newStateId, bool isUser, bool isAdminOrMaster)
         {
-            return CheckStatus(currentStateId, newStateId, userRole: true);
-        }
-
-        private bool CanAdminChangeState(int currentStateId, int newStateId)
-        {
-            return CheckStatus(currentStateId, newStateId, userRole: false);
-        }
-
-        private bool CheckStatus(int oldId, int newId, bool userRole)
-        {
-            if (oldId == 2 || oldId == 3) 
+            if (isUser)
             {
-                return false;
+                var userValidationMessage = CheckStatusMessage(currentStateId, newStateId, userRole: true);
+                if (!string.IsNullOrEmpty(userValidationMessage))
+                {
+                    return userValidationMessage;
+                }
+            }
+
+            if (isAdminOrMaster)
+            {
+                var adminValidationMessage = CheckStatusMessage(currentStateId, newStateId, userRole: false);
+                if (!string.IsNullOrEmpty(adminValidationMessage))
+                {
+                    return adminValidationMessage;
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private string CheckStatusMessage(int oldId, int newId, bool userRole)
+        {
+            if (oldId == 2 || oldId == 3)
+            {
+                return "Неможливо змінити статус, оскільки замовлення вже скасоване.";
             }
 
             if (userRole)
             {
-                if ((oldId == 4 && newId == 2) || (oldId == 6 && newId == 7))
+                if (oldId == 4 && newId == 2)
                 {
-                    return true;
+                    return "Користувач може скасувати замовлення лише після підтвердження.";
                 }
-                return false;
+                if (oldId == 6 && newId == 7)
+                {
+                    return string.Empty;
+                }
+                return "Користувач не має прав для зміни статусу цього замовлення.";
             }
 
-            if ((oldId == 4 && (newId == 2 || newId == 3)) ||
-                (oldId == 5 && (newId == 2 || newId == 3 || newId == 4)))
+            if (oldId == 4 && (newId == 2 || newId == 3))
             {
-                return false;
+                return "Адміністратор або майстер має спершу підтвердити замовлення перед скасуванням.";
             }
-
+            if (oldId == 5 && (newId == 2 || newId == 3 || newId == 4))
+            {
+                return "Неможливо змінити статус доставки на попередній.";
+            }
             if (oldId == 6 && newId == 7)
             {
-                return true;
+                return string.Empty;
             }
-
             if (oldId == 6 || oldId == 7)
             {
-                return false;
+                return "Неможливо змінити статус замовлення після підтвердження доставки.";
             }
 
-            return true;
+            return string.Empty;
         }
+
     }
 }

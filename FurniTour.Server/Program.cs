@@ -72,6 +72,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 return Task.CompletedTask;
             }
         };
+        options.Cookie.SameSite = SameSiteMode.None;
     });
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>

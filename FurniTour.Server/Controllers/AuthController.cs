@@ -22,14 +22,14 @@ namespace FurniTour.Server.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> SignInAsync([FromBody] LoginModel loginModel)
         {
-            var state = authService.SignInAsync(loginModel);
-            if (state.Result.IsNullOrEmpty())
+            var state = await authService.SignInAsync(loginModel);
+            if (state.IsNullOrEmpty())
             {
                 return Ok(new Response { IsSuccess = true, Message = "Signed in successfully" });
             }
             else
             {
-                return BadRequest(new Response { IsSuccess = false, Message = state.Result });
+                return BadRequest(new Response { IsSuccess = false, Message = state });
             }
         }
 
