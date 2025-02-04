@@ -1,314 +1,318 @@
-﻿using FurniTour.Server.Data.Entities;
-using FurniTour.Server.Data;
-using FurniTour.Server.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using FurniTour.Server.Models.Item;
-using FurniTour.Server.Interfaces;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using FurniTour.Server.Data;
+using FurniTour.Server.Data.Entities;
+using FurniTour.Server.Interfaces;
+using FurniTour.Server.Models.Item;
 
-public class RecomendationService : IRecomendationService
+namespace FurniTour.Server.Services
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IAuthService _authService;
-
-    public RecomendationService(ApplicationDbContext context, IAuthService authService)
+    public class RecomendationService : IRecomendationService
     {
-        _context = context;
-        _authService = authService;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly IAuthService _authService;
+        private readonly Random _random;
 
-    public async Task<List<ItemViewModel>> GetRecommendationsAsync()
-    {
-        var user = _authService.GetUser();
-        if (user == null)
-            throw new ArgumentException("Користувача не знайдено");
-
-        var userId = user.Id;
-
-        var userClicks = await _context.Clicks
-            .Where(c => c.UserId == userId)
-            .Include(c => c.Furniture)
-                .ThenInclude(f => f.Master)
-            .Include(c => c.Furniture)
-                .ThenInclude(f => f.Manufacturer)
-            .Include(c => c.Furniture)
-                .ThenInclude(f => f.Color)
-            .Include(c => c.Furniture)
-                .ThenInclude(f => f.Category)
-            .ToListAsync();
-
-        var allFurniture = await _context.Furnitures
-            .Include(f => f.Category)
-            .Include(f => f.Color)
-            .Include(f => f.Master)
-            .Include(f => f.Manufacturer)
-            .ToListAsync();
-
-        var recommendations = CalculateBPRRecommendations(userClicks, allFurniture);
-
-        return recommendations.Select(item => new ItemViewModel
+        public RecomendationService(ApplicationDbContext context, IAuthService authService)
         {
-            Id = item.Id,
-            Name = item.Name,
-            Description = item.Description,
-            Price = item.Price,
-            Image = Convert.ToBase64String(item.Image),
-            Category = item.Category?.Name,
-            Color = item.Color?.Name,
-            Manufacturer = item.Manufacturer?.Name,
-            Master = item.Master?.UserName
-        }).ToList();
-    }
+            _context = context;
+            _authService = authService;
+            _random = new Random();
+        }
 
-    private List<Furniture> CalculateBPRRecommendations(List<Clicks> userClicks, List<Furniture> allFurniture)
-    {
-        if (!userClicks.Any())
-            return allFurniture.Take(10).ToList();
-
-        // Initialize user preferences
-        var userId = userClicks.First().UserId;
-        var userFurnitures = userClicks.Select(c => c.Furniture).Where(f => f != null).ToList();
-
-        var userPreferences = ExtractUserPreferences(userFurnitures);
-        var (userAveragePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
-
-        // BPR parameters
-        const int latentFactors = 50;
-        const double learningRate = 0.05;
-        const double regularization = 0.01;
-        const int epochs = 200;
-
-        // Initialize latent factors
-        var userFactors = InitializeUserFactors(userClicks, latentFactors);
-        var itemFactors = InitializeItemFactors(allFurniture, latentFactors);
-
-        // Training loop
-        for (int epoch = 0; epoch < epochs; epoch++)
+        /// <summary>
+        /// Основний метод, що повертає рекомендовані товари для користувача.
+        /// </summary>
+        public async Task<List<ItemViewModel>> GetRecommendationsAsync()
         {
-            foreach (var click in userClicks)
+            var user = _authService.GetUser();
+            if (user == null)
+                throw new ArgumentException("Користувача не знайдено");
+
+            // Отримуємо історію кліків користувача із включеними пов’язаними сутностями
+            var userClicks = await _context.Clicks
+                .Where(c => c.UserId == user.Id)
+                .Include(c => c.Furniture)
+                    .ThenInclude(f => f.Category)
+                .Include(c => c.Furniture)
+                    .ThenInclude(f => f.Color)
+                .Include(c => c.Furniture)
+                    .ThenInclude(f => f.Master)
+                .Include(c => c.Furniture)
+                    .ThenInclude(f => f.Manufacturer)
+                .ToListAsync();
+
+            // Отримуємо всі товари для розрахунку
+            var allFurniture = await _context.Furnitures
+                .Include(f => f.Category)
+                .Include(f => f.Color)
+                .Include(f => f.Master)
+                .Include(f => f.Manufacturer)
+                .ToListAsync();
+            // Розраховуємо рекомендації за допомогою BPR та матричної факторизації
+            var recommendations = CalculateBPRRecommendations(user.Id, userClicks, allFurniture);
+
+            // Формуємо view model для повернення клієнту
+            var result = recommendations.Select(furniture => new ItemViewModel
             {
-                var negativeItemId = GetNegativeItemId(userClicks, allFurniture, userId, click.FurnitureId);
-                if (!negativeItemId.HasValue) continue;
+                Id = furniture.Id,
+                Name = furniture.Name,
+                Description = furniture.Description,
+                Price = furniture.Price,
+                Image = Convert.ToBase64String(furniture.Image),
+                Category = furniture.Category?.Name,
+                Color = furniture.Color?.Name,
+                Manufacturer = furniture.Manufacturer?.Name,
+                Master = furniture.Master?.UserName
+            }).ToList();
 
-                UpdateFactors(
-                    click,
-                    negativeItemId.Value,
-                    userFactors,
-                    itemFactors,
-                    allFurniture,
-                    userPreferences,
-                    learningRate,
-                    regularization,
-                    latentFactors
-                );
+            return result;
+        }
+
+        /// <summary>
+        /// Метод, що виконує навчання BPR-моделі та ранжування товарів.
+        /// </summary>
+        private List<Furniture> CalculateBPRRecommendations(string userId, List<Clicks> userClicks, List<Furniture> allFurniture)
+        {
+            // Якщо користувач ще не взаємодіяв – повертаємо випадкові товари
+            if (userClicks == null || userClicks.Count == 0)
+            {
+                return allFurniture
+                    .OrderBy(x => _random.Next())
+                    .Take(10)
+                    .ToList();
+            }
+
+            // Визначення «мета-параметрів» користувача на основі переглянутих товарів
+            var userFurnitures = userClicks.Select(c => c.Furniture).Where(f => f != null).ToList();
+            var userPreferences = ExtractUserPreferences(userFurnitures);
+
+            // Гіперпараметри моделі
+            const int latentDim = 50;
+            const double learningRate = 0.05;
+            const double regularization = 0.01;
+            const int epochs = 200;
+
+            // Ініціалізація латентних факторів: для користувача та для кожного товару
+            var userFactors = new Dictionary<string, double[]>
+            {
+                [userId] = InitializeVector(latentDim)
+            };
+
+            var itemFactors = allFurniture
+                .ToDictionary(f => f.Id, f => InitializeVector(latentDim));
+
+            // Навчання за епохами: для кожного позитивного кліку вибираємо негативний приклад
+            for (int epoch = 0; epoch < epochs; epoch++)
+            {
+                foreach (var click in userClicks)
+                {
+                    int positiveId = click.FurnitureId;
+                    var positiveItem = allFurniture.FirstOrDefault(f => f.Id == positiveId);
+                    if (positiveItem == null)
+                        continue;
+
+                    int? negativeId = SampleNegativeItem(userId, positiveId, userClicks, allFurniture);
+                    if (!negativeId.HasValue)
+                        continue;
+
+                    var negativeItem = allFurniture.FirstOrDefault(f => f.Id == negativeId.Value);
+                    if (negativeItem == null)
+                        continue;
+
+                    UpdateLatentFactors(
+                        userFactors[userId],
+                        itemFactors[positiveId],
+                        itemFactors[negativeId.Value],
+                        positiveItem,
+                        negativeItem,
+                        userPreferences,
+                        learningRate,
+                        regularization,
+                        latentDim);
+                }
+            }
+
+            // Ранжування товарів для користувача: комбінуємо базову оцінку (скалярний добуток) з метафакторами
+            var rankedItems = allFurniture
+                .Select(item =>
+                {
+                    double baseScore = DotProduct(userFactors[userId], itemFactors[item.Id]);
+                    double metaFactor = CalculateMetaFactor(item, userPreferences);
+                    return new { Item = item, Score = baseScore * metaFactor };
+                })
+                .OrderByDescending(x => x.Score)
+                .Take(10)
+                .Select(x => x.Item)
+                .ToList();
+
+            return rankedItems;
+        }
+
+        /// <summary>
+        /// Визначає «мета-параметри» користувача: середню ціну, найпопулярніший колір, майстра та виробника.
+        /// </summary>
+        private (double AveragePrice, int? FavoriteColorId, string FavoriteMasterId, int? FavoriteManufacturerId)
+            ExtractUserPreferences(List<Furniture> userFurnitures)
+        {
+            double averagePrice = userFurnitures.Any() ? userFurnitures.Average(f => (double)f.Price) : 5000.0;
+
+            int? favoriteColorId = userFurnitures
+                .Where(f => f.Color != null)
+                .GroupBy(f => f.Color.Id)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault()?.Key;
+
+            string favoriteMasterId = userFurnitures
+                .Where(f => f.Master != null)
+                .GroupBy(f => f.Master.Id)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault()?.Key;
+
+            int? favoriteManufacturerId = userFurnitures
+                .Where(f => f.Manufacturer != null)
+                .GroupBy(f => f.Manufacturer.Id)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault()?.Key;
+
+            return (averagePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId);
+        }
+
+        /// <summary>
+        /// Ініціалізує вектор латентних факторів випадковими значеннями.
+        /// </summary>
+        private double[] InitializeVector(int dimension)
+        {
+            var vector = new double[dimension];
+            for (int i = 0; i < dimension; i++)
+            {
+                vector[i] = _random.NextDouble() * 0.1;
+            }
+            return vector;
+        }
+
+        /// <summary>
+        /// Обчислює скалярний добуток двох векторів.
+        /// </summary>
+        private double DotProduct(double[] vectorA, double[] vectorB)
+        {
+            double sum = 0.0;
+            for (int i = 0; i < vectorA.Length; i++)
+            {
+                sum += vectorA[i] * vectorB[i];
+            }
+            return sum;
+        }
+
+        /// <summary>
+        /// Вибирає негативний приклад для заданого позитивного товару. 
+        /// Негативним вважається товар, з яким користувач не взаємодіяв.
+        /// </summary>
+        private int? SampleNegativeItem(string userId, int positiveItemId, List<Clicks> userClicks, List<Furniture> allFurniture)
+        {
+            // Збираємо список товарів, з якими користувач вже взаємодіяв
+            var interactedIds = userClicks
+                .Where(c => c.UserId == userId)
+                .Select(c => c.FurnitureId)
+                .ToHashSet();
+
+            // Вибираємо випадковий товар, якого немає у взаємодіях
+            var negativeCandidates = allFurniture.Where(f => !interactedIds.Contains(f.Id)).ToList();
+            if (negativeCandidates.Any())
+            {
+                int index = _random.Next(negativeCandidates.Count);
+                return negativeCandidates[index].Id;
+            }
+
+            // Якщо всі товари взаємодіяли – повертаємо випадковий товар, відмінний від позитивного
+            return allFurniture
+                .Where(f => f.Id != positiveItemId)
+                .OrderBy(_ => _random.Next())
+                .Select(f => f.Id)
+                .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Оновлює латентні фактори користувача та товарів згідно з BPR-правилом.
+        /// Обчислення включає метафактори, що враховують властивості товару.
+        /// </summary>
+        private void UpdateLatentFactors(
+            double[] userVector,
+            double[] positiveVector,
+            double[] negativeVector,
+            Furniture positiveItem,
+            Furniture negativeItem,
+            (double AveragePrice, int? FavoriteColorId, string FavoriteMasterId, int? FavoriteManufacturerId) userPreferences,
+            double learningRate,
+            double regularization,
+            int dimension)
+        {
+            // Обчислюємо метафактори (оцінка відповідності метаданих)
+            double metaPositive = CalculateMetaFactor(positiveItem, userPreferences);
+            double metaNegative = CalculateMetaFactor(negativeItem, userPreferences);
+
+            // Розраховуємо різницю «скорових» оцінок для позитивного та негативного товарів
+            double posScore = DotProduct(userVector, positiveVector) * metaPositive;
+            double negScore = DotProduct(userVector, negativeVector) * metaNegative;
+            double x_uij = posScore - negScore;
+
+            // Обчислюємо значення сигмоїди
+            double sigmoid = 1.0 / (1.0 + Math.Exp(-x_uij));
+
+            // Оновлення векторів латентних факторів за правилом градієнтного спуску
+            for (int f = 0; f < dimension; f++)
+            {
+                double userGrad = sigmoid * (positiveVector[f] - negativeVector[f]) - regularization * userVector[f];
+                double posGrad = sigmoid * userVector[f] - regularization * positiveVector[f];
+                double negGrad = -sigmoid * userVector[f] - regularization * negativeVector[f];
+
+                userVector[f] += learningRate * userGrad;
+                positiveVector[f] += learningRate * posGrad;
+                negativeVector[f] += learningRate * negGrad;
             }
         }
 
-        return RankItems(
-            allFurniture,
-            userId,
-            userFactors,
-            itemFactors,
-            userPreferences
-        );
-    }
-
-    private (double averagePrice, int? colorId, string masterId, int? manufacturerId) ExtractUserPreferences(List<Furniture> userFurnitures)
-    {
-        var averagePrice = userFurnitures.Count != 0 ? (double)userFurnitures.Average(f => f.Price) : 5000.0;
-
-        var colorId = userFurnitures
-            .Where(f => f.Color != null)
-            .GroupBy(f => f.Color.Id)
-            .OrderByDescending(g => g.Count())
-            .FirstOrDefault()?.Key;
-
-        var masterId = userFurnitures
-            .Where(f => f.Master != null)
-            .GroupBy(f => f.Master.Id)
-            .OrderByDescending(g => g.Count())
-            .FirstOrDefault()?.Key;
-
-        var manufacturerId = userFurnitures
-            .Where(f => f.Manufacturer != null)
-            .GroupBy(f => f.Manufacturer.Id)
-            .OrderByDescending(g => g.Count())
-            .FirstOrDefault()?.Key;
-
-        return (averagePrice, colorId, masterId, manufacturerId);
-    }
-
-    private Dictionary<string, double[]> InitializeUserFactors(List<Clicks> userClicks, int latentFactors)
-    {
-        return userClicks
-            .Select(c => c.UserId)
-            .Distinct()
-            .ToDictionary(uid => uid, uid => InitializeLatentFactors(latentFactors));
-    }
-
-    private Dictionary<int, double[]> InitializeItemFactors(List<Furniture> allFurniture, int latentFactors)
-    {
-        return allFurniture.ToDictionary(f => f.Id, f => InitializeLatentFactors(latentFactors));
-    }
-
-    private void UpdateFactors(
-        Clicks click,
-        int negativeItemId,
-        Dictionary<string, double[]> userFactors,
-        Dictionary<int, double[]> itemFactors,
-        List<Furniture> allFurniture,
-        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
-        double learningRate,
-        double regularization,
-        int latentFactors)
-    {
-        var (averagePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
-
-        var positiveFurniture = allFurniture.First(x => x.Id == click.FurnitureId);
-        var negativeFurniture = allFurniture.First(x => x.Id == negativeItemId);
-
-        var positiveMetaFactor = CalculateMetaFactor(positiveFurniture, userPreferences);
-        var negativeMetaFactor = CalculateMetaFactor(negativeFurniture, userPreferences);
-
-        var positiveScore = DotProduct(userFactors[click.UserId], itemFactors[click.FurnitureId])
-            * click.InteractionCount * positiveMetaFactor;
-        var negativeScore = DotProduct(userFactors[click.UserId], itemFactors[negativeItemId])
-            * negativeMetaFactor;
-
-        var gradientMultiplier = Sigmoid(positiveScore - negativeScore);
-
-        for (int k = 0; k < latentFactors; k++)
+        /// <summary>
+        /// Обчислює загальний метафактор для товару з урахуванням його властивостей:
+        /// ціни, кольору, майстра та виробника.
+        /// </summary>
+        private double CalculateMetaFactor(Furniture furniture,
+            (double AveragePrice, int? FavoriteColorId, string FavoriteMasterId, int? FavoriteManufacturerId) userPreferences)
         {
-            UpdateFactorValues(
-                userFactors[click.UserId],
-                itemFactors[click.FurnitureId],
-                itemFactors[negativeItemId],
-                k,
-                gradientMultiplier,
-                learningRate,
-                regularization
-            );
+            // Фактор ціни
+            double priceFactor = CalculatePriceFactor(furniture.Price, userPreferences.AveragePrice);
+
+            // Фактор кольору: якщо колір відповідає найпопулярнішому – невелике збільшення рейтингу
+            double colorFactor = (furniture.Color != null && userPreferences.FavoriteColorId.HasValue &&
+                                  furniture.Color.Id == userPreferences.FavoriteColorId.Value) ? 1.1 : 1.0;
+
+            // Фактор майстра
+            double masterFactor = (furniture.Master != null && !string.IsNullOrEmpty(furniture.Master.Id) &&
+                                   furniture.Master.Id == userPreferences.FavoriteMasterId) ? 1.1 : 1.0;
+
+            // Фактор виробника
+            double manufacturerFactor = (furniture.Manufacturer != null && userPreferences.FavoriteManufacturerId.HasValue &&
+                                         furniture.Manufacturer.Id == userPreferences.FavoriteManufacturerId.Value) ? 1.1 : 1.0;
+
+            return priceFactor * colorFactor * masterFactor * manufacturerFactor;
         }
-    }
 
-    private void UpdateFactorValues(
-        double[] userFactor,
-        double[] positiveFactor,
-        double[] negativeFactor,
-        int index,
-        double gradientMultiplier,
-        double learningRate,
-        double regularization)
-    {
-        var userGradient = gradientMultiplier * (positiveFactor[index] - negativeFactor[index]) - regularization * userFactor[index];
-        var positiveGradient = gradientMultiplier * userFactor[index] - regularization * positiveFactor[index];
-        var negativeGradient = -gradientMultiplier * userFactor[index] - regularization * negativeFactor[index];
+        /// <summary>
+        /// Обчислює фактор відповідності ціни. Чим ближче ціна товару до середньої ціни користувача,
+        /// тим вищий коефіцієнт (обмежений в діапазоні [0.8, 1.2]).
+        /// </summary>
+        private double CalculatePriceFactor(decimal price, double averagePrice)
+        {
+            if (averagePrice <= 0)
+                return 1.0;
 
-        userFactor[index] += learningRate * userGradient;
-        positiveFactor[index] += learningRate * positiveGradient;
-        negativeFactor[index] += learningRate * negativeGradient;
-    }
-
-    private List<Furniture> RankItems(
-        List<Furniture> allFurniture,
-        string userId,
-        Dictionary<string, double[]> userFactors,
-        Dictionary<int, double[]> itemFactors,
-        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences)
-    {
-        return allFurniture
-            .Select(f =>
-            {
-                var rawScore = DotProduct(userFactors[userId], itemFactors[f.Id]);
-                var metaFactor = CalculateMetaFactor(f, userPreferences);
-                return new { Item = f, Score = rawScore * metaFactor };
-            })
-            .OrderByDescending(x => x.Score)
-            .Take(10)
-            .Select(x => x.Item)
-            .ToList();
-    }
-
-    private double CalculateMetaFactor(
-        Furniture furniture,
-        (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
-        int clickCount)
-    {
-        if (furniture == null) return 1.0;
-
-        var (averagePrice, favoriteColorId, favoriteMasterId, favoriteManufacturerId) = userPreferences;
-
-        var priceFactor = CalculatePriceFactor((double)furniture.Price, averagePrice);
-        var colorFactor = CalculateColorFactor(furniture.Color?.Id, favoriteColorId);
-        var masterFactor = CalculateMasterFactor(furniture.Master?.Id, favoriteMasterId);
-        var manufacturerFactor = CalculateManufacturerFactor(furniture.Manufacturer?.Id, favoriteManufacturerId);
-        var clickFactor = CalculateClickFactor(clickCount);
-
-        return priceFactor * colorFactor * masterFactor * manufacturerFactor * clickFactor;
-    }
-
-    private double CalculateClickFactor(int clickCount)
-    {
-        return 1.0 + (clickCount * 0.01);
-    }
-
-    private double CalculatePriceFactor(double price, double averagePrice)
-    {
-        if (averagePrice <= 0) return 1.0;
-        var diff = Math.Abs(price - averagePrice);
-        var ratio = diff / averagePrice;
-        var factor = 1.2 - ratio;
-        return Math.Clamp(factor, 0.8, 1.2);
-    }
-
-    private double CalculateColorFactor(int? itemColorId, int? favoriteColorId)
-    {
-        if (!itemColorId.HasValue || !favoriteColorId.HasValue) return 1.0;
-        return itemColorId == favoriteColorId ? 1.1 : 1.0;
-    }
-
-    private double CalculateMasterFactor(string itemMasterId, string favoriteMasterId)
-    {
-        if (string.IsNullOrEmpty(itemMasterId) || string.IsNullOrEmpty(favoriteMasterId)) return 1.0;
-        return itemMasterId == favoriteMasterId ? 1.1 : 1.0;
-    }
-
-    private double CalculateManufacturerFactor(int? itemManufacturerId, int? favoriteManufacturerId)
-    {
-        if (!itemManufacturerId.HasValue || !favoriteManufacturerId.HasValue) return 1.0;
-        return itemManufacturerId == favoriteManufacturerId ? 1.1 : 1.0;
-    }
-
-    private int? GetNegativeItemId(List<Clicks> userClicks, List<Furniture> allFurniture, string userId, int positiveItemId)
-    {
-        var viewedItemIds = userClicks
-            .Where(c => c.UserId == userId)
-            .Select(c => c.FurnitureId)
-            .ToList();
-
-        var notViewedItemId = allFurniture
-            .Where(f => !viewedItemIds.Contains(f.Id))
-            .OrderBy(_ => Guid.NewGuid())
-            .FirstOrDefault()?.Id;
-
-        return notViewedItemId ?? viewedItemIds.OrderBy(_ => Guid.NewGuid()).FirstOrDefault();
-    }
-
-    private double[] InitializeLatentFactors(int count)
-    {
-        var random = new Random();
-        return Enumerable.Range(0, count)
-            .Select(_ => random.NextDouble() * 0.1)
-            .ToArray();
-    }
-
-    private double DotProduct(double[] v1, double[] v2)
-    {
-        return v1.Zip(v2, (a, b) => a * b).Sum();
-    }
-
-    private double Sigmoid(double x)
-    {
-        return 1.0 / (1.0 + Math.Exp(-x));
+            double diff = Math.Abs((double)price - averagePrice);
+            double ratio = diff / averagePrice;
+            double factor = 1.2 - ratio;
+            return Math.Clamp(factor, 0.8, 1.2);
+        }
     }
 }
