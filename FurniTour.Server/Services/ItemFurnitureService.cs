@@ -72,6 +72,77 @@ namespace FurniTour.Server.Services
             return null;
         }
 
+
+
+        public List<ItemViewModel> getFilteredItems(ItemFilterModel model)
+        {
+            var Items = context.Furnitures.AsQueryable();
+            if (model.categoryID != null && model.categoryID != 0)
+            {
+                Items = Items.Where(c => c.CategoryId == model.categoryID);
+            }
+            if (model.colorID != null && model.colorID != 0)
+            {
+                Items = Items.Where(c => c.ColorId == model.colorID);
+            }
+            if (model.manufacturerID != null && model.manufacturerID != 0)
+            {
+                Items = Items.Where(c => c.ManufacturerId == model.manufacturerID);
+            }
+            if (model.masterID != null && model.masterID != string.Empty)
+            {
+                Items = Items.Where(c => c.MasterId == model.masterID);
+            }
+            if (model.minPrice != null && model.minPrice != 0)
+            {
+                Items = Items.Where(c => c.Price >= model.minPrice);
+            }
+            if (model.maxPrice != null && model.maxPrice != 0)
+            {
+                Items = Items.Where(c => c.Price <= model.maxPrice);
+            }
+            if (model.searchString != null && model.searchString != string.Empty)
+            {
+                Items = Items.Where(c => c.Name.Contains(model.searchString) || c.Description.Contains(model.searchString));
+            }
+            var itemObj = Items.ToList();
+            if (itemObj != null)
+            {
+                var itemListModel = new List<ItemViewModel>();
+                foreach (var item in itemObj)
+                {
+                    var Manufacturer = string.Empty;
+                    var Master = string.Empty;
+                    if (item.ManufacturerId != null)
+                    {
+                        Manufacturer = context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
+                    }
+                    if (item.MasterId != null)
+                    {
+                        Master = context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
+                    }
+                    var category = context.Categories.Where(c => c.Id == item.CategoryId).FirstOrDefault().Name;
+                    var color = context.Colors.Where(c => c.Id == item.ColorId).FirstOrDefault().Name;
+                    var itemModel = new ItemViewModel
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Description = item.Description,
+                        Price = item.Price,
+                        Image = Convert.ToBase64String(item.Image),
+                        Category = category,
+                        Color = color,
+                        Manufacturer = Manufacturer,
+                        Master = Master
+
+                    };
+                    itemListModel.Add(itemModel);
+                }
+                return itemListModel;
+            }
+            return null;
+
+        }
         public async Task<string> AddItem(ItemModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);

@@ -5,8 +5,10 @@ import { Observable } from 'rxjs';
 import { itemGet } from '../../models/item.get.model';
 import { itemUpdate } from '../../models/item.update.model';
 import { api } from '../../app.api';
-import {  ColorModel } from '../../models/color.model';
+import { ColorModel } from '../../models/color.model';
 import { CategoryModel } from '../../models/category.model';
+import { ItemFilterModel }  from '../../models/item.filter.model';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +22,10 @@ export class ItemService {
 
   getAllItems(): Observable<itemGet[]> {
     return this.http.get<itemGet[]>(this.api + 'getall', { withCredentials: true });
+  }
+
+  getFilteredItems(filterModel: ItemFilterModel): Observable<itemGet[]> {
+    return this.http.post<itemGet[]>(this.api + 'getfiltereditems', filterModel, { withCredentials: true });
   }
 
   delete(id: number) {
@@ -48,8 +54,11 @@ export class ItemService {
     return this.http.get<CategoryModel[]>(this.api + 'categories/getall', { withCredentials: true });
   }
 
+  getManufacturers(): Observable<any[]> {
+    return this.http.get<any[]>(api + '/Manufacturer/getall', { withCredentials: true });
+  }
+
   getItemByDescription(description: string): Observable<itemGet> {
     return this.http.get<itemGet>(this.api + 'search/' + description, { withCredentials: true });
   }
-
 }

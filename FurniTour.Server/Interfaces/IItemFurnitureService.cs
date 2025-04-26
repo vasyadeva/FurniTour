@@ -6,6 +6,7 @@ namespace FurniTour.Server.Interfaces
     public interface IItemFurnitureService
     {
         public List<ItemViewModel> getAll();
+        List<ItemViewModel> getFilteredItems(ItemFilterModel model);
         public List<Category> GetCategories();
         public List<Color> GetColors();
         public Task<string> AddItem(ItemModel itemModel);

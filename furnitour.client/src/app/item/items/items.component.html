@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<div class="container-fluid mt-5">
   <div class="row mb-4">
     <div class="col-12 text-center">
       <h1>Список товарів</h1>
@@ -6,126 +6,197 @@
     </div>
   </div>
 
-  <!-- Форма пошуку -->
-  <div class="row mb-4">
-    <div class="col-md-8 offset-md-2">
-      <form (ngSubmit)="searchItem()">
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Пошук за описом" [(ngModel)]="searchDescription" name="searchDescription">
-          <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+  <div class="row">
+    <!-- Бічне меню з фільтрами -->
+    <div class="col-md-3 mb-4">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">Фільтри</h5>
         </div>
-      </form>
-    </div>
-  </div>
+        <div class="card-body">
+          <form (ngSubmit)="applyFilters()">
+            <!-- Пошук за ключовим словом -->
+            <div class="mb-3">
+              <label for="searchString" class="form-label">Пошук за ключовим словом</label>
+              <input type="text" class="form-control" id="searchString" [(ngModel)]="filterModel.searchString" name="searchString">
+            </div>
 
-  <!-- Результат пошуку -->
-  <div class="row mb-5" *ngIf="searchResult">
-    <div class="col-12">
-      <div class="card mb-4 shadow">
-        <div class="row g-0">
-          <div class="col-md-4">
-            <img [src]="'data:image/jpeg;base64,' + searchResult.image" class="img-fluid rounded-start" alt="{{ searchResult.name }}">
-          </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h5 class="card-title">{{ searchResult.name }}</h5>
-              <p class="card-text">{{ searchResult.description }}</p>
-              <p *ngIf="searchResult.master !== ''" class="card-text">
-                <strong>Майстер:</strong>
-                <a [routerLink]="['/profile/master', searchResult.master]">{{ searchResult.master}}</a>
-              </p>
-              <p *ngIf="searchResult.manufacturer !== ''" class="card-text">
-                <strong>Виробник:</strong>
-                <a [routerLink]="['/profile/manufacturer', searchResult.manufacturer]">{{ searchResult.manufacturer}}</a>
-              </p>
-              <p class="card-text"><strong>Ціна:</strong> ${{ searchResult.price }}</p>
-              <p class="card-text"><strong>Категорія:</strong> {{ searchResult.category }}</p>
-              <p class="card-text"><strong>Колір:</strong> {{ searchResult.color }}</p>
-              <div *ngIf="status.isUser">
-                <label for="quantity" class="form-label">Кількість:</label>
-                <input type="number" id="quantity" [(ngModel)]="quantity[searchResult.id]" min="1" class="form-control mb-2" value="1" />
+            <!-- Вибір категорії -->
+            <div class="mb-3">
+              <label for="categoryID" class="form-label">Категорія</label>
+              <select class="form-select" id="categoryID" [(ngModel)]="filterModel.categoryID" name="categoryID">
+                <option [value]="0">Всі категорії</option>
+                <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+              </select>
+            </div>
+
+            <!-- Вибір кольору -->
+            <div class="mb-3">
+              <label for="colorID" class="form-label">Колір</label>
+              <select class="form-select" id="colorID" [(ngModel)]="filterModel.colorID" name="colorID">
+                <option [value]="0">Всі кольори</option>
+                <option *ngFor="let color of colors" [value]="color.id">{{ color.name }}</option>
+              </select>
+            </div>
+
+            <!-- Виробник -->
+            <div class="mb-3">
+              <label for="manufacturerID" class="form-label">Виробник</label>
+              <select class="form-select" id="manufacturerID" [(ngModel)]="filterModel.manufacturerID" name="manufacturerID">
+                <option [value]="0">Всі виробники</option>
+                <option *ngFor="let manufacturer of manufacturers" [value]="manufacturer.id">{{ manufacturer.name }}</option>
+              </select>
+            </div>
+
+            <!-- Ціна від -->
+            <div class="mb-3">
+              <label for="minPrice" class="form-label">Ціна від</label>
+              <input type="number" class="form-control" id="minPrice" [(ngModel)]="filterModel.minPrice" name="minPrice" min="0">
+            </div>
+
+            <!-- Ціна до -->
+            <div class="mb-3">
+              <label for="maxPrice" class="form-label">Ціна до</label>
+              <input type="number" class="form-control" id="maxPrice" [(ngModel)]="filterModel.maxPrice" name="maxPrice" min="0">
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Застосувати фільтри</button>
+              <button type="button" class="btn btn-secondary" (click)="resetFilters()">Скинути фільтри</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Основний контент -->
+    <div class="col-md-9">
+      <!-- Форма пошуку -->
+      <div class="row mb-4">
+        <div class="col-md-12">
+          <form (ngSubmit)="searchItem()">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Пошук за описом" [(ngModel)]="searchDescription" name="searchDescription">
+              <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Результат пошуку -->
+      <div class="row mb-5" *ngIf="searchResult">
+        <div class="col-12">
+          <div class="card mb-4 shadow">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img [src]="'data:image/jpeg;base64,' + searchResult.image" class="img-fluid rounded-start" alt="{{ searchResult.name }}">
               </div>
-              <div>
-                <button class="btn btn-warning m-1" [routerLink]="['/details', searchResult.id]">Дивитися деталі</button>
-                <button class="btn btn-primary m-1" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', searchResult.id]">Редагувати</button>
-                <button class="btn btn-danger m-1" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(searchResult.id)">Видалити</button>
-                <button class="btn btn-success m-1" *ngIf="status.isUser" (click)="AddToCart(searchResult.id, quantity[searchResult.id])">Додати в кошик</button>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">{{ searchResult.name }}</h5>
+                  <p class="card-text">{{ searchResult.description }}</p>
+                  <p *ngIf="searchResult.master !== ''" class="card-text">
+                    <strong>Майстер:</strong>
+                    <a [routerLink]="['/profile/master', searchResult.master]">{{ searchResult.master}}</a>
+                  </p>
+                  <p *ngIf="searchResult.manufacturer !== ''" class="card-text">
+                    <strong>Виробник:</strong>
+                    <a [routerLink]="['/profile/manufacturer', searchResult.manufacturer]">{{ searchResult.manufacturer}}</a>
+                  </p>
+                  <p class="card-text"><strong>Ціна:</strong> ${{ searchResult.price }}</p>
+                  <p class="card-text"><strong>Категорія:</strong> {{ searchResult.category }}</p>
+                  <p class="card-text"><strong>Колір:</strong> {{ searchResult.color }}</p>
+                  <div *ngIf="status.isUser">
+                    <label for="quantity" class="form-label">Кількість:</label>
+                    <input type="number" id="quantity" [(ngModel)]="quantity[searchResult.id]" min="1" class="form-control mb-2" value="1" />
+                  </div>
+                  <div>
+                    <button class="btn btn-warning m-1" [routerLink]="['/details', searchResult.id]">Дивитися деталі</button>
+                    <button class="btn btn-primary m-1" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', searchResult.id]">Редагувати</button>
+                    <button class="btn btn-danger m-1" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(searchResult.id)">Видалити</button>
+                    <button class="btn btn-success m-1" *ngIf="status.isUser" (click)="AddToCart(searchResult.id, quantity[searchResult.id])">Додати в кошик</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Рекомендовані товари -->
-  <div class="row mb-4" *ngIf="RecomendedItems && RecomendedItems.length">
-    <div class="col-12">
-      <h3 class="mb-3">Рекомендовані товари</h3>
-    </div>
-    <div class="col-md-4" *ngFor="let item of RecomendedItems">
-      <div class="card mb-4 shadow-sm">
-        <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}">
-        <div class="card-body">
-          <h5 class="card-title text-center">{{ item.name }}</h5>
-          <p class="card-text">{{ item.description }}</p>
-          <p *ngIf="item.master !== ''" class="card-text">
-            <strong>Майстер:</strong>
-            <a [routerLink]="['/profile/master', item.master]">{{ item.master}}</a>
-          </p>
-          <p *ngIf="item.manufacturer !== ''" class="card-text">
-            <strong>Виробник:</strong>
-            <a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a>
-          </p>
-          <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
-          <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
-          <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
-          <div *ngIf="status.isUser">
-            <label for="quantity-{{item.id}}" class="form-label">Кількість:</label>
-            <input type="number" id="quantity-{{item.id}}" [(ngModel)]="quantity[item.id]" min="1" class="form-control mb-2" value="1">
-          </div>
-          <div class="d-grid gap-2">
-            <button class="btn btn-warning" [routerLink]="['/details', item.id]">Дивитися деталі</button>
-            <button class="btn btn-primary" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', item.id]">Редагувати</button>
-            <button class="btn btn-danger" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(item.id)">Видалити</button>
-            <button class="btn btn-success" *ngIf="status.isUser" (click)="AddToCart(item.id, quantity[item.id])">Додати в кошик</button>
+      <!-- Рекомендовані товари -->
+      <div class="row mb-4" *ngIf="RecomendedItems && RecomendedItems.length">
+        <div class="col-12">
+          <h3 class="mb-3">Рекомендовані товари</h3>
+        </div>
+        <div class="col-md-4" *ngFor="let item of RecomendedItems">
+          <div class="card mb-4 shadow-sm">
+            <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}">
+            <div class="card-body">
+              <h5 class="card-title text-center">{{ item.name }}</h5>
+              <p class="card-text">{{ item.description }}</p>
+              <p *ngIf="item.master !== ''" class="card-text">
+                <strong>Майстер:</strong>
+                <a [routerLink]="['/profile/master', item.master]">{{ item.master}}</a>
+              </p>
+              <p *ngIf="item.manufacturer !== ''" class="card-text">
+                <strong>Виробник:</strong>
+                <a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a>
+              </p>
+              <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
+              <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
+              <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
+              <div *ngIf="status.isUser">
+                <label for="quantity-{{item.id}}" class="form-label">Кількість:</label>
+                <input type="number" id="quantity-{{item.id}}" [(ngModel)]="quantity[item.id]" min="1" class="form-control mb-2" value="1">
+              </div>
+              <div class="d-grid gap-2">
+                <button class="btn btn-warning" [routerLink]="['/details', item.id]">Дивитися деталі</button>
+                <button class="btn btn-primary" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', item.id]">Редагувати</button>
+                <button class="btn btn-danger" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(item.id)">Видалити</button>
+                <button class="btn btn-success" *ngIf="status.isUser" (click)="AddToCart(item.id, quantity[item.id])">Додати в кошик</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Всі товари -->
-  <div class="row">
-    <div class="col-12">
-      <h3 class="mb-3">Всі товари</h3>
-    </div>
-    <div class="col-md-4" *ngFor="let item of items">
-      <div class="card mb-4 shadow-sm">
-        <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}">
-        <div class="card-body">
-          <h5 class="card-title text-center">{{ item.name }}</h5>
-          <p class="card-text">{{ item.description }}</p>
-          <p *ngIf="item.master !== ''" class="card-text">
-            <strong>Майстер:</strong>
-            <a [routerLink]="['/profile/master', item.master]">{{ item.master}}</a>
-          </p>
-          <p *ngIf="item.manufacturer !== ''" class="card-text">
-            <strong>Виробник:</strong>
-            <a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a>
-          </p>
-          <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
-          <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
-          <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
-          <div *ngIf="status.isUser">
-            <label for="quantity-all-{{item.id}}" class="form-label">Кількість:</label>
-            <input type="number" id="quantity-all-{{item.id}}" [(ngModel)]="quantity[item.id]" min="1" class="form-control mb-2" value="1">
+      <!-- Відфільтровані товари -->
+      <div class="row">
+        <div class="col-12">
+          <h3 class="mb-3">Товари</h3>
+          <div *ngIf="items.length === 0" class="alert alert-info">
+            Товарів за заданими параметрами не знайдено.
           </div>
-          <div class="d-grid gap-2">
-            <button class="btn btn-warning" [routerLink]="['/details', item.id]">Дивитися деталі</button>
-            <button class="btn btn-primary" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', item.id]">Редагувати</button>
-            <button class="btn btn-danger" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(item.id)">Видалити</button>
-            <button class="btn btn-success" *ngIf="status.isUser" (click)="AddToCart(item.id, quantity[item.id])">Додати в кошик</button>
+        </div>
+        <div class="col-md-4" *ngFor="let item of items">
+          <div class="card mb-4 shadow-sm">
+            <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}">
+            <div class="card-body">
+              <h5 class="card-title text-center">{{ item.name }}</h5>
+              <p class="card-text">{{ item.description }}</p>
+              <p *ngIf="item.master !== ''" class="card-text">
+                <strong>Майстер:</strong>
+                <a [routerLink]="['/profile/master', item.master]">{{ item.master}}</a>
+              </p>
+              <p *ngIf="item.manufacturer !== ''" class="card-text">
+                <strong>Виробник:</strong>
+                <a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a>
+              </p>
+              <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
+              <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
+              <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
+              <div *ngIf="status.isUser">
+                <label for="quantity-all-{{item.id}}" class="form-label">Кількість:</label>
+                <input type="number" id="quantity-all-{{item.id}}" [(ngModel)]="quantity[item.id]" min="1" class="form-control mb-2" value="1">
+              </div>
+              <div class="d-grid gap-2">
+                <button class="btn btn-warning" [routerLink]="['/details', item.id]">Дивитися деталі</button>
+                <button class="btn btn-primary" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', item.id]">Редагувати</button>
+                <button class="btn btn-danger" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(item.id)">Видалити</button>
+                <button class="btn btn-success" *ngIf="status.isUser" (click)="AddToCart(item.id, quantity[item.id])">Додати в кошик</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

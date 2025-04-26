@@ -34,6 +34,13 @@ namespace FurniTour.Server.Controllers
             return Ok(items);
         }
 
+        [HttpPost("getfiltereditems")]
+        public IActionResult GetFilteredItems([FromBody] ItemFilterModel model)
+        {
+            var items = itemFurnitureService.getFilteredItems(model);
+            return Ok(items);
+        }
+
         [Authorize(Roles = (Roles.Administrator + "," + Roles.Master))]
         [HttpPost("create")]
         public async Task<IActionResult> AddItem([FromBody]ItemModel itemModel)
