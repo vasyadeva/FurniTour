@@ -41,8 +41,8 @@ export class ManufacturerProfileComponent implements OnInit {
         },
         (error) => {
           this.popupService.closeSnackBar();
-          this.popupService.openSnackBar(error?.error || 'Error fetching manufacturer profile');
-          console.error('Error fetching manufacturer profile:', error);
+          this.popupService.openSnackBar(error?.error || 'Виникла помилка при отриманні профілю виробника');
+          console.error('Виникла помилка при отриманні профілю виробника:', error);
         }
       );
     });
@@ -55,8 +55,8 @@ export class ManufacturerProfileComponent implements OnInit {
       },
       (error) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar(error?.error || 'Error fetching AI review');
-        console.error('Error fetching AI review:', error);
+        this.popupService.openSnackBar(/*error?.error ||*/ 'Виникла помилка при отриманні ШІ відгуку');
+        console.error('Виникла помилка при отриманні ШІ відгуку:', error);
       });
   }
 }

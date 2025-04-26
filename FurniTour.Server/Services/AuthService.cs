@@ -130,7 +130,7 @@ namespace FurniTour.Server.Services
         public string IsAuthenticated()
         {
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
-            return user != null ? string.Empty : "You are not logged in";
+            return user != null ? string.Empty : "Ви не увійшли у систему!";
         }
 
         public string IsMaster()
@@ -206,9 +206,9 @@ namespace FurniTour.Server.Services
                 {
                     return string.Empty;
                 }
-                return "User is not a Master";
+                return "Користувач не є майстром";
             }
-            return "User not found";
+            return "Користувача не знайдено";
         }
 
         public async Task<ProfileModel> GetProfile()

@@ -68,6 +68,10 @@ namespace FurniTour.Server.Controllers
         public async Task<IActionResult> GetMasterReview(string id)
         {
             var review = await profileService.GetMasterProfile(id);
+            if (review.Reviews.Count < 1)
+            {
+                return Ok(new AIReviewModel { review = string.Empty });
+            }
             string reviewstext = "";
             foreach (var rev in review.Reviews)
             {
@@ -78,13 +82,13 @@ namespace FurniTour.Server.Controllers
 
             var request = new JsonObject
             {
-                ["model"] = "mixtral-8x7b-32768",
+                ["model"] = "gemma2-9b-it",
                 ["messages"] = new JsonArray
             {
                 new JsonObject
                 {
                     ["role"] = "user",
-                    ["content"] = $"Summarize the reviews without for master {id}: {reviewstext}"
+                    ["content"] = $"Summarize the reviews without for master only in Ukraininan language {id}: {reviewstext}"
                 }
             }
             };
@@ -94,10 +98,10 @@ namespace FurniTour.Server.Controllers
 
             if (aiResponse != null)
             {
-                aiResponse = aiResponse.Replace("\"", "") 
+                aiResponse = aiResponse.Replace("\"", "")
                                        .Replace("\n", " ")
                                        .Replace("\r", " ")
-                                       .Trim();           
+                                       .Trim();
             }
 
             return Ok(new AIReviewModel { review = aiResponse });
@@ -107,6 +111,10 @@ namespace FurniTour.Server.Controllers
         public async Task<IActionResult> GetManufacturerReview(string id)
         {
             var review = await profileService.GetManufacturerProfile(id);
+            if (review.Reviews.Count < 1)
+            {
+                return Ok(new AIReviewModel { review = string.Empty });
+            }
             string reviewstext = "";
             foreach (var rev in review.Reviews)
             {
@@ -117,13 +125,13 @@ namespace FurniTour.Server.Controllers
 
             var request = new JsonObject
             {
-                ["model"] = "mixtral-8x7b-32768",
+                ["model"] = "gemma2-9b-it",
                 ["messages"] = new JsonArray
             {
                 new JsonObject
                 {
                     ["role"] = "user",
-                    ["content"] = $"Summarize the reviews without for manufacturer {id}: {reviewstext}"
+                    ["content"] = $"Summarize the reviews without for manufacturer only in Ukraininan language {id}: {reviewstext}"
                 }
             }
             };
@@ -133,13 +141,22 @@ namespace FurniTour.Server.Controllers
 
             if (aiResponse != null)
             {
-                aiResponse = aiResponse.Replace("\"", "")  
-                                       .Replace("\n", " ") 
-                                       .Replace("\r", " ") 
-                                       .Trim();            
+                aiResponse = aiResponse.Replace("\"", "")
+                                       .Replace("\n", " ")
+                                       .Replace("\r", " ")
+                                       .Trim();
             }
 
-            return Ok(new AIReviewModel { review = aiResponse});
+            return Ok(new AIReviewModel { review = aiResponse });
+        }
+
+
+        [HttpGet("ai/master/search/{description}")]
+        public async Task<IActionResult> GetMasterByDescription(string description)
+        {
+            var profile = await profileService.GetMasterByDescription(description);
+            return Ok(profile);
         }
     }
 }
+

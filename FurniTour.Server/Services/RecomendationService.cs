@@ -88,10 +88,19 @@ namespace FurniTour.Server.Services
             var userFactors = InitializeUserFactors(userClicks, latentFactors);
             var itemFactors = InitializeItemFactors(allFurniture, latentFactors);
 
-            // Побудова кешу загальної кількості кліків для кожного товару (сумуємо всі InteractionCount)
-            var clickCountByItem = userClicks
+            // Побудова кешу даних кліків для кожного товару
+            var clickDataByItem = userClicks
                 .GroupBy(c => c.FurnitureId)
-                .ToDictionary(g => g.Key, g => g.Sum(c => c.InteractionCount));
+                .ToDictionary(
+                    g => g.Key,
+                    g => new ClickData
+                    {
+                        Count = g.Sum(c => c.InteractionCount),
+                        LastTime = g.Max(c => c.LastInteractionTime)
+                    }
+                );
+
+
 
             // Навчання моделі (BPR)
             for (int epoch = 0; epoch < epochs; epoch++)
@@ -127,7 +136,8 @@ namespace FurniTour.Server.Services
 
             // Ранжування товарів: враховуємо як базовий скор (скалярний добуток), так і метафактор,
             // що включає ефект InteractionCount
-            var rankedItems = RankItems(allFurniture, userClicks.First().UserId, userFactors, itemFactors, userPreferences, clickCountByItem);
+            var rankedItems = RankItems(allFurniture, userClicks.First().UserId, userFactors, itemFactors, userPreferences, clickDataByItem);
+
 
             return rankedItems;
         }
@@ -171,22 +181,23 @@ namespace FurniTour.Server.Services
         }
 
         private void UpdateFactors(
-            Clicks click,
-            int negativeItemId,
-            Dictionary<string, double[]> userFactors,
-            Dictionary<int, double[]> itemFactors,
-            List<Furniture> allFurniture,
-            (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
-            double learningRate,
-            double regularization,
-            int latentFactors)
+     Clicks click,
+     int negativeItemId,
+     Dictionary<string, double[]> userFactors,
+     Dictionary<int, double[]> itemFactors,
+     List<Furniture> allFurniture,
+     (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
+     double learningRate,
+     double regularization,
+     int latentFactors)
         {
             var positiveFurniture = allFurniture.First(x => x.Id == click.FurnitureId);
             var negativeFurniture = allFurniture.First(x => x.Id == negativeItemId);
 
-            // Використовуємо InteractionCount для позитивного прикладу; для негативного – припустимо, що кліків немає (0)
-            var positiveMetaFactor = CalculateMetaFactor(positiveFurniture, userPreferences, click.InteractionCount);
-            var negativeMetaFactor = CalculateMetaFactor(negativeFurniture, userPreferences, 0);
+            // Для позитивного прикладу враховуємо кількість кліків і час останньої взаємодії.
+            var positiveMetaFactor = CalculateMetaFactor(positiveFurniture, userPreferences, click.InteractionCount, click.LastInteractionTime);
+            // Для негативного прикладу припускаємо, що кліків немає, тому використовуємо DateTime.MinValue.
+            var negativeMetaFactor = CalculateMetaFactor(negativeFurniture, userPreferences, 0, DateTime.MinValue);
 
             double positiveScore = DotProduct(userFactors[click.UserId], itemFactors[click.FurnitureId])
                 * click.InteractionCount * positiveMetaFactor;
@@ -209,6 +220,7 @@ namespace FurniTour.Server.Services
             }
         }
 
+
         private void UpdateFactorValues(
             double[] userFactor,
             double[] positiveFactor,
@@ -228,20 +240,21 @@ namespace FurniTour.Server.Services
         }
 
         private List<Furniture> RankItems(
-            List<Furniture> allFurniture,
-            string userId,
-            Dictionary<string, double[]> userFactors,
-            Dictionary<int, double[]> itemFactors,
-            (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
-            Dictionary<int, int> clickCountByItem)
+    List<Furniture> allFurniture,
+    string userId,
+    Dictionary<string, double[]> userFactors,
+    Dictionary<int, double[]> itemFactors,
+    (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
+    Dictionary<int, ClickData> clickDataByItem) // використовується ClickData
         {
             return allFurniture
                 .Select(f =>
                 {
                     double baseScore = DotProduct(userFactors[userId], itemFactors[f.Id]);
-                    // Якщо для товару є дані про кількість кліків, використовуємо їх; інакше – 1
-                    int interactionCount = clickCountByItem.ContainsKey(f.Id) ? clickCountByItem[f.Id] : 1;
-                    double metaFactor = CalculateMetaFactor(f, userPreferences, interactionCount);
+                    // Якщо для товару є дані про кліки, використовуємо їх; інакше – встановлюємо базові значення.
+                    int interactionCount = clickDataByItem.ContainsKey(f.Id) ? clickDataByItem[f.Id].Count : 1;
+                    DateTime lastInteractionTime = clickDataByItem.ContainsKey(f.Id) ? clickDataByItem[f.Id].LastTime : DateTime.MinValue;
+                    double metaFactor = CalculateMetaFactor(f, userPreferences, interactionCount, lastInteractionTime);
                     return new { Item = f, Score = baseScore * metaFactor };
                 })
                 .OrderByDescending(x => x.Score)
@@ -249,6 +262,7 @@ namespace FurniTour.Server.Services
                 .Select(x => x.Item)
                 .ToList();
         }
+
 
         private int? GetNegativeItemId(List<Clicks> userClicks, List<Furniture> allFurniture, string userId, int positiveItemId)
         {
@@ -284,13 +298,14 @@ namespace FurniTour.Server.Services
         }
 
         /// <summary>
-        /// Обчислює загальний метафактор для товару з урахуванням його властивостей (ціна, колір, майстер, виробник)
-        /// та ефекту кількості кліків (InteractionCount).
+        /// Обчислює загальний метафактор для товару з урахуванням його властивостей
+        /// та ефекту кліків (кількість і час останньої взаємодії).
         /// </summary>
         private double CalculateMetaFactor(
             Furniture furniture,
             (double averagePrice, int? colorId, string masterId, int? manufacturerId) userPreferences,
-            int clickCount)
+            int clickCount,
+            DateTime lastInteractionTime)
         {
             if (furniture == null) return 1.0;
 
@@ -300,16 +315,62 @@ namespace FurniTour.Server.Services
             double colorFactor = CalculateColorFactor(furniture.Color?.Id, favoriteColorId);
             double masterFactor = CalculateMasterFactor(furniture.Master?.Id, favoriteMasterId);
             double manufacturerFactor = CalculateManufacturerFactor(furniture.Manufacturer?.Id, favoriteManufacturerId);
-            double clickFactor = CalculateClickFactor(clickCount);
+
+            // Якщо є кліки (тобто clickCount > 0), використовуємо обчислення з урахуванням часу,
+            // інакше – повертаємо базове значення 1.0.
+            double clickFactor = (clickCount > 0) ? CalculateClickFactor(clickCount, lastInteractionTime) : 1.0;
 
             return priceFactor * colorFactor * masterFactor * manufacturerFactor * clickFactor;
         }
 
-        private double CalculateClickFactor(int clickCount)
+
+        /// <summary>
+        /// Обчислює фактор впливу кліків із врахуванням кількості кліків та часу останньої взаємодії.
+        /// </summary>
+        /// <param name="clickCount">Кількість кліків</param>
+        /// <param name="lastInteractionTime">Час останнього кліку</param>
+        /// <returns>Фактор, який використовується при розрахунку загального метафактора</returns>
+        private double CalculateClickFactor(int clickCount, DateTime lastInteractionTime)
         {
-            // Збільшення ваги на кожен клік (лінійно або за допомогою іншої функції)
-            return 1.0 + (clickCount * 0.01);
+            // Базовий фактор за кількістю кліків – наприклад, кожен клік додає 5%
+            double baseClickFactor = 1.0 + (clickCount * 0.05);
+
+            // Отримуємо часовий фактор (чим більш свіжий клік, тим він більше впливає)
+            double timeFactor = CalculateTimeFactor(lastInteractionTime);
+
+            return baseClickFactor * timeFactor;
         }
+
+
+        /// <summary>
+        /// Обчислює часовий фактор залежно від того, скільки часу пройшло від останньої взаємодії.
+        /// Чим «свіжіший» клік (менше пройшло часу), тим вищий коефіцієнт.
+        /// Наприклад, використовуємо експоненційну функцію занепаду.
+        /// </summary>
+        /// <param name="lastInteractionTime">Час останньої взаємодії</param>
+        /// <returns>Коефіцієнт, де 1.0 – базове значення, а для свіжих кліків більше 1.0</returns>
+        private double CalculateTimeFactor(DateTime lastInteractionTime)
+        {
+            // Якщо час не заданий (за замовчуванням), повертаємо 1.0
+            if (lastInteractionTime == DateTime.MinValue)
+                return 1.0;
+
+            // Розраховуємо кількість годин, що пройшли від останньої взаємодії
+            double hoursPassed = (DateTime.UtcNow - lastInteractionTime).TotalHours;
+
+            // Параметр, який регулює швидкість занепаду (чим більший, тим швидше зменшується вага)
+            double decayRate = 0.05; // можна налаштовувати
+
+            // Експоненційний занепад: для свіжих кліків (hoursPassed ~ 0) фактор буде ~ 1.0,
+            // але зі збільшенням часу значення зменшується.
+            double timeFactor = Math.Exp(-decayRate * hoursPassed);
+
+            // Щоб свіжі кліки мали додаткове підсилення, можна «підняти» цей коефіцієнт,
+            // наприклад, використовуючи масштабування або додавання постійного значення.
+            // Тут для прикладу домножимо на коефіцієнт (якщо потрібно – налаштуйте)
+            return 1.0 + (1.0 - timeFactor);
+        }
+
 
         private double CalculatePriceFactor(double price, double averagePrice)
         {
@@ -338,4 +399,10 @@ namespace FurniTour.Server.Services
             return itemManufacturerId == favoriteManufacturerId ? 1.1 : 1.0;
         }
     }
+}
+
+public class ClickData
+{
+    public int Count { get; set; }
+    public DateTime LastTime { get; set; }
 }

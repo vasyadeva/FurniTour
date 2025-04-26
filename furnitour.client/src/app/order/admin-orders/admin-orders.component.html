@@ -1,52 +1,50 @@
 <div class="container mt-4" *ngIf="orders.length > 0; else noOrders">
-    <h2>My Orders</h2>
-    <div *ngFor="let order of orders" class="card mb-3">
-      <div class="card-header">
-        <h5>Order #{{ order.id }} - {{ order.orderState }}</h5>
-      </div>
-      <div class="card-body">
-        <p><strong>Name:</strong> {{ order.name }}</p>
-        <p *ngIf="order.address"><strong>Address:</strong> {{ order.address }}</p>
-        <p *ngIf="order.phone"><strong>Phone:</strong> {{ order.phone }}</p>
-        <p *ngIf="order.comment"><strong>Comment:</strong> {{ order.comment }}</p>
-        <p *ngIf="order.orderState"><strong>Order State:</strong> {{ order.orderState }}</p>
-        <p><strong>Date Created:</strong> {{ order.dateCreated | date:'short' }}</p>
-        <p><strong>Total Price:</strong> {{ order.price | currency }}</p>
+  <h2>Керування замовленнями</h2>
+  <div *ngFor="let order of orders" class="card mb-3">
+    <div class="card-header">
+      <h5>Замовлення #{{ order.id }} - {{ order.orderState }}</h5>
+    </div>
+    <div class="card-body">
+      <p><strong>Ім'я:</strong> {{ order.name }}</p>
+      <p *ngIf="order.address"><strong>Адреса:</strong> {{ order.address }}</p>
+      <p *ngIf="order.phone"><strong>Телефон:</strong> {{ order.phone }}</p>
+      <p *ngIf="order.comment"><strong>Коментар:</strong> {{ order.comment }}</p>
+      <p *ngIf="order.orderState"><strong>Стан Замовлення:</strong> {{ order.orderState }}</p>
+      <p><strong>Дата створення:</strong> {{ order.dateCreated | date:'short' }}</p>
+      <p><strong>Загальна Ціна:</strong> {{ order.price | currency }}</p>
   
-        <h6>Order Items</h6>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Quantity</th>
-              <th>Price</th>
-              <th>Master/Manufacturer</th>
-              <th>Category</th>
-              <th>Color</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of order.orderItems">
-              <td>{{ item.name }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ item.price | currency }}</td>
-              <td *ngIf="item.master != ''">{{ item.master }}</td>
-              <td *ngIf="item.manufacturer != ''">{{ item.manufacturer }}</td>
-              <td>{{item.category}}</td>
-              <td>{{item.color}}</td>
-            </tr>
-          </tbody>
-        </table>
-        <button class="btn btn-warning m-1" (click)="updateOrder(order.id, 3)">Cancel Order</button>
-        <button class="btn btn-primary m-1" (click)="updateOrder(order.id, 4)">Confirm Order</button>
-        <button class="btn btn-danger m-1" (click)="updateOrder(order.id, 5)">In delivery</button>
-        <button class="btn btn-success m-1" (click)="updateOrder(order.id, 6)">Confirm Delivery</button>
-      </div>
+      <h6>Товари у замовленні</h6>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Назва</th>
+            <th>Кількість</th>
+            <th>Ціна</th>
+            <th>Майстер/Виробник</th>
+            <th>Категорія</th>
+            <th>Колір</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of order.orderItems">
+            <td>{{ item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price | currency }}</td>
+            <td *ngIf="item.master != ''">{{ item.master }}</td>
+            <td *ngIf="item.manufacturer != ''">{{ item.manufacturer }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.color }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-warning m-1" (click)="updateOrder(order.id, 3)">Скасувати замовлення</button>
+      <button class="btn btn-primary m-1" (click)="updateOrder(order.id, 4)">Підтвердити замовлення</button>
+      <button class="btn btn-danger m-1" (click)="updateOrder(order.id, 5)">В доставці</button>
+      <button class="btn btn-success m-1" (click)="updateOrder(order.id, 6)">Підтвердити доставку</button>
     </div>
   </div>
+</div>
   
-  <!-- Fallback if no orders are available -->
-  <ng-template #noOrders>
-    <div class="alert alert-warning mt-4">You have no orders.</div>
-  </ng-template>
-  
+<ng-template #noOrders>
+  <div class="alert alert-warning mt-4">Замовлень немає.</div>
+</ng-template>

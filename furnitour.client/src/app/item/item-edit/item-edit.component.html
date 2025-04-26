@@ -2,53 +2,53 @@
   <form [formGroup]="itemForm" (ngSubmit)="onSubmit()">
     
     <div class="form-group mb-3">
-      <label for="name" class="form-label">Name:</label>
+      <label for="name" class="form-label">Назва:</label>
       <input id="name" formControlName="name" type="text" class="form-control">
     </div>
     
     <div class="form-group mb-3">
-      <label for="description" class="form-label">Description:</label>
+      <label for="description" class="form-label">Опис:</label>
       <textarea id="description" formControlName="description" class="form-control"></textarea>
     </div>
     
     <div class="form-group mb-3">
-      <label for="price" class="form-label">Price:</label>
+      <label for="price" class="form-label">Ціна:</label>
       <input id="price" formControlName="price" type="number" min="0" class="form-control">
     </div>
 
     <div class="form-group mb-3">
-      <label for="categoryId" class="form-label">Category:</label>
+      <label for="categoryId" class="form-label">Категорія:</label>
       <select id="categoryId" formControlName="categoryId" class="form-control">
         <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
       </select>
     </div>
     
     <div class="form-group mb-3">
-      <label for="colorId" class="form-label">Color:</label>
+      <label for="colorId" class="form-label">Колір:</label>
       <select id="colorId" formControlName="colorId" class="form-control">
         <option *ngFor="let color of colors" [value]="color.id">{{ color.name }}</option>
       </select>
     </div>
     
     <div class="form-group mb-3">
-      <label for="photo" class="form-label">Photo:</label>
+      <label for="photo" class="form-label">Фото:</label>
       <input id="photo" type="file" class="form-control" (change)="onFileSelected($event)">
     </div>
 
     <div class="form-group mb-3" *ngIf="this.status.isAdmin">
-      <label for="manufacturer" class="form-label">Manufacturer:</label>
+      <label for="manufacturer" class="form-label">Виробник:</label>
     
-      <input type="text" class="form-control mb-2" placeholder="Search manufacturer" [(ngModel)]="searchTerm" (ngModelChange)="filterManufacturers()" [ngModelOptions]="{standalone: true}" />
+      <input type="text" class="form-control mb-2" placeholder="Пошук виробника" [(ngModel)]="searchTerm" (ngModelChange)="filterManufacturers()" [ngModelOptions]="{standalone: true}" />
 
       <select id="manufacturer" formControlName="manufacturerId" name="manufacturerId" class="form-control">
-        <option value="">Select manufacturer</option>
+        <option value="">Виберіть виробника</option>
         <option *ngFor="let manufacturer of filteredManufacturers" [value]="manufacturer.id">
           {{ manufacturer.name }}
         </option>
       </select>
     </div>
 
-    <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
-    <button type="submit" class="btn btn-primary" [disabled]="itemForm.invalid">Submit</button>
+    <p class="alert alert-info" *ngIf="error!=''">{{ error }}</p>
+    <button type="submit" class="btn btn-primary" [disabled]="itemForm.invalid">Відправити</button>
   </form>
 </div>

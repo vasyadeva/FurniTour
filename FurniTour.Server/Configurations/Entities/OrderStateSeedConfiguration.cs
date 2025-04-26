@@ -9,13 +9,13 @@ namespace FurniTour.Server.Configurations.Entities
         public void Configure(EntityTypeBuilder<OrderState> builder)
         {
              builder.HasData(
-                new OrderState { Id = 1, Name = "New Order" },
-                new OrderState { Id = 2, Name = "Cancelled by User" },
-                new OrderState { Id = 3, Name = "Cancelled by Administrator" },
-                new OrderState { Id = 4, Name = "Confirmed" },
-                new OrderState { Id = 5, Name = "In Delivery" },
-                new OrderState { Id = 6, Name = "Delivered" },
-                new OrderState { Id = 7, Name = "Delivery Confirmed by User" }
+                new OrderState { Id = 1, Name = "Нове замовлення" },
+                new OrderState { Id = 2, Name = "Скасовано користувачем" },
+                new OrderState { Id = 3, Name = "Скасовано адміністратором" },
+                new OrderState { Id = 4, Name = "Підтверджено" },
+                new OrderState { Id = 5, Name = "В дорозі" },
+                new OrderState { Id = 6, Name = "Доставлено" },
+                new OrderState { Id = 7, Name = "Доставка підтверджена користувачем" }
             );
 
         }

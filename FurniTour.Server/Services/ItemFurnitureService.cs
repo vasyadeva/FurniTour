@@ -42,7 +42,7 @@ namespace FurniTour.Server.Services
                 {
                     var Manufacturer = string.Empty;
                     var Master = string.Empty;
-                    if (item.ManufacturerId !=null)
+                    if (item.ManufacturerId != null)
                     {
                         Manufacturer = context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
                     }
@@ -121,7 +121,7 @@ namespace FurniTour.Server.Services
                         await context.SaveChangesAsync();
                         return string.Empty;
                 }
-                
+
             }
             return check;
         }
@@ -159,7 +159,7 @@ namespace FurniTour.Server.Services
             }
             return null;
         }
-        
+
 
         public async Task<string> Edit(int id, ItemUpdateModel itemModel)
         {
@@ -237,37 +237,37 @@ namespace FurniTour.Server.Services
         }
 
         public async Task<ItemViewModel> GetItemsByDescriptionAsync(string description)
-{
-    var items = getAll();
-    if (items == null || !items.Any())
-    {
-        throw new InvalidOperationException("No items found.");
-    }
+        {
+            var items = getAll();
+            if (items == null || !items.Any())
+            {
+                throw new InvalidOperationException("No items found.");
+            }
 
-    var api = configuration["key:api"];
-    if (string.IsNullOrEmpty(api))
-    {
-        throw new ArgumentNullException(nameof(api), "API key is missing.");
-    }
+            var api = configuration["key:api"];
+            if (string.IsNullOrEmpty(api))
+            {
+                throw new ArgumentNullException("api", "API key is missing.");
+            }
 
-    var groqApi = new GroqApiClient(api);
+            var groqApi = new GroqApiClient(api);
 
-    var itemDescriptions = items.Select(item => new
-    {
-        item.Id,
-        item.Name,
-        item.Description,
-        item.Price,
-        item.Category,
-        item.Color,
-        item.Manufacturer,
-        item.Master
-    }).ToList();
+            var itemDescriptions = items.Select(item => new
+            {
+                item.Id,
+                item.Name,
+                item.Description,
+                item.Price,
+                item.Category,
+                item.Color,
+                item.Manufacturer,
+                item.Master
+            }).ToList();
 
-    var request = new JsonObject
-    {
-        ["model"] = "mixtral-8x7b-32768",
-        ["messages"] = new JsonArray
+            var request = new JsonObject
+            {
+                ["model"] = "deepseek-r1-distill-llama-70b",
+                ["messages"] = new JsonArray
         {
             new JsonObject
             {
@@ -275,28 +275,117 @@ namespace FurniTour.Server.Services
                 ["content"] = $"Here is a list of items: {JsonSerializer.Serialize(itemDescriptions)}. Please return the ID of the most relevant item in the format 'ID: <id>'. User wants: {description}"
             }
         }
-    };
+            };
 
-    var result = await groqApi.CreateChatCompletionAsync(request);
-    var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+            var result = await groqApi.CreateChatCompletionAsync(request);
+            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
 
-    var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"ID: (\d+)");
-    if (match.Success && int.TryParse(match.Groups[1].Value, out int itemId))
-    {
-        var item = items.FirstOrDefault(i => i.Id == itemId);
-        if (item != null)
+            var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"ID: (\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int itemId))
+            {
+                var item = items.FirstOrDefault(i => i.Id == itemId);
+                if (item != null)
+                {
+                    return item;
+                }
+            }
+
+            throw new InvalidOperationException("AI response did not contain a valid item ID.");
+        }
+
+        public byte[] GetImage(int id)
         {
-            return item;
+            var item = context.Furnitures.FirstOrDefault(c => c.Id == id);
+            return item.Image;
+        }
+
+
+
+        /// <summary>
+        /// Цей метод отримує опис від користувача, який предмет він шукає, DeepSeek отримує з
+        /// опису можливі параметри і тоді ці параметри застосовуються для фільтрації селекту
+        /// з бд, отриманий список призначений для надсилання до агента копайлот, щоб він вибрав 
+        /// найкращий варіант
+        /// </summary>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        public async Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description)
+        {
+            var api = configuration["key:api"];
+            if (string.IsNullOrEmpty(api))
+            {
+                throw new ArgumentNullException(nameof(api), "API key is missing.");
+            }
+            var groqApi = new GroqApiClient(api);
+            var categories = context.Categories.ToList();
+            var colors = context.Colors.ToList();
+            var request = new JsonObject
+            {
+                ["model"] = "deepseek-r1-distill-llama-70b",
+                ["messages"] = new JsonArray
+            {
+                new JsonObject
+                {
+                    ["role"] = "user",
+                    ["content"] = $"Here is description what user wants (furniture item) : {description}. Please find parameters for filtration from db like (color, category, price, lessOrBiggerPrice) in the format 'color: <color>, category: <category>, price: <price>, lessOrBigger' . Existing Categories: {categories}. Existing colors: {colors}"
+                }
+            }
+            };
+            var result = await groqApi.CreateChatCompletionAsync(request);
+
+            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+            var parsedResponse = aiResponse?.Split(",")
+               .Select(part => part.Split(":").Select(p => p.Trim()).ToArray())
+               .Where(parts => parts.Length == 2)
+               .GroupBy(parts => parts[0])
+               .ToDictionary(g => g.Key, g => g.First()[1]);
+
+            var color = parsedResponse?.GetValueOrDefault("color");
+            var category = parsedResponse?.GetValueOrDefault("category");
+            var price = parsedResponse?.GetValueOrDefault("price");
+            var lessOrBigger = parsedResponse?.GetValueOrDefault("lessOrBigger");
+
+            var items = context.Furnitures.AsQueryable();
+            if (!string.IsNullOrEmpty(color))
+            {
+                items = items.Where(i => i.Color.Name == color);
+            }
+            if (!string.IsNullOrEmpty(category))
+            {
+                items = items.Where(i => i.Category.Name == category);
+            }
+            if (!string.IsNullOrEmpty(price))
+            {
+                if (decimal.TryParse(price, out decimal parsedPrice))
+                {
+                    if (lessOrBigger == "less")
+                    {
+                        items = items.Where(i => i.Price < parsedPrice);
+                    }
+                    else if (lessOrBigger == "bigger")
+                    {
+                        items = items.Where(i => i.Price > parsedPrice);
+                    }
+                }
+            }
+            var filteredItems = items.Select(c => new ItemViewModel
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                Price = c.Price,
+                Image = "https://firstredcar3.conveyor.cloud/api/item/image/" + c.Id.ToString(),   // дати ендпоінт, але спершу сформувати метод контроллера
+                Category = c.Category.Name,
+                Color = c.Color.Name
+            }).ToList();
+            parsedResponse = null;
+            return filteredItems;
+
         }
     }
-
-    throw new InvalidOperationException("AI response did not contain a valid item ID.");
 }
 
 
+  
 
-
-    }
-
-
-}

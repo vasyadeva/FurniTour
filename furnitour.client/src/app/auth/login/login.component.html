@@ -1,27 +1,35 @@
-<div class="d-flex flex-column align-items-center justify-content-center" *ngIf="!signedIn else signedInAlready">
-  <div>Please Sign In to continue</div>
-  <form class="form w-50" [formGroup]="loginForm" (submit)="signIn($event)">
-      <div class="row m-3">
-          <label for="name">UserName*</label>
-          <input class="col form-field" name="username" formControlName="username" />
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-sm w-100" style="max-width: 400px;">
+      <div class="card-header text-center">
+        <h3>Увійти</h3>
       </div>
-      <div class="row m-3">
-          <label for="password">Password*</label>
-          <input class="col form-field" type="password" name="password" formControlName="password" autocomplete="on" />
+      <div class="card-body" *ngIf="!signedIn; else signedInAlready">
+        <form [formGroup]="loginForm" (submit)="signIn($event)" autocomplete="on">
+          <div class="mb-3">
+            <label for="username" class="form-label">Юзернейм</label>
+            <input type="text" id="username" name="username" class="form-control" formControlName="username" autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" id="password" name="password" class="form-control" formControlName="password" autocomplete="current-password">
+          </div>
+          <div class="mb-3" *ngIf="authFailed">
+            <div class="alert alert-danger" role="alert">
+              {{ error }}
+            </div>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary" [disabled]="!loginForm.valid">Увійти</button>
+          </div>
+        </form>
       </div>
-      <div class="row m-3" *ngIf="authFailed">
-          <label style="color: red">{{error}}</label>
-      </div>
-      <div class="row m-3">
-          <button class="col btn btn-primary" type="submit" [disabled]="!loginForm.valid">Sign In</button>
-      </div>
-  </form>
-
-</div>
-<ng-template #signedInAlready>
-  <h4>Sign In</h4>
-  <div>
-      You are already signed in!
+      <ng-template #signedInAlready>
+        <div class="card-body text-center">
+          <div class="alert alert-info" role="alert">
+            Ви уже увійшли!
+          </div>
+          <button class="btn btn-success" (click)="logout()">Вийти</button>
+        </div>
+      </ng-template>
+    </div>
   </div>
-  <button class="btn btn-primary" (click)="logout()">Logout</button>
-</ng-template>

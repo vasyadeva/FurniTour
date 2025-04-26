@@ -1,40 +1,52 @@
-<form [formGroup]="registerForm" (ngSubmit)="registerUser()">
-    <div class="row m-3">
-        <label for="username">Username*</label>
-        <input class="col form-field" id="username" formControlName="username" />
-        <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
-            {{ errorMessages['username'] }}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0 text-center">Реєстрація користувача</h4>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="registerForm" (ngSubmit)="registerUser()" autocomplete="off">
+              <div class="mb-3">
+                <label for="username" class="form-label">Ім'я користувача*</label>
+                <input type="text" id="username" formControlName="username" class="form-control" placeholder="Введіть ім'я користувача">
+                <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched" class="text-danger small mt-1">
+                  {{ errorMessages['username'] }}
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Пароль*</label>
+                <input type="password" id="password" formControlName="password" class="form-control" autocomplete="new-password" placeholder="Введіть пароль">
+                <div *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched" class="text-danger small mt-1">
+                  {{ errorMessages['password'] }}
+                </div>
+                <div *ngIf="registerForm.get('password')?.errors?.['pattern'] && registerForm.get('password')?.touched" class="text-danger small mt-1">
+                  {{ errorMessages['password'] }}
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Підтвердіть пароль*</label>
+                <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" placeholder="Підтвердіть пароль">
+                <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched" class="text-danger small mt-1">
+                  {{ errorMessages['mismatch'] }}
+                </div>
+              </div>
+              <div class="form-check mb-3">
+                <input type="checkbox" id="isMaster" formControlName="isMaster" class="form-check-input">
+                <label for="isMaster" class="form-check-label">Зареєструватися як майстер</label>
+              </div>
+              <div class="mb-3" *ngIf="registerFailed">
+                <div class="alert alert-danger" role="alert">
+                  {{ errorRegister }}
+                </div>
+              </div>
+              <div>
+                <button type="submit" class="btn btn-success w-100" [disabled]="registerForm.invalid">Зареєструватися</button>
+              </div>
+            </form>
+          </div>
+          
         </div>
+      </div>
     </div>
-    <div class="row m-3">
-        <label for="password">Password*</label>
-        <input class="col form-field" id="password" type="password" formControlName="password" />
-        <div *ngIf="registerForm.get('password')?.errors?.['required'] && registerForm.get('password')?.touched">
-            {{ errorMessages['password'] }}
-        </div>
-        <div *ngIf="registerForm.get('password')?.errors?.['pattern'] && registerForm.get('password')?.touched">
-            {{ errorMessages['password'] }}
-        </div>
-    </div>
-    <div class="row m-3">
-        <label for="confirmPassword">Confirm Password*</label>
-        <input class="col form-field" id="confirmPassword" type="password" formControlName="confirmPassword" />
-        <div *ngIf="registerForm.errors?.['mismatch'] && registerForm.get('confirmPassword')?.touched">
-            {{ errorMessages['mismatch'] }}
-        </div>
-    </div>
-    <div class="row m-3" *ngIf="registerFailed">
-        <label style="color: red">{{errorRegister}}</label>
-    </div>
-    <div class="form-check m-3">
-        <input class="form-check-input" id="isMaster" type="checkbox" formControlName="isMaster" />
-        <label class="form-check-label" for="isMaster">Register as Master</label>
-    </div>
-    
-    <div class="row m-3" *ngIf="registerFailed">
-        <label style="color: red">{{errorRegister}}</label>
-    </div>
-    <div class="row m-3">
-        <button class="col btn btn-primary" type="submit" [disabled]="registerForm.invalid">Register</button>
-    </div>
-</form>
+  </div>

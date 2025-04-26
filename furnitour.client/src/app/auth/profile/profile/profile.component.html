@@ -1,36 +1,36 @@
 <div class="container mt-5">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="card-title">Profile Information</h5>
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0 text-center">Інформація профілю</h5>
+    </div>
+    <div class="card-body">
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"><strong>Ім'я користувача:</strong></label>
+        <div class="col-sm-9">
+          <p class="form-control-plaintext">{{ profile.username }}</p>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <label class="col-sm-3 col-form-label"><strong>Username:</strong></label>
-          <div class="col-sm-9">
-            <p class="form-control-plaintext">{{ profile.username }}</p>
-          </div>
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"><strong>Електронна пошта:</strong></label>
+        <div class="col-sm-9">
+          <p class="form-control-plaintext">{{ profile.email }}</p>
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-3 col-form-label"><strong>Email:</strong></label>
-          <div class="col-sm-9">
-            <p class="form-control-plaintext">{{ profile.email }}</p>
-          </div>
+      </div>
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"><strong>Номер телефону:</strong></label>
+        <div class="col-sm-9">
+          <p class="form-control-plaintext">{{ profile.phonenumber }}</p>
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-3 col-form-label"><strong>Phone Number:</strong></label>
-          <div class="col-sm-9">
-            <p class="form-control-plaintext">{{ profile.phonenumber }}</p>
-          </div>
+      </div>
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"><strong>Роль:</strong></label>
+        <div class="col-sm-9">
+          <p class="form-control-plaintext">{{ profile.role }}</p>
         </div>
-        <div class="row mb-3">
-          <label class="col-sm-3 col-form-label"><strong>Role:</strong></label>
-          <div class="col-sm-9">
-            <p class="form-control-plaintext">{{ profile.role }}</p>
-          </div>
-        </div>
-
-        <a class="btn btn-primary" [routerLink]="['/changeprofile']">Change profile</a>
+      </div>
+      <div class="text-center">
+        <a class="btn btn-primary" [routerLink]="['/changeprofile']">Змінити профіль</a>
       </div>
     </div>
   </div>
-  
+</div>

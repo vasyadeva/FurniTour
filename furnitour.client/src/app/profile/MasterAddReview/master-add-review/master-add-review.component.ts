@@ -50,12 +50,12 @@ export class MasterAddReviewComponent implements OnInit {
     this.profileService.addMasterReview(this.review).subscribe(
       (response) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar('Review added successfully');
+        this.popupService.openSnackBar('Відгук успішно додано');
       },
       (error) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar(error?.error || 'Error adding review');
-        console.error('Error adding review:', error);
+        this.popupService.openSnackBar(error?.error || 'Виникла помилка при додаванні відгуку');
+        console.error('Виникла помилка при додаванні відгуку:', error);
       }
     );
   }

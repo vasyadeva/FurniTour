@@ -1,10 +1,10 @@
 <div class="container mt-4">
     <div class="review-form-container">
-      <h1 class="mb-4">Add Review</h1>
+      <h1 class="mb-4">Додати відгук</h1>
       
       <form [formGroup]="reviewFrom" (ngSubmit)="submitReview()">
         <div class="mb-3">
-          <label for="rating" class="form-label">Rating:</label>
+          <label for="rating" class="form-label">Рейтинг:</label>
           <input
             type="number"
             id="rating"
@@ -12,25 +12,25 @@
             class="form-control"
             min="1"
             max="5"
-            placeholder="Enter rating (1 to 5)"
+            placeholder="Введіть рейтинг (від 1 до 5)"
           />
           <div *ngIf="reviewFrom.get('rating')?.invalid && reviewFrom.get('rating')?.touched" class="text-danger">
-            Rating is required and must be between 1 and 5.
+            Рейтинг повинен бути в діапазоні від 1 до 5!
           </div>
         </div>
     
         <div class="mb-3">
-          <label for="comment" class="form-label">Comment:</label>
+          <label for="comment" class="form-label">Коментар:</label>
           <textarea
             id="comment"
             formControlName="comment"
             class="form-control"
-            placeholder="Write your review here (optional)"
+            placeholder="Напишіть тут свій відгук (необов'язково)"
             rows="4"
           ></textarea>
         </div>
     
-        <button type="submit" [disabled]="reviewFrom.invalid" class="btn btn-primary">Submit Review</button>
+        <button type="submit" [disabled]="reviewFrom.invalid" class="btn btn-primary">Надіслати відгук</button>
       </form>
     </div>
   </div>

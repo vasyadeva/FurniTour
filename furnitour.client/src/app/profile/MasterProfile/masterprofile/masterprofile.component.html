@@ -1,5 +1,5 @@
 <div class="profile-container" *ngIf="profile.username; else noProfile">
-  <h1>Master Profile</h1>
+  <h1>Профіль майстра</h1>
 
   <div class="card">
     <div class="card-header">
@@ -7,22 +7,22 @@
     </div>
 
     <div class="card-body">
-      <p>Email: {{ profile.email }}</p>
-      <p>Phone: {{ profile.phonenumber }}</p>
+      <p>Пошта: {{ profile.email }}</p>
+      <p>Номер телефону: {{ profile.phonenumber }}</p>
 
       <div *ngIf="profile.reviews.length > 0; else noReviews">
-        <h3>Reviews:</h3>
+        <h3>Відгуки:</h3>
         <ul class="list-group">
           <li class="list-group-item" *ngFor="let review of profile.reviews">
             <p><strong>{{ review.username }}:</strong> {{ review.comment }}</p>
-            <p>Rating: {{ review.rating }}/5</p>
+            <p>Рейтинг: {{ review.rating }}/5</p>
           </li>
         </ul>
       </div>
     </div>
     <div class="card">
       <div class="card-header">
-        <h2>AI Review</h2>
+        <h2>Summary відгуків від штучного інтелекту</h2>
       </div>
       <div class="card-body">
         <p>{{ this.AIReview.review }}</p>
@@ -30,7 +30,7 @@
     </div>
     <div class="card-footer">
       <a class="btn btn-primary" [routerLink]="['/masterreview/add', profile.username]" routerLinkActive="router-link-active">
-        Add review
+        Додати відгук
       </a>
     </div>
   </div>
@@ -39,13 +39,13 @@
 <!-- No Profile Available -->
 <ng-template #noProfile>
   <div class="alert alert-warning" role="alert">
-    No master profile found.
+    Не знайдено профіль для цього майстра.
   </div>
 </ng-template>
 
 <!-- No Reviews Available -->
 <ng-template #noReviews>
   <div class="alert alert-info" role="alert">
-    No reviews available for this master.
+    Немає відгуків для цього майстра.
   </div>
 </ng-template>

@@ -1,33 +1,35 @@
 <div class="container">
-    <h2 class="my-4">Shopping Cart</h2>
+  <h2 class="my-4">Кошик покупок</h2>
   
-    <div *ngIf="cartItems.length === 0" class="alert alert-info">
-      Your cart is empty.
-    </div>
-    <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
-    <div class="row">
-      <div class="col-md-4" *ngFor="let item of cartItems">
-        <div class="card mb-4">
-          <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
-          <div class="card-body">
-            <h5 class="card-title">{{ item.name }}</h5>
-            <p class="card-text">{{ item.description }}</p>
-            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
-            <p class="card-text"><strong>Quantity:</strong> {{ item.quantity }}</p>
-            <p class="card-text"><strong>Category:</strong> {{ item.category }}</p>
-            <p class="card-text"><strong>Color:</strong> {{ item.color }}</p>
-            <td *ngIf="item.master != ''"><strong>Master:</strong>{{ item.master }}</td>
-            <td *ngIf="item.manufacturer != ''"><strong>Manufacturer:</strong>{{ item.manufacturer }}</td>          
-            <button class="btn btn-sm btn-dark m-1" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
-            <button class="btn btn-sm btn-dark m-1" (click)="updateQuantity(item.id, item.quantity - 1)">-</button>
-            <input type="number" [(ngModel)]="this.quantity[item.id]" min="1" class="form-control mb-2" value={{item.quantity}} />
-            <button class="btn btn-primary m-1" (click)="updateQuantity(item.id, this.quantity[item.id])">Update Quantity</button>
-            <button class="btn btn-danger m-1" (click)="removeFromCart(item.id)">Remove</button>
+  <div *ngIf="cartItems.length === 0" class="alert alert-info">
+    Ваш кошик порожній.
+  </div>
+  <p class="alert alert-info" *ngIf="error != ''">{{ error }}</p>
+  
+  <div class="row">
+    <div class="col-md-4" *ngFor="let item of cartItems">
+      <div class="card mb-4 shadow-sm">
+        <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
+        <div class="card-body">
+          <h5 class="card-title">{{ item.name }}</h5>
+          <p class="card-text">{{ item.description }}</p>
+          <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
+          <p class="card-text"><strong>Кількість:</strong> {{ item.quantity }}</p>
+          <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
+          <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
+          <p class="card-text" *ngIf="item.master != ''"><strong>Майстер:</strong> {{ item.master }}</p>
+          <p class="card-text" *ngIf="item.manufacturer != ''"><strong>Виробник:</strong> {{ item.manufacturer }}</p>
+          <div class="d-flex align-items-center my-2">
+            <button class="btn btn-sm btn-dark me-1" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
+            <button class="btn btn-sm btn-dark me-1" (click)="updateQuantity(item.id, item.quantity - 1)">-</button>
+            <input type="number" [(ngModel)]="quantity[item.id]" min="1" class="form-control form-control-sm me-1" [value]="item.quantity" />
+            <button class="btn btn-primary btn-sm" (click)="updateQuantity(item.id, quantity[item.id])">Оновити</button>
           </div>
+          <button class="btn btn-danger btn-sm" (click)="removeFromCart(item.id)">Видалити</button>
         </div>
       </div>
     </div>
-    
-    <button class="btn btn-primary m-1" *ngIf="cartItems.length > 0" (click)="Order()">Order</button>
   </div>
   
+  <button class="btn btn-primary w-100 mb-3" *ngIf="cartItems.length > 0" (click)="Order()">Замовити</button>
+</div>

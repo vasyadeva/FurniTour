@@ -104,5 +104,25 @@ namespace FurniTour.Server.Controllers
             var items = await itemFurnitureService.GetItemsByDescriptionAsync(description);
             return Ok(items);
         }
+
+        [HttpGet("search2/{description}")]
+        public async Task<IActionResult> GetItemsByDescription2(string description)
+        {
+            var items = await itemFurnitureService.GetItemsByDescriptionAsync2(description);
+            var serialized = System.Text.Json.JsonSerializer.Serialize(items);
+
+            return Content(serialized, "text/plain"); // <- ключове!
+        }
+
+        [HttpGet("image/{id}")]
+        public ActionResult image(int id)
+        {
+            byte[] bytes = itemFurnitureService.GetImage(id);
+            return File(bytes, "image/jpg");
+        }
+
+
+
+
     }
 }

@@ -1,11 +1,10 @@
 <div class="item-form container mt-4">
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      
-      <div class="form-group mb-3">
-        <label for="name" class="form-label">Name:</label>
-        <input id="name" formControlName="name" type="text" class="form-control">
-      </div>
-      <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Submit</button>
-    </form>
-  </div>
-  
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group mb-3">
+      <label for="name" class="form-label">Назва:</label>
+      <input id="name" formControlName="name" type="text" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Відправити</button>
+  </form>
+</div>

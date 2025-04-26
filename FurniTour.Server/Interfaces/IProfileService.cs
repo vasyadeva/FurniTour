@@ -8,5 +8,7 @@ namespace FurniTour.Server.Interfaces
         public Task<ManufacturerProfileModel> GetManufacturerProfile(string name);
         public string MakeManufacturerReview(AddManufacturerReview review);
         public string MakeMasterReview(AddMasterReview review);
-    }
+        Task<MasterProfileModel> GetMasterByDescription(string description);
+        
+        }
 }

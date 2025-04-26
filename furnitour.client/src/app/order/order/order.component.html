@@ -1,6 +1,6 @@
 <form [formGroup]="orderForm" class="m-3" (ngSubmit)="submitOrder()">
   <div class="mb-3">
-    <label for="name" class="form-label">Name</label>
+    <label for="name" class="form-label">Ім'я</label>
     <input
       id="name"
       formControlName="name"
@@ -9,12 +9,12 @@
       [ngClass]="{'is-invalid': orderForm.get('name')?.invalid && orderForm.get('name')?.touched}"
     />
     <div class="invalid-feedback">
-      Name is required.
+      Ім'я є обов'язковим.
     </div>
   </div>
 
   <div class="mb-3">
-    <label for="address" class="form-label">Address</label>
+    <label for="address" class="form-label">Адреса</label>
     <input
       id="address"
       formControlName="address"
@@ -23,12 +23,12 @@
       [ngClass]="{'is-invalid': orderForm.get('address')?.invalid && orderForm.get('address')?.touched}"
     />
     <div class="invalid-feedback">
-      Address is required.
+      Адреса є обов'язковою.
     </div>
   </div>
 
   <div class="mb-3">
-    <label for="phone" class="form-label">Phone</label>
+    <label for="phone" class="form-label">Телефон</label>
     <input
       id="phone"
       formControlName="phone"
@@ -37,14 +37,14 @@
       [ngClass]="{'is-invalid': orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched}"
     />
     <div class="invalid-feedback">
-      Phone number is required and must be valid.
+      Номер телефону є обов'язковим та повинен бути валідним.
     </div>
   </div>
 
   <div class="mb-3">
-    <label for="comment" class="form-label">Comment</label>
+    <label for="comment" class="form-label">Коментар</label>
     <textarea id="comment" formControlName="comment" class="form-control"></textarea>
   </div>
-  <p class="alert alert-info" *ngIf="error!=''">{{error}}</p>
-  <button type="submit" class="btn btn-primary" [disabled]="orderForm.invalid">Submit</button>
+  <p class="alert alert-info" *ngIf="error!=''">{{ error }}</p>
+  <button type="submit" class="btn btn-primary" [disabled]="orderForm.invalid">Відправити</button>
 </form>

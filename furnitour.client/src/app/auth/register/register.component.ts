@@ -18,10 +18,10 @@ export class RegisterComponent {
   registerFailed: boolean = false;
   errorRegister: string = '';
   errorMessages: { [key: string]: string } = {
-    username: 'Username is required.',
-    password: 'Password must be at least 8 characters long and include both letters and numbers.',
-    confirmPassword: 'Confirm Password is required.',
-    mismatch: 'Passwords do not match.',
+    username: "Ім'я користувача є обов'язковим.",
+    password: 'Пароль повинен містити мінімум 8 символів, включаючи літери та цифри.',
+    confirmPassword: 'Підтвердіть пароль.',
+    mismatch: 'Паролі не співпадають.',
   };
 
   constructor(

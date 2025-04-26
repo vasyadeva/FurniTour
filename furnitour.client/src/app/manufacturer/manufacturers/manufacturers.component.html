@@ -1,29 +1,27 @@
-
 <div class="container mt-5">
-    <a class="btn btn-primary" routerLink="/manufacturers/add">Add</a>
-    <br/>
-    <div *ngIf="manufacturers.length === 0" class="alert alert-info">
-      No manufacturers available.
-    </div>
-    <table class="table table-bordered" *ngIf="manufacturers.length > 0">
-      <thead class="thead-light">
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let manufacturer of manufacturers">
-          <td>{{ manufacturer.id }}</td>
-          <td>{{ manufacturer.name }}</td>
-          <td>
-            <a [routerLink]="['/manufacturers/details',manufacturer.id,]" class="btn btn-info btn-sm mr-2">Details</a>
-            <a [routerLink]="['/manufacturers/update', manufacturer.id]" class="btn btn-warning btn-sm mr-2">Update</a>
-            <button class="btn btn-danger btn-sm" (click)="deleteManufacturer(manufacturer.id)">Delete</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <a class="btn btn-primary" routerLink="/manufacturers/add">Додати</a>
+  <br/>
+  <div *ngIf="manufacturers.length === 0" class="alert alert-info">
+    Немає доступних виробників.
   </div>
-  
+  <table class="table table-bordered" *ngIf="manufacturers.length > 0">
+    <thead class="thead-light">
+      <tr>
+        <th>ID</th>
+        <th>Назва</th>
+        <th>Дії</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let manufacturer of manufacturers">
+        <td>{{ manufacturer.id }}</td>
+        <td>{{ manufacturer.name }}</td>
+        <td>
+          <a [routerLink]="['/manufacturers/details', manufacturer.id]" class="btn btn-info btn-sm mr-2">Деталі</a>
+          <a [routerLink]="['/manufacturers/update', manufacturer.id]" class="btn btn-warning btn-sm mr-2">Редагувати</a>
+          <button class="btn btn-danger btn-sm" (click)="deleteManufacturer(manufacturer.id)">Видалити</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

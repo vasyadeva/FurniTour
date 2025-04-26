@@ -43,8 +43,8 @@ export class MasterprofileComponent implements OnInit{
         },
         (error) => {
           this.popupService.closeSnackBar();
-          this.popupService.openSnackBar(error?.error || 'Error fetching master profile');
-          console.error('Error fetching master profile:', error);
+          this.popupService.openSnackBar(error?.error || 'Виникла помилка при отриманні профілю майстра');
+          console.error('Виникла помилка при отриманні профілю майстра:', error);
         }
       );
       this.popupService.loadingSnackBar();
@@ -56,8 +56,8 @@ export class MasterprofileComponent implements OnInit{
         },
         (error) => {
           this.popupService.closeSnackBar();
-          this.popupService.openSnackBar(error?.error || 'Error fetching AI review');
-          console.error('Error fetching AI review:', error);
+          this.popupService.openSnackBar(/*error?.error ||*/ 'Виникла помилка при отриманні ШІ відгуку');
+          console.error('Виникла помилка при отриманні ШІ відгуку:', error);
         });
     });
 
