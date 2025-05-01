@@ -9,14 +9,18 @@ namespace FurniTour.Server.Configurations.Entities
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasData(
-               new Category { Id = 1, Name = "Beds" },
-               new Category { Id = 2, Name = "Chairs" },
-               new Category { Id = 3, Name = "Tables" },
-               new Category { Id = 4, Name = "Sofas" },
-               new Category { Id = 5, Name = "Cupboards" },
-               new Category { Id = 6, Name = "Shelves" },
-               new Category { Id = 7, Name = "Dressers" },
-               new Category { Id = 8, Name = "Wardrobes" }
+               new Category { Id = 1, Name = "Ліжка" },
+                new Category { Id = 2, Name = "Крісла" },
+                new Category { Id = 3, Name = "Столи" },
+                new Category { Id = 4, Name = "Дивани" },
+                new Category { Id = 5, Name = "Шафи" },
+                new Category { Id = 6, Name = "Комоди" },
+                new Category { Id = 7, Name = "Тумби" },
+                new Category { Id = 8, Name = "Письмові столи" },
+                new Category { Id = 9, Name = "Кухонні гарнітури" },
+                new Category { Id = 10, Name = "Журнальні столики" },
+                new Category { Id = 11, Name = "Полиці" },
+                new Category { Id = 12, Name = "Кухні"}
            );
 
 
