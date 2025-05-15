@@ -11,5 +11,12 @@ namespace FurniTour.Server.Interfaces
         
         public List<CartItemViewModel> GetCartFurniture();
 
+        #region AIMethods
+        Task<string> AddToCartCopilot(int furnitureId, int quantity, string userID);
+        Task<string> RemoveFromCartCopilot(int id, string userID);
+        Task<string> UpdateCartCopilot(int id, int quantity, string userID);
+        Task<List<CartItemViewModel>> GetCartFurnitureCopilot(string userID);
+        #endregion
+
     }
 }

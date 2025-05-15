@@ -8,6 +8,7 @@ import { AppStatusService } from './app.status.service';
 import { ProfileModel } from '../../models/profile.model';
 import { ProfileChangeModel } from '../../models/profile.change.model';
 import { api } from '../../app.api';
+import { CredentialsModel } from '../../models/credentials.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -47,7 +48,9 @@ export class AuthService {
   public user() {
       return this.http.get<UserClaim[]>(this.api +'/auth/user',  { withCredentials: true });
   }
-
+  public credentials() {
+      return this.http.get<CredentialsModel>(this.api +'/auth/credentials', { withCredentials: true });
+  }
   public isSignedIn(): Observable<boolean> {
       return this.user().pipe(
           map((userClaims) => {

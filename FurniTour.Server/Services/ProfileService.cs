@@ -19,6 +19,7 @@ namespace FurniTour.Server.Services
         private readonly IConfiguration configuration;
 
         public ProfileService(ApplicationDbContext context, IAuthService authService, UserManager<IdentityUser> userManager,
+
             IConfiguration configuration)
         {
             this.context = context;
@@ -198,5 +199,129 @@ namespace FurniTour.Server.Services
             }
             return null; // Ensure a return statement is present at the end of the method
         }
+
+        public async Task<List<MasterProfileModel>> GetMasterByDescription2(string description, int category, int pricePolicy)
+        {
+            var masters = await userManager.GetUsersInRoleAsync("Master");
+            var orders = context.Orders.
+                Include(c => c.OrderItems).
+                ThenInclude(c => c.Furniture).
+                AsQueryable();
+            if (category != 0)
+            {
+                orders = orders.Where(c => c.OrderItems.Any(d => d.Furniture.CategoryId == category));
+            }
+
+            switch (pricePolicy)
+            {
+                case 1:
+                    orders = orders.Where(c => c.OrderItems.Average(q => q.Furniture.Price) < 10000);
+                    break;
+                case 2:
+                    orders = orders.Where(c => (c.OrderItems.Average(q => q.Furniture.Price) > 10000) &&
+                       (c.OrderItems.Average(q => q.Furniture.Price) < 50000));
+                    break;
+                case 3:
+                    orders = orders.Where(c => c.OrderItems.Average(q => q.Furniture.Price) > 50000);
+                    break;
+                default:
+                    break;
+            }
+
+            var filteredMasters = orders
+      .SelectMany(order => order.OrderItems)
+      .Where(item => item.Furniture != null && item.Furniture.MasterId != null)
+      .Select(item => item.Furniture.MasterId)
+      .Distinct()
+      .ToList();
+
+
+            
+
+            var mastersList = new List<MasterProfileModel>();
+            foreach (var master in masters)
+            {
+                if (filteredMasters.Contains(master.Id))
+                {
+                    var reviews = context.MasterReviews.Where(c => c.MasterId == master.Id).Select(x => new MasterReviewsModel
+                    {
+                        Comment = x.Comment,
+                        Rating = x.Rating,
+                        Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
+                    }).ToList();
+                    var masterProfile = new MasterProfileModel
+                    {
+                        Username = master.UserName,
+                        Email = master.Email,
+                        PhoneNumber = master.PhoneNumber,
+                        Reviews = reviews
+                    };
+                    mastersList.Add(masterProfile);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(description))
+            {
+                var api = configuration["key:api"];
+                var groqApi = new GroqApiClient(api);
+                var request = new JsonObject
+                {
+                    ["model"] = "deepseek-r1-distill-llama-70b",
+                    ["messages"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["role"] = "user",
+                        ["content"] = $"Here is a list of masters of furniture and their reviews: {JsonSerializer.Serialize(mastersList)}." +
+                        $" Based on these examples, analyze the following user query: '{description}'\r\n\r\nExtract keywords that would be most effective for searching similar masters in our database.\r\nFormat your response exactly as: 'keywords: keyword1, keyword2, keyword3'\r\n\r\n" +
+                        $"If no relevant keywords can be extracted, respond with: 'keywords: none'"
+                    }
+                }
+                };
+                var result = await groqApi.CreateChatCompletionAsync(request);
+                var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+                if (!string.IsNullOrEmpty(aiResponse)) {
+                    var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"keywords:\s*(.+)");
+                    if (match.Success)
+                    {
+                        var keywords = match.Groups[1].Value.Split(',').Select(k => k.Trim()).ToList();
+                        var filteredMastersList = mastersList.Where(m =>
+                            keywords.Any(k => m.Username.Contains(k, StringComparison.OrdinalIgnoreCase))).ToList();
+                        //return filteredMastersList.FirstOrDefault();
+
+                        if (filteredMastersList.Count > 0)
+                        {
+                            var Masters = filteredMastersList.Take(5).ToList();
+                            var AIMasters = new List<MasterProfileModel>();
+                            foreach (var master in Masters)
+                            {
+                                var reviews = context.MasterReviews.Where(c => c.MasterId == master.Username).Select(x => new MasterReviewsModel
+                                {
+                                    Comment = x.Comment,
+                                    Rating = x.Rating,
+                                    Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
+                                }).ToList();
+                                var masterProfile = new MasterProfileModel
+                                {
+                                    Username = master.Username,
+                                    Email = master.Email,
+                                    PhoneNumber = master.PhoneNumber,
+                                    Reviews = reviews
+                                };
+                                AIMasters.Add(masterProfile);
+                            }
+                            return AIMasters;
+
+                        }
+                       
+                    }
+
+                }
+
+            }
+            return mastersList.Take(5).ToList();
+        }
+
     }
 }

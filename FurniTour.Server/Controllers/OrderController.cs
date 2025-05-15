@@ -1,7 +1,9 @@
 ﻿using FurniTour.Server.Constants;
+using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Api;
 using FurniTour.Server.Models.Order;
+using FurniTour.Server.Models.Order.AI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +65,29 @@ namespace FurniTour.Server.Controllers
             }
             return BadRequest(state);
         }
+
+        #region AIEndpoints
+        [HttpPost("orderAI")]
+        public async Task<IActionResult> OrderAI([FromBody] OrderAIModel model)
+        {
+            var state = await orderService.OrderAI(model);
+            if (state.IsNullOrEmpty())
+            {
+                return Ok();
+            }
+            return BadRequest(state);
+        }
+
+        [HttpGet("myordersAI/{userID}")]
+        public async Task<IActionResult> MyOrdersAI(string userID)
+        {
+            var orders = await orderService.MyOrdersAI(userID);
+            var serialized = System.Text.Json.JsonSerializer.Serialize(orders);
+
+            return Content(serialized, "text/plain");
+        }
+
+        #endregion
 
     }
 

@@ -157,6 +157,14 @@ namespace FurniTour.Server.Controllers
             var profile = await profileService.GetMasterByDescription(description);
             return Ok(profile);
         }
+
+        [HttpGet("ai/master/search2/{description}/{category}/{pricePolicy}")]
+        public async Task<IActionResult> GetMasterByDescription2(string description, int category, int pricePolicy)
+        {
+            var profile = await profileService.GetMasterByDescription2(description, category, pricePolicy);
+            var serialized = System.Text.Json.JsonSerializer.Serialize(profile);
+            return Content(serialized, "text/plain");
+        }
     }
 }
 

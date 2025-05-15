@@ -19,7 +19,7 @@ namespace FurniTour.Server.Controllers
             this.manufacturerService = manufacturerService;
         }
 
-        [Authorize(Roles = Roles.Administrator + "," + Roles.Master)]
+        //[Authorize(Roles = Roles.Administrator + "," + Roles.Master)]
         [HttpGet("getall")]
         public IActionResult GetAll()
         {

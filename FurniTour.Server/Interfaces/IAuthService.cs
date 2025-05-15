@@ -6,6 +6,8 @@ namespace FurniTour.Server.Interfaces
 {
     public interface IAuthService
     {
+
+        public CredentialsModel GetCredentials();
         public Task<string> RegisterAsync(RegisterModel model);
         public Task<string> SignInAsync(LoginModel loginModel);
         public bool SignOut();

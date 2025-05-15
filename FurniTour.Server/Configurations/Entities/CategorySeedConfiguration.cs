@@ -17,10 +17,9 @@ namespace FurniTour.Server.Configurations.Entities
                 new Category { Id = 6, Name = "Комоди" },
                 new Category { Id = 7, Name = "Тумби" },
                 new Category { Id = 8, Name = "Письмові столи" },
-                new Category { Id = 9, Name = "Кухонні гарнітури" },
+                new Category { Id = 9, Name = "Кухні" },
                 new Category { Id = 10, Name = "Журнальні столики" },
-                new Category { Id = 11, Name = "Полиці" },
-                new Category { Id = 12, Name = "Кухні"}
+                new Category { Id = 11, Name = "Полиці" }
            );
 
 

@@ -1,3 +1,4 @@
+
 import { Component } from '@angular/core';
 import { ItemService } from '../../services/item/item.service';
 import { itemGet } from '../../models/item.get.model';
@@ -12,15 +13,32 @@ import { SidebarModule } from '@coreui/angular';
 import { ItemFilterModel } from '../../models/item.filter.model';
 import { CategoryModel } from '../../models/category.model';
 import { ColorModel } from '../../models/color.model';
+import { Pipe, PipeTransform } from '@angular/core';
+import {DomSanitizer} from "@angular/platform-browser";
+import { AuthService } from '../../services/auth/auth.service';
+
+@Pipe({
+  name: 'safe',
+  standalone: true
+})
+export class SafePipe implements PipeTransform {
+
+  constructor(private sanitizer: DomSanitizer) { }
+  transform(url: any) {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+
+}
 
 @Component({
   selector: 'app-items',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, SidebarModule],
-  providers: [ItemService, CartService, AppStatusService, PopupService],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, FormsModule, SidebarModule,SafePipe],
+  providers: [ItemService, CartService, PopupService],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
 })
+
 export class ItemsComponent implements OnInit {
   items: itemGet[] = [];
   RecomendedItems: itemGet[] = [];
@@ -32,6 +50,9 @@ export class ItemsComponent implements OnInit {
   categories: CategoryModel[] = [];
   colors: ColorModel[] = [];
   manufacturers: any[] = [];
+  UserName: string = '';
+  ID : string = '';
+  CopilotUrl: string = "";
   
   // Модель фільтрації
   filterModel: ItemFilterModel = {
@@ -48,7 +69,8 @@ export class ItemsComponent implements OnInit {
     private itemService: ItemService, 
     private cartService: CartService, 
     public status: AppStatusService,
-    private popupService: PopupService
+    private popupService: PopupService,
+    private AuthService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -56,6 +78,16 @@ export class ItemsComponent implements OnInit {
     this.loadAllItems();
     this.loadRecommendedItems();
     this.loadFilterOptions();
+    this.AuthService.credentials().subscribe(
+      (response) => {
+        console.log('Profile fetched successfully!', response);
+        this.UserName = response.username;
+        this.ID = response.id;
+        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID  + "&Username="+this.UserName + "&api=https://rightsagebag90.conveyor.cloud/";
+  
+      }
+    );
+    console.log(this.CopilotUrl);
   }
   
   // Завантаження даних для фільтрів

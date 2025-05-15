@@ -3,6 +3,7 @@ using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Order;
+using FurniTour.Server.Models.Order.AI;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
@@ -310,5 +311,137 @@ namespace FurniTour.Server.Services
             return string.Empty;
         }
 
+
+        #region AIMethods
+
+        public async Task<List<OrderViewModel>> MyOrdersAI(string userID)
+        {
+            var user = await authService.GetUserById(userID);
+            if (user != null)
+            {
+                var Orders = context.Orders.Where(o => o.UserId == user.Id).ToList();
+                if (Orders.Count > 0)
+                {
+                    var OrderViewModel = new List<OrderViewModel>();
+                    foreach (var Order in Orders)
+                    {
+                        var OrderItems = context.OrderItems.Where(oi => oi.OrderId == Order.Id).ToList();
+                        if (OrderItems.Count > 0)
+                        {
+                            var OrderItemViewModel = new List<OrderItemViewModel>();
+                            foreach (var OrderItem in OrderItems)
+                            {
+                                var Furniture = context.Furnitures.Where(f => f.Id == OrderItem.FurnitureId).FirstOrDefault();
+                                if (Furniture != null)
+                                {
+                                    var Manufacturer = string.Empty;
+                                    var Master = string.Empty;
+                                    if (Furniture.ManufacturerId != null)
+                                    {
+                                        Manufacturer = context.Manufacturers.Where(c => c.Id == Furniture.ManufacturerId).FirstOrDefault().Name;
+                                    }
+                                    if (Furniture.MasterId != null)
+                                    {
+                                        Master = context.Users.Where(c => c.Id == Furniture.MasterId).FirstOrDefault().UserName;
+                                    }
+                                    var category = context.Categories.Where(c => c.Id == Furniture.CategoryId).FirstOrDefault()?.Name ?? "Unknown";
+                                    var color = context.Colors.Where(c => c.Id == Furniture.ColorId).FirstOrDefault()?.Name ?? "Unknown";
+
+                                    OrderItemViewModel.Add(new OrderItemViewModel
+                                    {
+                                        Name = Furniture.Name,
+                                        Price = Furniture.Price,
+                                        Quantity = OrderItem.Quantity,
+                                        Description = Furniture.Description,
+                                        //Photo = Furniture.Image,
+                                        Master = Master,
+                                        Manufacturer = Manufacturer,
+                                        Category = category,
+                                        Color = color
+                                    });
+                                }
+                            }
+                            var OrderState = context.OrderStates.Where(os => os.Id == Order.OrderStateId).FirstOrDefault();
+                            var OrderStateName = OrderState != null ? OrderState.Name : "";
+                            OrderViewModel.Add(new OrderViewModel
+                            {
+                                Id = Order.Id,
+                                DateCreated = Order.DateCreated,
+                                Name = Order.Name,
+                                Address = Order.Address,
+                                Phone = Order.Phone,
+                                Comment = Order.Comment,
+                                Price = Order.TotalPrice,
+                                OrderState = OrderStateName,
+                                OrderItems = OrderItemViewModel
+                            });
+                        }
+                    }
+                    return OrderViewModel;
+                }
+            }
+            return null;
+        }
+
+
+        public async Task<string> OrderAI(OrderAIModel model)
+        {
+            if (model.Name != null && model.Address != null && model.Phone != null)
+            {
+                var user = await authService.GetUserById(model.UserID);
+                if (user != null)
+                {
+                    var Cart = context.Carts.Where(c => c.UserId == user.Id).FirstOrDefault();
+                    if (Cart != null)
+                    {
+                        var CartItems = context.CartItems.Where(ci => ci.CartId == Cart.Id).ToList();
+                        if (CartItems.Count > 0)
+                        {
+                            var orderdb = new Order
+                            {
+                                UserId = user.Id,
+                                OrderStateId = 1,
+                                DateCreated = DateTime.Now,
+                                TotalPrice = (int)CartItems.Sum(ci => ci.Quantity * context.Furnitures.Where(f => f.Id == ci.FurnitureId).FirstOrDefault().Price),
+                                Name = model.Name,
+                                Address = model.Address,
+                                Phone = model.Phone,
+                                Comment = model.Comment
+                            };
+                            context.Orders.Add(orderdb);
+                            await context.SaveChangesAsync();
+                            var Order = context.Orders.Where(o => o.UserId == user.Id && o.DateCreated == orderdb.DateCreated).FirstOrDefault();
+                            if (Order != null)
+                            {
+                                foreach (var CartItem in CartItems)
+                                {
+                                    var Item = context.Furnitures.Where(f => f.Id == CartItem.FurnitureId).FirstOrDefault();
+                                    if (Item != null)
+                                    {
+                                        var OrderItem = new OrderItem
+                                        {
+                                            OrderId = Order.Id,
+                                            FurnitureId = Item.Id,
+                                            Quantity = CartItem.Quantity
+                                        };
+                                        context.OrderItems.Add(OrderItem);
+                                        context.CartItems.Remove(CartItem);
+                                    }
+                                }
+                                await context.SaveChangesAsync();
+                                return string.Empty;
+                            }
+                            return "Some error occurred while making order";
+                        }
+                        return "Cart is empty";
+                    }
+                    return "Cart is empty";
+                }
+                return "You are not logged in";
+            }
+            return "The form information is not valid";
+        }
+
+        #endregion
     }
 }

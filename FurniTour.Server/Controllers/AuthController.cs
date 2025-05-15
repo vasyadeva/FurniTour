@@ -81,6 +81,14 @@ namespace FurniTour.Server.Controllers
             return Ok(profile);
         }
 
+        [HttpGet("credentials")]
+        [Authorize]
+        public IActionResult Credentials()
+        {
+            var credentials = authService.GetCredentials();
+            return Ok(credentials);
+        }
+
         [HttpPost("changeprofile")]
         [Authorize]
         public IActionResult ChangeProfile([FromBody] ChangeProfileModel model)

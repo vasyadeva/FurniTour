@@ -370,93 +370,281 @@ namespace FurniTour.Server.Services
             return item.Image;
         }
 
+        //        public async Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description, int category,
+        //            decimal minprice, decimal maxprice, int color)
+        //        {
+        //            var items = context.Furnitures.AsQueryable();
+        //            var resultItems = items;
 
+        //            // Якщо є опис товару, використовуємо AI для його аналізу
+        //            if (!string.IsNullOrEmpty(description))
+        //            {
+        //                // Отримуємо випадкову обмежену вибірку описів товарів для прикладів
+        //                var sampleItems = await context.Furnitures
+        //                    .OrderBy(x => Guid.NewGuid())  // Випадковий порядок
+        //                    .Take(5)  // Обмежена кількість прикладів
+        //                    .Select(i => new { i.Name, i.Description })
+        //                    .ToListAsync();
 
-        /// <summary>
-        /// Цей метод отримує опис від користувача, який предмет він шукає, DeepSeek отримує з
-        /// опису можливі параметри і тоді ці параметри застосовуються для фільтрації селекту
-        /// з бд, отриманий список призначений для надсилання до агента копайлот, щоб він вибрав 
-        /// найкращий варіант
-        /// </summary>
-        /// <param name="description"></param>
-        /// <returns></returns>
-        public async Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description)
+        //                var api = configuration["key:api"];
+        //                if (string.IsNullOrEmpty(api))
+        //                {
+        //                    throw new ArgumentNullException(nameof(api), "API key is missing.");
+        //                }
+
+        //                var groqApi = new GroqApiClient(api);
+        //                var request = new JsonObject
+        //                {
+        //                    ["model"] = "deepseek-r1-distill-llama-70b",
+        //                    ["messages"] = new JsonArray
+        //                    {
+        //                        new JsonObject
+        //                        {
+        //                            ["role"] = "user",
+        //                            ["content"] = $@"Here are some examples of furniture descriptions from our database:
+
+        //{string.Join("\n\n", sampleItems.Select((s, i) => $"Example {i+1}:\nName: {s.Name}\nDescription: {s.Description}"))}
+
+        //Based on these examples, analyze the following user query: '{description}'
+
+        //Extract keywords that would be most effective for searching similar items in our database.
+        //Format your response exactly as: 'keywords: keyword1, keyword2, keyword3'
+
+        //If no relevant keywords can be extracted, respond with: 'keywords: none'"
+        //                        }
+        //                    }
+        //                };
+
+        //                var result = await groqApi.CreateChatCompletionAsync(request);
+        //                var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+        //                if (!string.IsNullOrEmpty(aiResponse))
+        //                {
+        //                    // Витягуємо ключові слова з відповіді AI
+        //                    var keywordsMatch = System.Text.RegularExpressions.Regex.Match(aiResponse, @"keywords:\s*(.*)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        //                    if (keywordsMatch.Success && keywordsMatch.Groups.Count > 1 && 
+        //                        !keywordsMatch.Groups[1].Value.Trim().Equals("none", StringComparison.OrdinalIgnoreCase))
+        //                    {
+        //                        var keywords = keywordsMatch.Groups[1].Value
+        //                            .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+        //                            .Select(k => k.Trim().ToLower())
+        //                            .ToList();
+
+        //                        if (keywords.Any())
+        //                        {
+        //                            // Створюємо запит для пошуку товарів з ключовими словами
+        //                            resultItems = items.Where(i => false);  // Пустий набір для початку
+
+        //                            foreach (var keyword in keywords)
+        //                            {
+        //                                // Об'єднуємо результати пошуку за кожним ключовим словом
+        //                                resultItems = resultItems.Union(
+        //                                    items.Where(i => 
+        //                                        i.Name.ToLower().Contains(keyword) || 
+        //                                        i.Description.ToLower().Contains(keyword))
+        //                                );
+        //                            }
+        //                        }
+        //                    }
+        //                }
+        //            }
+
+        //            // Якщо немає результатів за ключовими словами або ключові слова не знайдені,
+        //            // забезпечуємо, щоб було повернуто хоча б базовий набір товарів
+        //            if (!await resultItems.AnyAsync())
+        //            {
+        //                resultItems = items;
+        //            }
+
+        //            // Застосовуємо передані фільтри
+        //            if (color > 0)
+        //            {
+        //                resultItems = resultItems.Where(i => i.Color.Id == color);
+        //            }
+
+        //            if (category > 0)
+        //            {
+        //                resultItems = resultItems.Where(i => i.Category.Id == category);
+        //            }
+
+        //            // Застосовуємо цінові фільтри
+        //            if (minprice > 0)
+        //            {
+        //                resultItems = resultItems.Where(i => i.Price >= minprice);
+        //            }
+
+        //            if (maxprice > 0)
+        //            {
+        //                resultItems = resultItems.Where(i => i.Price <= maxprice);
+        //            }
+
+        //            // Якщо після всіх фільтрів нічого не знайдено, повертаємо 5 випадкових товарів
+        //            var finalItems = await resultItems.Include(c => c.Color)
+        //                    .Include(c => c.Category).ToListAsync();
+        //            if (!finalItems.Any())
+        //            {
+        //                finalItems = await items
+        //                    .OrderBy(x => Guid.NewGuid())
+        //                    .Take(5)
+        //                    .Include(c => c.Color)
+        //                    .Include(c => c.Category)
+        //                    .ToListAsync();
+        //            }
+
+        //            var filteredItems = finalItems.Select(c => new ItemViewModel
+        //            {
+        //                Id = c.Id,
+        //                Name = c.Name,
+        //                Description = c.Description,
+        //                Price = c.Price,
+        //                Image = "https://newbrushedgrape62.conveyor.cloud/api/item/image/" + c.Id.ToString(),
+        //                Category = c.Category.Name,
+        //                Color = c.Color.Name
+        //            }).ToList();
+
+        //            return filteredItems;
+        //        }
+
+        public async Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description, int category,
+    decimal minprice, decimal maxprice, int color)
         {
-            var api = configuration["key:api"];
-            if (string.IsNullOrEmpty(api))
-            {
-                throw new ArgumentNullException(nameof(api), "API key is missing.");
-            }
-            var groqApi = new GroqApiClient(api);
-            var categories = context.Categories.ToList();
-            var colors = context.Colors.ToList();
-            var request = new JsonObject
-            {
-                ["model"] = "deepseek-r1-distill-llama-70b",
-                ["messages"] = new JsonArray
-            {
-                new JsonObject
-                {
-                    ["role"] = "user",
-                    ["content"] = $"Here is description what user wants (furniture item) : {description}. Please find parameters for filtration from db like (color, category, price, lessOrBiggerPrice) in the format 'color: <color>, category: <category>, price: <price>, lessOrBigger' . Existing Categories: {categories}. Existing colors: {colors}"
-                }
-            }
-            };
-            var result = await groqApi.CreateChatCompletionAsync(request);
-
-            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
-
-            var parsedResponse = aiResponse?.Split(",")
-               .Select(part => part.Split(":").Select(p => p.Trim()).ToArray())
-               .Where(parts => parts.Length == 2)
-               .GroupBy(parts => parts[0])
-               .ToDictionary(g => g.Key, g => g.First()[1]);
-
-            var color = parsedResponse?.GetValueOrDefault("color");
-            var category = parsedResponse?.GetValueOrDefault("category");
-            var price = parsedResponse?.GetValueOrDefault("price");
-            var lessOrBigger = parsedResponse?.GetValueOrDefault("lessOrBigger");
-
+            // Apply basic filters
             var items = context.Furnitures.AsQueryable();
-            if (!string.IsNullOrEmpty(color))
+
+            if (color > 0)
             {
-                items = items.Where(i => i.Color.Name == color);
+                items = items.Where(i => i.ColorId == color);
             }
-            if (!string.IsNullOrEmpty(category))
+
+            if (category > 0)
             {
-                items = items.Where(i => i.Category.Name == category);
+                items = items.Where(i => i.CategoryId == category);
             }
-            if (!string.IsNullOrEmpty(price))
+
+            if (minprice > 0)
             {
-                if (decimal.TryParse(price, out decimal parsedPrice))
+                items = items.Where(i => i.Price >= minprice);
+            }
+
+            if (maxprice > 0)
+            {
+                items = items.Where(i => i.Price <= maxprice);
+            }
+
+            // Store the filtered items before AI filtering
+            var filteredItems = items;
+            var aiFilteredItems = filteredItems;
+
+            // Apply AI filtering if description is provided
+            if (!string.IsNullOrEmpty(description))
+            {
+                // Get sample items for the AI context from the already filtered items
+                var sampleItems = await filteredItems
+                    .Take(5)
+                    .Select(i => new { i.Name, i.Description })
+                    .ToListAsync();
+
+                if (sampleItems.Any())
                 {
-                    if (lessOrBigger == "less")
+                    var api = configuration["key:api"];
+                    if (string.IsNullOrEmpty(api))
                     {
-                        items = items.Where(i => i.Price < parsedPrice);
+                        throw new ArgumentNullException(nameof(api), "API key is missing.");
                     }
-                    else if (lessOrBigger == "bigger")
+
+                    var groqApi = new GroqApiClient(api);
+                    var request = new JsonObject
                     {
-                        items = items.Where(i => i.Price > parsedPrice);
+                        ["model"] = "deepseek-r1-distill-llama-70b",
+                        ["messages"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["role"] = "user",
+                        ["content"] = $@"Here are some examples of furniture descriptions from our database:
+
+{string.Join("\n\n", sampleItems.Select((s, i) => $"Example {i+1}:\nName: {s.Name}\nDescription: {s.Description}"))}
+
+Based on these examples, analyze the following user query: '{description}'
+
+Extract keywords that would be most effective for searching similar items in our database.
+Format your response exactly as: 'keywords: keyword1, keyword2, keyword3'
+
+If no relevant keywords can be extracted, respond with: 'keywords: none'"
+                    }
+                }
+                    };
+
+                    var apiresult = await groqApi.CreateChatCompletionAsync(request);
+                    var aiResponse = apiresult?["choices"]?[0]?["message"]?["content"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(aiResponse))
+                    {
+                        // Extract keywords from the AI response
+                        var keywordsMatch = System.Text.RegularExpressions.Regex.Match(aiResponse, @"keywords:\s*(.*)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (keywordsMatch.Success && keywordsMatch.Groups.Count > 1 &&
+                            !keywordsMatch.Groups[1].Value.Trim().Equals("none", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var keywords = keywordsMatch.Groups[1].Value
+                                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                                .Select(k => k.Trim().ToLower())
+                                .ToList();
+
+                            if (keywords.Any())
+                            {
+                                // Start with an empty query
+                                aiFilteredItems = filteredItems.Where(i => false);
+
+                                foreach (var keyword in keywords)
+                                {
+                                    // Apply keyword filtering within the already filtered items
+                                    aiFilteredItems = aiFilteredItems.Union(
+                                        filteredItems.Where(i =>
+                                            i.Name.ToLower().Contains(keyword) ||
+                                            i.Description.ToLower().Contains(keyword))
+                                    );
+                                }
+
+                                // Check if any items were found using AI filtering
+                                if (await aiFilteredItems.AnyAsync())
+                                {
+                                    // Use the AI-filtered items
+                                    filteredItems = aiFilteredItems;
+                                }
+                                // If no items found with AI filtering, we'll keep the original filtered items
+                            }
+                        }
                     }
                 }
             }
-            var filteredItems = items.Select(c => new ItemViewModel
+
+            // Add necessary includes and execute the query
+            var finalItems = await filteredItems
+                .Include(c => c.Color)
+                .Include(c => c.Category)
+                .ToListAsync();
+
+            // Map to view models
+            var result = finalItems.Select(c => new ItemViewModel
             {
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
                 Price = c.Price,
-                Image = "https://firstredcar3.conveyor.cloud/api/item/image/" + c.Id.ToString(),   // дати ендпоінт, але спершу сформувати метод контроллера
+                Image = "https://smallorangesled22.conveyor.cloud/api/item/image/" + c.Id.ToString(),
                 Category = c.Category.Name,
-                Color = c.Color.Name
+                Color = c.Color.Name,
+                Manufacturer = c.ManufacturerId.HasValue ?
+                    context.Manufacturers.FirstOrDefault(m => m.Id == c.ManufacturerId)?.Name : string.Empty,
+                Master = !string.IsNullOrEmpty(c.MasterId) ?
+                    context.Users.FirstOrDefault(u => u.Id == c.MasterId)?.UserName : string.Empty
             }).ToList();
-            parsedResponse = null;
-            return filteredItems;
 
+            return result;
         }
     }
 }
 
 
-  
+
 

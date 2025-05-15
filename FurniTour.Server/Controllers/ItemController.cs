@@ -112,10 +112,21 @@ namespace FurniTour.Server.Controllers
             return Ok(items);
         }
 
-        [HttpGet("search2/{description}")]
-        public async Task<IActionResult> GetItemsByDescription2(string description)
+        //[HttpGet("search2/{description}")]
+        //public async Task<IActionResult> GetItemsByDescription2(string description)
+        //{
+        //    var items = await itemFurnitureService.GetItemsByDescriptionAsync2(description);
+        //    var serialized = System.Text.Json.JsonSerializer.Serialize(items);
+
+        //    return Content(serialized, "text/plain"); // <- ключове!
+        //}
+
+        [HttpGet("search3/{description}/{category}/{color}/{minprice}/{maxprice}")]
+        public async Task<IActionResult> GetItemsByDescription3(string description, int category,
+    decimal minprice, decimal maxprice, int color)
         {
-            var items = await itemFurnitureService.GetItemsByDescriptionAsync2(description);
+            var items = await itemFurnitureService.GetItemsByDescriptionAsync2(description, category,
+                minprice, maxprice, color);
             var serialized = System.Text.Json.JsonSerializer.Serialize(items);
 
             return Content(serialized, "text/plain"); // <- ключове!

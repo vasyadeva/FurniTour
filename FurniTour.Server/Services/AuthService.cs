@@ -24,6 +24,23 @@ namespace FurniTour.Server.Services
             this.userManager = userManager;
         }
 
+        public CredentialsModel GetCredentials()
+        {
+            var user = httpContextAccessor.HttpContext.User;
+            if (user.Identity.IsAuthenticated)
+            {
+                var userm = userManager.FindByNameAsync(user.Identity.Name).Result;
+                var id = userm.Id;
+                var username = user.Identity.Name;
+
+                return new CredentialsModel
+                {
+                    id = id,
+                    username = username
+                };
+            }
+            return null;
+        }
         public async Task<string> RegisterAsync(RegisterModel registerModel)
         {
             var user = new IdentityUser
@@ -116,6 +133,8 @@ namespace FurniTour.Server.Services
             var user = userManager.FindByNameAsync(httpContextAccessor.HttpContext.User.Identity.Name).Result;
             return user;
         }
+
+ 
         public string GetUserRole()
         {
             var role = httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
