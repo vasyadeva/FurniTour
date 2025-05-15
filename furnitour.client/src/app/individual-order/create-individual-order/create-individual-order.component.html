@@ -1,0 +1,154 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <!-- Повідомлення про помилку -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <!-- Повідомлення про успіх -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+      </div>
+
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Індивідуальне замовлення меблів</h2>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+            <!-- Ім'я -->
+            <div class="mb-3">
+              <label for="name" class="form-label">Ім'я*</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                formControlName="name"
+                [ngClass]="{'is-invalid': orderForm.get('name')?.invalid && orderForm.get('name')?.touched}"
+              >
+              <div class="invalid-feedback">
+                Введіть ваше ім'я
+              </div>
+            </div>
+
+            <!-- Адреса -->
+            <div class="mb-3">
+              <label for="address" class="form-label">Адреса доставки*</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="address" 
+                formControlName="address"
+                [ngClass]="{'is-invalid': orderForm.get('address')?.invalid && orderForm.get('address')?.touched}"
+              >
+              <div class="invalid-feedback">
+                Введіть адресу доставки
+              </div>
+            </div>
+
+            <!-- Телефон -->
+            <div class="mb-3">
+              <label for="phone" class="form-label">Телефон*</label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="phone" 
+                formControlName="phone"
+                placeholder="0976543210"
+                [ngClass]="{'is-invalid': orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched}"
+              >
+              <div class="invalid-feedback">
+                Введіть коректний номер телефону (10 цифр)
+              </div>
+            </div>
+
+            <!-- Опис -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Опис бажаних меблів*</label>
+              <textarea 
+                class="form-control" 
+                id="description" 
+                rows="5" 
+                formControlName="description"
+                placeholder="Детально опишіть бажані меблі: тип, розміри, матеріали, особливості дизайну та інші побажання..."
+                [ngClass]="{'is-invalid': orderForm.get('description')?.invalid && orderForm.get('description')?.touched}"
+              ></textarea>
+              <div class="invalid-feedback">
+                Опис має містити принаймні 10 символів
+              </div>
+            </div>
+
+            <!-- Цінова категорія -->
+            <div class="mb-3">
+              <label for="priceCategory" class="form-label">Цінова категорія*</label>
+              <select 
+                class="form-select" 
+                id="priceCategory" 
+                formControlName="priceCategoryId"
+                [ngClass]="{'is-invalid': orderForm.get('priceCategoryId')?.invalid && orderForm.get('priceCategoryId')?.touched}"
+              >
+                <option value="" disabled selected>Оберіть цінову категорію</option>
+                <option *ngFor="let category of priceCategories" [value]="category.id">
+                  {{ category.name }} - {{ category.description }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Оберіть цінову категорію
+              </div>
+            </div>
+
+            <!-- Вибір майстра -->
+            <div class="mb-3">
+              <label for="master" class="form-label">Майстер*</label>
+              <select 
+                class="form-select" 
+                id="master" 
+                formControlName="masterId"
+                [ngClass]="{'is-invalid': orderForm.get('masterId')?.invalid && orderForm.get('masterId')?.touched}"
+              >
+                <option value="" disabled selected>Оберіть майстра</option>
+                <option *ngFor="let master of masters" [value]="master.id">
+                  {{ master.username }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Оберіть майстра для виконання замовлення
+              </div>
+            </div>
+
+            <!-- Фото -->
+            <div class="mb-3">
+              <label for="photo" class="form-label">Фото або креслення (необов'язково)</label>
+              <input 
+                type="file" 
+                class="form-control" 
+                id="photo" 
+                (change)="onFileSelected($event)"
+                accept="image/*"
+              >
+              <div class="form-text">
+                Завантажте фото або креслення для кращого розуміння вашого замовлення.
+              </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary" routerLink="/home">Скасувати</button>
+              <button 
+                type="submit" 
+                class="btn btn-primary px-4" 
+                [disabled]="loading || orderForm.invalid"
+              >
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                Відправити замовлення
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

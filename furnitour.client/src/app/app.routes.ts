@@ -26,6 +26,10 @@ import { ManufacturerProfileComponent } from './profile/ManufacturerProfile/manu
 import { ManufacturerAddReviewComponent } from './profile/ManufacturerAddReview/manufacturer-add-review/manufacturer-add-review.component';
 import { ProfileComponent } from './auth/profile/profile/profile.component';
 import { ChangeProfileComponent } from './auth/profile/change-profile/change-profile.component';
+import { CreateIndividualOrderComponent } from './individual-order/create-individual-order/create-individual-order.component';
+import { MyIndividualOrdersComponent } from './individual-order/my-individual-orders/my-individual-orders.component';
+import { IndividualOrderDetailsComponent } from './individual-order/individual-order-details/individual-order-details.component';
+import { AdminIndividualOrdersComponent } from './individual-order/admin-individual-orders/admin-individual-orders.component';
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -57,11 +61,15 @@ export const routes: Routes = [
     {path: 'manufacturers', component: ManufacturersComponent},
     {path: 'manufacturers/update/:id', component: UpdateManufacturerComponent},
     {path: 'manufacturers/details/:id', component: InfoManufacturerComponent},
-    {path: 'manufacturers/add', component: AddManufacturerComponent},
-
-    //profile paths
+    {path: 'manufacturers/add', component: AddManufacturerComponent},    //profile paths
     {path: 'profile/master/:id', component: MasterprofileComponent},
     {path: 'profile/manufacturer/:id', component: ManufacturerProfileComponent},
     {path: 'masterreview/add/:id', component: MasterAddReviewComponent},
-    {path: 'manufacturerreview/add/:id', component: ManufacturerAddReviewComponent}
+    {path: 'manufacturerreview/add/:id', component: ManufacturerAddReviewComponent},
+    
+    //individual order paths
+    {path: 'create-individual-order', component: CreateIndividualOrderComponent, canActivate: [AuthGuard],data: { roles: ['User'] }},
+    {path: 'individual-orders', component: MyIndividualOrdersComponent, canActivate: [AuthGuard],data: { roles: ['User'] }},
+    {path: 'individual-order/:id', component: IndividualOrderDetailsComponent, canActivate: [AuthGuard],data: { roles: ['User','Administrator', 'Master'] }},
+    {path: 'admin-individual-orders', component: AdminIndividualOrdersComponent, canActivate: [AuthGuard], data: { roles: ['Administrator', 'Master'] }}
 ];

@@ -20,11 +20,21 @@
           </li>
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" *ngIf="status.isUser" routerLink="cart">Кошик</a>
-          </li>
-          <li class="nav-item">
+          </li>          <li class="nav-item">
             <a class="nav-link active" aria-current="page" *ngIf="status.isUser" routerLink="myorders">Замовлення</a>
           </li>
-
+          <li class="nav-item dropdown" *ngIf="status.isUser">
+            <a class="nav-link dropdown-toggle" href="#" id="customOrderDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Індивідуальні замовлення
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="customOrderDropdown">
+              <li><a class="dropdown-item" routerLink="create-individual-order">Створити замовлення</a></li>
+              <li><a class="dropdown-item" routerLink="individual-orders">Мої замовлення</a></li>
+            </ul>
+          </li>
+          <li class="nav-item" *ngIf="status.isAdmin || status.isMaster">
+            <a class="nav-link active" aria-current="page" routerLink="admin-individual-orders">Індивідуальні замовлення</a>
+          </li>
         </ul>
         <ul class="nav navbar-nav ms-auto">
           <li class="nav-item" *ngIf="status.isAdmin">

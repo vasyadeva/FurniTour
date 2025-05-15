@@ -1,0 +1,34 @@
+.order-image {
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+}
+
+.order-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.description {
+  max-height: 80px;
+  overflow: hidden;
+}
+
+.card {
+  transition: transform 0.2s;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-footer {
+  background-color: transparent;
+}
+
+.badge {
+  font-size: 0.8rem;
+}

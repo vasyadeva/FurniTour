@@ -87,6 +87,52 @@ namespace FurniTour.Server.Data
                 .WithMany()
                 .HasForeignKey(gi => gi.OrderItemId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Налаштування зв'язку для IndividualOrder -> User
+            builder.Entity<IndividualOrder>()
+                .HasOne(o => o.User)
+                .WithMany()
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Налаштування зв'язку для IndividualOrder -> Master, з відключенням каскадного видалення
+            builder.Entity<IndividualOrder>()
+                .HasOne(o => o.Master)
+                .WithMany()
+                .HasForeignKey(o => o.MasterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<IndividualOrderStatus>().HasData(
+      new IndividualOrderStatus { Id = 1, Name = "Нове індивідуальне замовлення" },
+      new IndividualOrderStatus { Id = 2, Name = "Скасовано користувачем" },
+      new IndividualOrderStatus { Id = 3, Name = "Скасовано майстром" },
+      new IndividualOrderStatus { Id = 4, Name = "Підтверджено" },
+      new IndividualOrderStatus { Id = 5, Name = "У виробництві" },
+      new IndividualOrderStatus { Id = 6, Name = "В дорозі" },
+      new IndividualOrderStatus { Id = 7, Name = "Доставлено" },
+      new IndividualOrderStatus { Id = 8, Name = "Доставка підтверджена користувачем" }
+  );
+
+            builder.Entity<PriceCategory>().HasData(
+                new PriceCategory
+                {
+                    Id = 1,
+                    Name = "Економ",
+                    Description = "Доступні матеріали"
+                },
+                new PriceCategory
+                {
+                    Id = 2,
+                    Name = "Стандарт",
+                    Description = "Якісні матеріали"
+                },
+                new PriceCategory
+                {
+                    Id = 3,
+                    Name = "Преміум",
+                    Description = "Елітні матеріали"
+                }
+            );
         }
 
         public DbSet<Furniture> Furnitures { get; set; }
@@ -105,6 +151,9 @@ namespace FurniTour.Server.Data
         public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }
         public DbSet<Guarantee> Guarantees { get; set; }
         public DbSet<GuaranteeItems> GuaranteeItems { get; set; }
-        public DbSet<GuaranteePhoto> GuaranteePhotos { get; set; } 
+        public DbSet<GuaranteePhoto> GuaranteePhotos { get; set; }
+        public DbSet<IndividualOrderStatus> IndividualOrderStatuses { get; set; }
+        public DbSet<PriceCategory> PriceCategories { get; set; }
+        public DbSet<IndividualOrder> IndividualOrders { get; set; }
     }
 }

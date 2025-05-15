@@ -1,0 +1,105 @@
+<div class="container mt-4">
+  <h2>Управління індивідуальними замовленнями</h2>
+
+  <!-- Спіннер завантаження -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Завантаження...</span>
+    </div>
+    <p class="mt-2">Завантаження замовлень...</p>
+  </div>
+  <!-- Помилки -->
+  <div *ngIf="errorMessage" class="alert alert-danger mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Фільтри -->
+  <div *ngIf="!loading" class="card mb-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Фільтри</h5>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="filterForm">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="status" class="form-label">Статус</label>
+            <select class="form-select" id="status" formControlName="status">
+              <option value="">Усі статуси</option>
+              <option *ngFor="let status of getUniqueStatuses()" [value]="status">
+                {{ status }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="priceCategory" class="form-label">Цінова категорія</label>
+            <select class="form-select" id="priceCategory" formControlName="priceCategory">
+              <option value="">Усі категорії</option>
+              <option *ngFor="let category of getUniquePriceCategories()" [value]="category">
+                {{ category }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="searchTerm" class="form-label">Пошук</label>
+            <input type="text" class="form-control" id="searchTerm" formControlName="searchTerm"
+              placeholder="Ім'я, опис...">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary" (click)="resetFilters()">Скинути</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Список замовлень -->
+  <div *ngIf="!loading">
+    <div *ngIf="filteredOrders.length === 0" class="alert alert-info">
+      <p class="mb-0">Немає замовлень, що відповідають вказаним критеріям.</p>
+    </div>
+
+    <div *ngIf="filteredOrders.length > 0" class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Дата</th>
+            <th>Замовник</th>
+            <th>Назва</th>
+            <th>Цінова категорія</th>
+            <th>Майстер</th>
+            <th>Статус</th>
+            <th>Ціна</th>
+            <th>Дії</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of filteredOrders">
+            <td>{{ order.id }}</td>
+            <td>{{ order.dateCreated | date:'dd.MM.yyyy' }}</td>
+            <td>{{ order.userName }}</td>
+            <td>{{ order.name }}</td>
+            <td>{{ order.priceCategory }}</td>
+            <td>{{ order.masterName }}</td>
+            <td>
+              <span [ngClass]="getStatusClass(order.status)">{{ order.status }}</span>
+            </td>
+            <td>
+              <span *ngIf="order.finalPrice">{{ order.finalPrice }} грн</span>
+              <span *ngIf="!order.finalPrice && order.estimatedPrice">~{{ order.estimatedPrice }} грн</span>
+              <span *ngIf="!order.finalPrice && !order.estimatedPrice">—</span>
+            </td>
+            <td>
+              <a [routerLink]="['/individual-order', order.id]" class="btn btn-sm btn-outline-primary">
+                Деталі
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

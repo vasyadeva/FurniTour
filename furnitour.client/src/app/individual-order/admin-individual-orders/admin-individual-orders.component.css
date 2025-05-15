@@ -1,0 +1,12 @@
+.badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.table {
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: #f8f9fa;
+}

@@ -1,0 +1,52 @@
+.status-badge {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+}
+
+.description {
+  white-space: pre-line;
+}
+
+.card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+textarea {
+  resize: none;
+}
+
+.status-flow-item {
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.status-active {
+  font-weight: bold;
+  color: #0d6efd;
+  background-color: #f0f7ff;
+  border-left: 3px solid #0d6efd;
+}
+
+.status-completed {
+  color: #198754;
+  background-color: #f0fff7;
+  border-left: 3px solid #198754;
+}
+
+.status-future {
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-left: 3px solid #dee2e6;
+}
+
+/* Add Bootstrap icons support */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css");
