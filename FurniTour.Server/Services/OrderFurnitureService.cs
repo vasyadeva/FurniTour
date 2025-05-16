@@ -59,6 +59,7 @@ namespace FurniTour.Server.Services
 
                                     OrderItemViewModel.Add(new OrderItemViewModel
                                     {
+                                        Id = Furniture.Id,
                                         Name = Furniture.Name,
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,

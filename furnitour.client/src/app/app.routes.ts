@@ -30,6 +30,10 @@ import { CreateIndividualOrderComponent } from './individual-order/create-indivi
 import { MyIndividualOrdersComponent } from './individual-order/my-individual-orders/my-individual-orders.component';
 import { IndividualOrderDetailsComponent } from './individual-order/individual-order-details/individual-order-details.component';
 import { AdminIndividualOrdersComponent } from './individual-order/admin-individual-orders/admin-individual-orders.component';
+import { GuaranteeListComponent } from './guarantee/guarantee-list/guarantee-list.component';
+import { GuaranteeDetailComponent } from './guarantee/guarantee-detail/guarantee-detail.component';
+import { GuaranteeCreateComponent } from './guarantee/guarantee-create/guarantee-create.component';
+import { GuaranteeAdminComponent } from './guarantee/guarantee-admin/guarantee-admin.component';
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -66,10 +70,13 @@ export const routes: Routes = [
     {path: 'profile/manufacturer/:id', component: ManufacturerProfileComponent},
     {path: 'masterreview/add/:id', component: MasterAddReviewComponent},
     {path: 'manufacturerreview/add/:id', component: ManufacturerAddReviewComponent},
-    
-    //individual order paths
+      //individual order paths
     {path: 'create-individual-order', component: CreateIndividualOrderComponent, canActivate: [AuthGuard],data: { roles: ['User'] }},
     {path: 'individual-orders', component: MyIndividualOrdersComponent, canActivate: [AuthGuard],data: { roles: ['User'] }},
     {path: 'individual-order/:id', component: IndividualOrderDetailsComponent, canActivate: [AuthGuard],data: { roles: ['User','Administrator', 'Master'] }},
-    {path: 'admin-individual-orders', component: AdminIndividualOrdersComponent, canActivate: [AuthGuard], data: { roles: ['Administrator', 'Master'] }}
+    {path: 'admin-individual-orders', component: AdminIndividualOrdersComponent, canActivate: [AuthGuard], data: { roles: ['Administrator', 'Master'] }},      //guarantee paths
+    {path: 'guarantees/create', component: GuaranteeCreateComponent, canActivate: [AuthGuard], data: { roles: ['User'] }},
+    {path: 'guarantees/:id', component: GuaranteeDetailComponent, canActivate: [AuthGuard], data: { roles: ['User', 'Administrator'] }},
+    {path: 'guarantees', component: GuaranteeListComponent, canActivate: [AuthGuard], data: { roles: ['User', 'Administrator'] }},
+    {path: 'admin/guarantees', component: GuaranteeAdminComponent, canActivate: [AuthGuard], data: { roles: ['Administrator'] }}
 ];

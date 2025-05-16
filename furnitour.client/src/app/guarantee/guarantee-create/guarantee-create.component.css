@@ -1,0 +1,129 @@
+.preview-image {
+  height: 150px;
+  object-fit: cover;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  font-weight: 500;
+}
+
+.list-group-item {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-left: 4px solid transparent;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+}
+
+.list-group-item.active {
+  background-color: rgba(13, 110, 253, 0.15);
+  border-color: #0d6efd;
+  color: inherit;
+}
+
+.list-group-item.active h5 {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-check-input:checked + .form-check-label {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+/* Покращення стилю чекбоксів */
+.form-check-lg .form-check-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+/* Animation for selected items */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+}
+
+.list-group-item:has(.form-check-input:checked) {
+  background-color: #e9f0ff;
+  border-color: #0d6efd;
+  animation: pulse 1.5s 1;
+}
+
+.img-thumbnail {
+  object-fit: cover;
+  height: 150px;
+}
+
+/* Анімація для сповіщень */
+.alert {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Стилізація кнопок */
+.btn-primary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover:not([disabled]) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Індикатор завантаження */
+.spinner-border {
+  animation-duration: 1s;
+}
+
+/* Покращення картки підтвердження */
+.card.border-success {
+  border-width: 2px;
+  transition: all 0.3s ease;
+}
+
+.card.border-success:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.2);
+}
+
+/* Фокус на товарах */
+.form-check-input:focus + label {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Стилі для відповідності формату списку */
+.list-group-item-action:focus {
+  outline: none;
+  box-shadow: none;
+}

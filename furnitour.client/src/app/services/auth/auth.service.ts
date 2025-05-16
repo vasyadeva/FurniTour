@@ -33,6 +33,9 @@ export class AuthService {
     );
   }
 
+  public isAdmin(): boolean {
+    return localStorage.getItem('role') === 'Administrator';
+  }
 
   public signOut() {
       return this.http.get(this.api +'/auth/signout', { withCredentials: true });

@@ -83,7 +83,7 @@ export class ItemsComponent implements OnInit {
         console.log('Profile fetched successfully!', response);
         this.UserName = response.username;
         this.ID = response.id;
-        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID  + "&Username="+this.UserName + "&api=https://rightsagebag90.conveyor.cloud/";
+        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID  + "&Username="+this.UserName + "&api=https://nextshinybag45.conveyor.cloud/";
   
       }
     );
