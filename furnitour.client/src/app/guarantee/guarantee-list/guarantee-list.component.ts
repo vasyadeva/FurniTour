@@ -124,17 +124,32 @@ export class GuaranteeListComponent implements OnInit {
     
     this.applySorting();
   }
-  
-  private applySorting(): void {
+    private applySorting(): void {
     this.sortedGuarantees = [...this.filteredGuarantees].sort((a, b) => {
       let comparison = 0;
       
       switch (this.sortField) {
         case 'id':
           comparison = a.id - b.id;
-          break;
-        case 'orderId':
-          comparison = a.orderId - b.orderId;
+          break;        case 'orderId':
+          // Handle individual orders properly
+          if (a.isIndividualOrder && b.isIndividualOrder) {
+            // Both are individual orders, compare individual order IDs
+            const aIndOrderId = a.individualOrderId || 0;
+            const bIndOrderId = b.individualOrderId || 0;
+            comparison = aIndOrderId - bIndOrderId;
+          } else if (a.isIndividualOrder && !b.isIndividualOrder) {
+            // a is individual, b is regular - individual orders first
+            comparison = -1;
+          } else if (!a.isIndividualOrder && b.isIndividualOrder) {
+            // a is regular, b is individual - individual orders first
+            comparison = 1;
+          } else {
+            // Both are regular orders
+            const aOrderId = a.orderId || 0;
+            const bOrderId = b.orderId || 0;
+            comparison = aOrderId - bOrderId;
+          }
           break;
         case 'userName':
           comparison = a.userName.localeCompare(b.userName);
@@ -161,9 +176,8 @@ export class GuaranteeListComponent implements OnInit {
     
     // Визначити, які дані експортувати - всі або відфільтровані
     const dataToExport = this.statusFilter ? this.sortedGuarantees : this.guarantees;
-    
-    // Визначаємо заголовки колонок
-    const headers = ['ID', 'ID замовлення', 'Користувач', 'Статус', 'Дата створення', 'Остання зміна', 'Коментар'];
+      // Визначаємо заголовки колонок
+    const headers = ['ID', 'Тип замовлення', 'ID замовлення', 'Користувач', 'Статус', 'Дата створення', 'Остання зміна', 'Коментар'];
     
     // Підготовка рядків даних
     const csvRows = [
@@ -171,7 +185,8 @@ export class GuaranteeListComponent implements OnInit {
       ...dataToExport.map(guarantee => {
         return [
           guarantee.id,
-          guarantee.orderId,
+          guarantee.isIndividualOrder ? 'Індивідуальне' : 'Звичайне',
+          guarantee.isIndividualOrder ? guarantee.individualOrderId : guarantee.orderId,
           guarantee.userName,
           guarantee.status,
           new Date(guarantee.dateCreated).toLocaleString(),

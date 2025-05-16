@@ -1,9 +1,14 @@
-﻿using FurniTour.Server.Data;
+using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Guarantee;
 using FurniTour.Server.Constants;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FurniTour.Server.Services
 {
@@ -26,103 +31,146 @@ namespace FurniTour.Server.Services
             {
                 return "Query cannot be empty";
             }
+            
+            var user = authService.GetUser();
+            if (user == null)
+            {
+                return "User not found";
+            }
+            
+            // Create guarantee entity with required fields
+            var guaranteeEntity = new Guarantee
+            {
+                UserId = user.Id,
+                User = user,  // Required field
+                Status = GuaranteeStatusConst.Pending,
+                Comment = guarantee.Comment,
+                DateCreated = DateTime.Now,
+                DateModified = DateTime.Now,
+                GuaranteeItems = new List<GuaranteeItems>(),
+                GuaranteePhotos = new List<GuaranteePhoto>()
+            };
+
+            if (guarantee.IsIndividualOrder)
+            {
+                // Handle individual order
+                if (!guarantee.IndividualOrderId.HasValue)
+                {
+                    return "Individual order ID is required";
+                }
+
+                var individualOrder = context.IndividualOrders.Find(guarantee.IndividualOrderId);
+                if (individualOrder == null)
+                {
+                    return "Individual order not found";
+                }
+
+                // Check if order belongs to the user
+                if (individualOrder.UserId != user.Id)
+                {
+                    return "Individual order does not belong to the current user";
+                }
+
+                // Set the individual order ID
+                guaranteeEntity.IndividualOrderId = guarantee.IndividualOrderId;
+                
+                // Add the guarantee to the database first to get its ID
+                context.Guarantees.Add(guaranteeEntity);
+                context.SaveChanges();
+            }
             else
             {
-                var user = authService.GetUser();
-                if (user == null)
+                // Handle regular order
+                if (!guarantee.OrderId.HasValue)
                 {
-                    return "User not found";
+                    return "Order ID is required";
                 }
-                else
+
+                var order = context.Orders.Find(guarantee.OrderId);
+                if (order == null)
                 {
-                    // Verify order exists
-                    var order = context.Orders.Find(guarantee.OrderId);
-                    if (order == null)
+                    return "Order not found";
+                }
+
+                // Check if order belongs to the user
+                if (order.UserId != user.Id)
+                {
+                    return "Order does not belong to the current user";
+                }
+
+                if (!IsGuaranteeValid(guarantee.OrderId.Value))
+                {
+                    return "Time for guarantee service has expired";
+                }
+
+                // Set the order ID
+                guaranteeEntity.OrderId = guarantee.OrderId;
+
+                // Process order items
+                if (guarantee.Items == null || guarantee.Items.Count == 0)
+                {
+                    return "No items selected for guarantee";
+                }
+
+                // Filter out null or invalid items and check if any remain
+                var validItems = guarantee.Items.Where(i => i > 0).ToList();
+                if (validItems.Count == 0)
+                {
+                    return "No valid items selected for guarantee";
+                }
+
+                // Add the guarantee to the database first to get its ID
+                context.Guarantees.Add(guaranteeEntity);
+                context.SaveChanges();
+
+                // Process each valid item
+                int successCount = 0;
+                foreach (var itemId in validItems)
+                {
+                    // Explicitly log the orderItem lookup for debugging
+                    logger.LogInformation($"Searching for OrderItem with ID: {itemId}");
+                    
+                    var orderItem = context.OrderItems.Find(itemId);
+                    if (orderItem != null)
                     {
-                        return "Order not found";
+                        logger.LogInformation($"Found OrderItem: {orderItem.Id}, FurnitureId: {orderItem.FurnitureId}");
+                        
+                        var guaranteeItem = new GuaranteeItems
+                        {
+                            GuaranteeId = guaranteeEntity.Id,
+                            OrderItemId = orderItem.Id
+                        };
+                        context.GuaranteeItems.Add(guaranteeItem);
+                        successCount++;
                     }
                     else
                     {
-                        if (!IsGuaranteeValid(guarantee.OrderId)) return "Time for guarantee service has expired";
-                        
-                        // Create guarantee 
-                        var guaranteeEntity = new Guarantee
-                        {
-                            UserId = user.Id,
-                            OrderId = guarantee.OrderId,
-                            Status = GuaranteeStatusConst.Pending,
-                            Comment = guarantee.Comment,
-                            DateCreated = DateTime.Now,
-                            DateModified = DateTime.Now
-                        };
-                        context.Guarantees.Add(guaranteeEntity);
-                        context.SaveChanges();
-                        
-                        // Check if Items collection is valid
-                        if (guarantee.Items == null || guarantee.Items.Count == 0)
-                        {
-                            return "No items selected for guarantee";
-                        }
-
-                        // Filter out null or invalid items and check if any remain
-                        var validItems = guarantee.Items.Where(i => i > 0).ToList();
-                        if (validItems.Count == 0)
-                        {
-                            return "No valid items selected for guarantee";
-                        }
-
-                        // Process each valid item
-                        int successCount = 0;
-                        foreach (var itemId in validItems)
-                        {
-                            // Explicitly log the orderItem lookup for debugging
-                            logger.LogInformation($"Searching for OrderItem with ID: {itemId}");
-                            
-                            var orderItem = context.OrderItems.Find(itemId);
-                            if (orderItem != null)
-                            {
-                                logger.LogInformation($"Found OrderItem: {orderItem.Id}, FurnitureId: {orderItem.FurnitureId}");
-                                
-                                var guaranteeItem = new GuaranteeItems
-                                {
-                                    GuaranteeId = guaranteeEntity.Id,
-                                    OrderItemId = orderItem.Id
-                                };
-                                context.GuaranteeItems.Add(guaranteeItem);
-                                successCount++;
-                            }
-                            else
-                            {
-                                logger.LogWarning($"OrderItem with ID {itemId} not found");
-                            }
-                        }
-                        
-                        if (successCount == 0)
-                        {
-                            return "Could not find any valid order items with the provided IDs";
-                        }
-                        
-                        context.SaveChanges();
-                        
-                        // Process photos
-                        if (guarantee.Photos != null && guarantee.Photos.Any())
-                        {
-                            foreach (var photo in guarantee.Photos)
-                            {
-                                var photoEntity = new GuaranteePhoto
-                                {
-                                    GuaranteeId = guaranteeEntity.Id,
-                                    Photo = Convert.FromBase64String(photo)
-                                };
-                                context.GuaranteePhotos.Add(photoEntity);
-                            }
-                            context.SaveChanges();
-                        }
-                        
-                        return string.Empty;
+                        logger.LogWarning($"OrderItem with ID {itemId} not found");
                     }
                 }
+                
+                if (successCount == 0)
+                {
+                    return "Could not find any valid order items with the provided IDs";
+                }
             }
+            
+            // Process photos (common for both order types)
+            if (guarantee.Photos != null && guarantee.Photos.Any())
+            {
+                foreach (var photo in guarantee.Photos)
+                {
+                    var photoEntity = new GuaranteePhoto
+                    {
+                        GuaranteeId = guaranteeEntity.Id,
+                        Photo = Convert.FromBase64String(photo)
+                    };
+                    context.GuaranteePhotos.Add(photoEntity);
+                }
+            }
+            
+            context.SaveChanges();
+            return string.Empty;
         }
 
         public async Task<GuaranteeModel> GetGuarantee(int guaranteeId)
@@ -132,69 +180,80 @@ namespace FurniTour.Server.Services
                 .Include(g => g.GuaranteeItems)
                 .ThenInclude(gi => gi.OrderItem)
                 .ThenInclude(oi => oi.Furniture)
+                .Include(g => g.IndividualOrder)
                 .FirstOrDefaultAsync(g => g.Id == guaranteeId);
 
             if (guarantee == null)
             {
                 return null;
             }
-            else
+
+            var user = guarantee.UserId != null ? await authService.GetUserById(guarantee.UserId) : null;
+            var model = new GuaranteeModel
             {
-                var user = guarantee.UserId != null ? await authService.GetUserById(guarantee.UserId) : null;
-                var model = new GuaranteeModel
+                Id = guarantee.Id,
+                UserName = user == null ? string.Empty : user.UserName ?? string.Empty,
+                OrderId = guarantee.OrderId,
+                IndividualOrderId = guarantee.IndividualOrderId,
+                IsIndividualOrder = guarantee.IndividualOrderId.HasValue,
+                Status = guarantee.Status,
+                Comment = guarantee.Comment,
+                DateCreated = guarantee.DateCreated,
+                DateModified = guarantee.DateModified,
+                Items = new List<GuaranteeItemModel>(),
+                Photos = new List<string>()
+            };
+
+            if (guarantee.GuaranteeItems != null)
+            {
+                foreach (var item in guarantee.GuaranteeItems)
                 {
-                    Id = guarantee.Id,
-                    UserName = user == null ? null : user.UserName,
-                    OrderId = guarantee.OrderId,
-                    Status = guarantee.Status,
-                    Comment = guarantee.Comment,
-                    DateCreated = guarantee.DateCreated,
-                    DateModified = guarantee.DateModified,
-                    Items = new List<GuaranteeItemModel>(),
-                    Photos = new List<string>()
-                };
-                if (guarantee.GuaranteeItems != null)
-                {
-                    foreach (var item in guarantee.GuaranteeItems)
+                    if (item.OrderItem != null)
                     {
                         model.Items.Add(new GuaranteeItemModel
                         {
                             Id = item.Id,
                             FurnitureId = item.OrderItem.FurnitureId,
-                            FurnitureName = item.OrderItem.Furniture.Name,
+                            FurnitureName = item.OrderItem.Furniture?.Name ?? "Unknown Furniture",
                             Quantity = item.OrderItem.Quantity
                         });
                     }
                 }
-                if (guarantee.GuaranteePhotos != null)
-                {
-                    foreach (var photo in guarantee.GuaranteePhotos)
-                    {
-                        model.Photos.Add(Convert.ToBase64String(photo.Photo));
-                    }
-                }
-                return model;
             }
+
+            if (guarantee.GuaranteePhotos != null)
+            {
+                foreach (var photo in guarantee.GuaranteePhotos)
+                {
+                    model.Photos.Add(Convert.ToBase64String(photo.Photo));
+                }
+            }
+            
+            return model;
         }
 
         public async Task<List<GuaranteeModel>> GetGuarantees()
         {
             var guarantees = await context.Guarantees
-                    .Include(c => c.GuaranteePhotos)
-                    .Include(g => g.GuaranteeItems)
-                    .ThenInclude(gi => gi.OrderItem)
-                    .ThenInclude(oi => oi.Furniture)
-                    .ToListAsync();
+                .Include(c => c.GuaranteePhotos)
+                .Include(g => g.GuaranteeItems)
+                .ThenInclude(gi => gi.OrderItem)
+                .ThenInclude(oi => oi.Furniture)
+                .Include(g => g.IndividualOrder)
+                .ToListAsync();
 
             var models = new List<GuaranteeModel>();
+            
             foreach (var guarantee in guarantees)
             {
                 var user = guarantee.UserId != null ? await authService.GetUserById(guarantee.UserId) : null;
                 var model = new GuaranteeModel
                 {
                     Id = guarantee.Id,
-                    UserName = user == null ? null : user.UserName,
+                    UserName = user == null ? string.Empty : user.UserName ?? string.Empty,
                     OrderId = guarantee.OrderId,
+                    IndividualOrderId = guarantee.IndividualOrderId,
+                    IsIndividualOrder = guarantee.IndividualOrderId.HasValue,
                     Status = guarantee.Status,
                     Comment = guarantee.Comment,
                     DateCreated = guarantee.DateCreated,
@@ -202,22 +261,29 @@ namespace FurniTour.Server.Services
                     Items = new List<GuaranteeItemModel>(),
                     Photos = new List<string>()
                 };
+                
                 foreach (var item in guarantee.GuaranteeItems)
                 {
-                    model.Items.Add(new GuaranteeItemModel
+                    if (item.OrderItem != null)
                     {
-                        Id = item.Id,
-                        FurnitureId = item.OrderItem.FurnitureId,
-                        FurnitureName = item.OrderItem.Furniture.Name,
-                        Quantity = item.OrderItem.Quantity
-                    });
+                        model.Items.Add(new GuaranteeItemModel
+                        {
+                            Id = item.Id,
+                            FurnitureId = item.OrderItem.FurnitureId,
+                            FurnitureName = item.OrderItem.Furniture?.Name ?? "Unknown Furniture",
+                            Quantity = item.OrderItem.Quantity
+                        });
+                    }
                 }
+                
                 foreach (var photo in guarantee.GuaranteePhotos)
                 {
                     model.Photos.Add(Convert.ToBase64String(photo.Photo));
                 }
+                
                 models.Add(model);
             }
+            
             return models;
         }
 
@@ -226,48 +292,59 @@ namespace FurniTour.Server.Services
             var user = authService.GetUser();
             if (user == null)
             {
-                return null;
+                return new List<GuaranteeModel>(); // Return empty list instead of null
             }
-            else
+            
+            var guarantees = context.Guarantees.Where(g => g.UserId == user.Id)
+                .Include(c => c.GuaranteePhotos)
+                .Include(g => g.GuaranteeItems)
+                .ThenInclude(gi => gi.OrderItem)
+                .ThenInclude(oi => oi.Furniture)
+                .Include(g => g.IndividualOrder)
+                .ToList();
+                
+            var models = new List<GuaranteeModel>();
+            
+            foreach (var guarantee in guarantees)
             {
-                var guarantees = context.Guarantees.Where(g => g.UserId == user.Id).
-                    Include(c => c.GuaranteePhotos).
-                    Include(g => g.GuaranteeItems)
-                    .ThenInclude(gi => gi.OrderItem)
-                    .ThenInclude(oi => oi.Furniture).
-                    ToList();
-                var models = new List<GuaranteeModel>();
-                foreach (var guarantee in guarantees)
+                var model = new GuaranteeModel
                 {
-                    var model = new GuaranteeModel
-                    {
-                        Id = guarantee.Id,
-                        UserName = guarantee.User?.UserName ?? string.Empty,
-                        OrderId = guarantee.OrderId,
-                        Status = guarantee.Status,
-                        Comment = guarantee.Comment,
-                        DateCreated = guarantee.DateCreated,
-                        DateModified = guarantee.DateModified,
-                        Items = new List<GuaranteeItemModel>(),
-                        Photos = new List<string>()
-                    };
-                    foreach (var item in guarantee.GuaranteeItems)
+                    Id = guarantee.Id,
+                    UserName = guarantee.User?.UserName ?? string.Empty,
+                    OrderId = guarantee.OrderId,
+                    IndividualOrderId = guarantee.IndividualOrderId,
+                    IsIndividualOrder = guarantee.IndividualOrderId.HasValue,
+                    Status = guarantee.Status,
+                    Comment = guarantee.Comment,
+                    DateCreated = guarantee.DateCreated,
+                    DateModified = guarantee.DateModified,
+                    Items = new List<GuaranteeItemModel>(),
+                    Photos = new List<string>()
+                };
+                
+                foreach (var item in guarantee.GuaranteeItems)
+                {
+                    if (item.OrderItem != null)
                     {
                         model.Items.Add(new GuaranteeItemModel
                         {
                             Id = item.Id,
                             FurnitureId = item.OrderItem.FurnitureId,
-                            FurnitureName = item.OrderItem.Furniture.Name,
+                            FurnitureName = item.OrderItem.Furniture?.Name ?? "Unknown Furniture",
                             Quantity = item.OrderItem.Quantity
                         });
                     }
-                    foreach (var photo in guarantee.GuaranteePhotos)
-                    {
-                    }
-                    models.Add(model);
                 }
-                return models;
+                
+                foreach (var photo in guarantee.GuaranteePhotos)
+                {
+                    model.Photos.Add(Convert.ToBase64String(photo.Photo));
+                }
+                
+                models.Add(model);
             }
+            
+            return models;
         }
 
         // Fixed method to check order date instead of guarantee date
@@ -306,6 +383,7 @@ namespace FurniTour.Server.Services
             {
                 guar.Status = status;
                 guar.DateModified = DateTime.Now;
+                context.Guarantees.Update(guar);
                 context.SaveChanges();
             }
         }

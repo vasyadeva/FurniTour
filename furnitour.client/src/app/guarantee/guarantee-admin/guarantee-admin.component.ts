@@ -19,20 +19,22 @@ export class GuaranteeAdminComponent implements OnInit {
   sortedGuarantees: GuaranteeModel[] = [];
   loading: boolean = true;
   error: string | null = null;
-  
-  // Фільтри та сортування
+    // Фільтри та сортування
   sortField: string = 'dateCreated';
   sortDirection: 'asc' | 'desc' = 'desc';
   statusFilter: string = '';
   userFilter: string = '';
   dateFromFilter: string = '';
   dateToFilter: string = '';
+  orderTypeFilter: string = ''; // Added: filter for order type
   
   // Статистика
   statusStats: { [key: string]: number } = {};
   availableStatuses: string[] = [];
   uniqueUsers: string[] = [];
   totalGuarantees: number = 0;
+  individualOrdersCount: number = 0; // Added: count of individual orders
+  regularOrdersCount: number = 0; // Added: count of regular orders
 
   constructor(
     private guaranteeService: GuaranteeService,
@@ -60,7 +62,6 @@ export class GuaranteeAdminComponent implements OnInit {
       }
     });
   }
-
   loadGuarantees(): void {
     this.loading = true;
     this.error = null;
@@ -75,6 +76,10 @@ export class GuaranteeAdminComponent implements OnInit {
         // Обраховуємо статистику
         this.calculateStatusStats();
         this.totalGuarantees = data.length;
+        
+        // Count individual vs regular orders
+        this.individualOrdersCount = data.filter(g => g.isIndividualOrder).length;
+        this.regularOrdersCount = data.filter(g => !g.isIndividualOrder).length;
         
         // Застосовуємо фільтрацію
         this.applyFilters();
@@ -108,7 +113,6 @@ export class GuaranteeAdminComponent implements OnInit {
       }
     });
   }
-
   // Застосування всіх фільтрів
   applyFilters(): void {
     // Спочатку фільтруємо всі гарантії
@@ -120,6 +124,14 @@ export class GuaranteeAdminComponent implements OnInit {
       
       // Фільтр за користувачем
       if (this.userFilter && g.userName !== this.userFilter) {
+        return false;
+      }
+      
+      // Фільтр за типом замовлення
+      if (this.orderTypeFilter === 'individual' && !g.isIndividualOrder) {
+        return false;
+      }
+      if (this.orderTypeFilter === 'regular' && g.isIndividualOrder) {
         return false;
       }
       
@@ -148,7 +160,6 @@ export class GuaranteeAdminComponent implements OnInit {
     // Потім сортуємо відфільтровані гарантії
     this.applySorting();
   }
-
   // Функція для сортування
   applySorting(): void {
     this.sortedGuarantees = [...this.filteredGuarantees].sort((a, b) => {
@@ -159,7 +170,10 @@ export class GuaranteeAdminComponent implements OnInit {
           comparison = a.id - b.id;
           break;
         case 'orderId':
-          comparison = a.orderId - b.orderId;
+          // Handle null/undefined orderIds for individual orders
+          const aOrderId = a.orderId || 0;
+          const bOrderId = b.orderId || 0;
+          comparison = aOrderId - bOrderId;
           break;
         case 'userName':
           comparison = a.userName.localeCompare(b.userName);
@@ -192,15 +206,23 @@ export class GuaranteeAdminComponent implements OnInit {
     this.applyFilters();
   }
   
+  // Filter by order type
+  filterByOrderType(orderType: string): void {
+    this.orderTypeFilter = orderType;
+    this.applyFilters();
+  }
+
   filterByDateRange(): void {
     this.applyFilters();
   }
   
+  // Reset all filters
   resetFilters(): void {
     this.statusFilter = '';
     this.userFilter = '';
     this.dateFromFilter = '';
     this.dateToFilter = '';
+    this.orderTypeFilter = '';
     this.applyFilters();
   }
 

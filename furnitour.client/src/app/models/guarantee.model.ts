@@ -1,11 +1,13 @@
 export interface GuaranteeModel {
   id: number;
-  userName: string;  // Required property missing from ViewModel
-  orderId: number;
+  userName: string;
+  orderId?: number;
+  individualOrderId?: number;
+  isIndividualOrder: boolean;
   status: string;
   comment: string;
   dateCreated: Date;
-  dateModified: Date; // Required property missing from ViewModel
+  dateModified: Date;
   items: GuaranteeItemModel[];
   photos: string[];
 }
@@ -19,7 +21,9 @@ export interface GuaranteeItemModel {
 
 // Модель для створення запиту на гарантію
 export interface GuaranteeAddModel {
-  orderId: number;
+  orderId?: number;
+  individualOrderId?: number;
+  isIndividualOrder: boolean;
   comment: string;
   photos: string[];  // base64-encoded images
   items: any[];   // Change to handle different item formats
@@ -28,13 +32,14 @@ export interface GuaranteeAddModel {
 // Модель для відображення інформації про гарантію
 export interface GuaranteeViewModel {
   id: number;
-  orderId: number;
+  orderId?: number;
+  individualOrderId?: number;
+  isIndividualOrder: boolean;
   dateCreated: Date;
   status: string;
   comment: string;
   photos?: string[];
   items?: any[];
-  // Add missing fields to match GuaranteeModel
   userName?: string;
   dateModified?: Date;
 }

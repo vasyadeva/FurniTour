@@ -7,17 +7,23 @@ namespace FurniTour.Server.Data.Entities
     {
         public int Id { get; set; }
 
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
         [ForeignKey(nameof(UserId))]
-        public IdentityUser User { get; set; }
-        public int OrderId { get; set; }
+        public required IdentityUser User { get; set; }
+        
+        public int? OrderId { get; set; }
         [ForeignKey(nameof(OrderId))]
-        public Order Order { get; set; } 
-        public string Status { get; set; }
-        public string Comment { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateModified { get; set; }
-        public ICollection<GuaranteeItems> GuaranteeItems { get; set; }
-        public ICollection<GuaranteePhoto> GuaranteePhotos { get; set; }
+        public Order? Order { get; set; } 
+        
+        public int? IndividualOrderId { get; set; }
+        [ForeignKey(nameof(IndividualOrderId))]
+        public IndividualOrder? IndividualOrder { get; set; }
+        
+        public required string Status { get; set; }
+        public required string Comment { get; set; }
+        public DateTime DateCreated { get; set; } = DateTime.Now;
+        public DateTime DateModified { get; set; } = DateTime.Now;
+        public required ICollection<GuaranteeItems> GuaranteeItems { get; set; }
+        public required ICollection<GuaranteePhoto> GuaranteePhotos { get; set; }
     }
 }

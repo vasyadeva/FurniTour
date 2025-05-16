@@ -7,8 +7,11 @@ using System.Net;
 namespace FurniTour.Server.Models.Guarantee
 {    public class GuaranteeAddModel
     {
-        [Required]
-        public int OrderId { get; set; }
+        public int? OrderId { get; set; }
+        
+        public int? IndividualOrderId { get; set; }
+        
+        public bool IsIndividualOrder { get; set; }
         
         [Required]
         [MinLength(10)]

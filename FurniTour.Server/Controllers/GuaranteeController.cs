@@ -77,29 +77,48 @@ namespace FurniTour.Server.Controllers
         {
             // Log request details for debugging
             logger.LogInformation($"Received guarantee request: {JsonSerializer.Serialize(model)}");
-            logger.LogInformation($"OrderId: {model?.OrderId}, Items Count: {model?.Items?.Count ?? 0}");
             
-            if (model?.Items != null)
-            {
-                logger.LogInformation($"Items values: {string.Join(", ", model.Items)}");
-            }
-
             if (model == null)
             {
                 return BadRequest("Request cannot be null");
             }
             
-            // Validate that items is not null and contains valid integers
-            if (model.Items == null || model.Items.Count == 0)
+            // Validate based on order type
+            if (model.IsIndividualOrder)
             {
-                return BadRequest("At least one item must be selected");
+                if (!model.IndividualOrderId.HasValue)
+                {
+                    return BadRequest("Individual order ID is required");
+                }
+                
+                logger.LogInformation($"Processing individual order guarantee: IndividualOrderId={model.IndividualOrderId}");
             }
-            
-            // Additional validation: Ensure all item IDs are valid integers
-            var invalidItems = model.Items.Where(id => id <= 0).ToList();
-            if (invalidItems.Any())
+            else
             {
-                return BadRequest($"Invalid item IDs detected: {string.Join(", ", invalidItems)}");
+                if (!model.OrderId.HasValue)
+                {
+                    return BadRequest("Order ID is required");
+                }
+                
+                logger.LogInformation($"Processing regular order guarantee: OrderId={model.OrderId}, Items Count: {model.Items?.Count ?? 0}");
+                
+                // Validate items for regular orders
+                if (model.Items == null || model.Items.Count == 0)
+                {
+                    return BadRequest("At least one item must be selected for regular orders");
+                }
+                
+                // Additional validation: Ensure all item IDs are valid integers
+                var invalidItems = model.Items.Where(id => id <= 0).ToList();
+                if (invalidItems.Any())
+                {
+                    return BadRequest($"Invalid item IDs detected: {string.Join(", ", invalidItems)}");
+                }
+                
+                if (model.Items != null)
+                {
+                    logger.LogInformation($"Items values: {string.Join(", ", model.Items)}");
+                }
             }
             
             var result = guaranteeService.AddGuarantee(model);

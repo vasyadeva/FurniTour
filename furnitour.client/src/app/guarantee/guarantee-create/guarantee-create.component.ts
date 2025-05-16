@@ -27,14 +27,16 @@ interface OrderItem {
 export class GuaranteeCreateComponent implements OnInit {
   guaranteeForm!: FormGroup;
   orders: any[] = [];
-  selectedOrderId: number | null = null;
-  orderItems: OrderItem[] = [];
+  selectedOrderId: number | null = null;  orderItems: OrderItem[] = [];
   isLoading = false;
   error = '';
   success = '';
   selectedFiles: File[] = [];
   base64Images: string[] = [];
   maxPhotos = 5;
+  individualOrders: any[] = [];
+  selectedIndividualOrderId: number | null = null;
+  orderType: 'regular' | 'individual' = 'regular';
 
   constructor(
     private fb: FormBuilder,
@@ -45,12 +47,55 @@ export class GuaranteeCreateComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadUserOrders();
+    this.loadUserIndividualOrders();
   }
 
   initForm(): void {
     this.guaranteeForm = this.fb.group({
-      orderId: ['', Validators.required],
+      orderType: ['regular', Validators.required],
+      orderId: [''],
+      individualOrderId: [''],
       comment: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]]
+    });
+
+    // Update validation based on order type
+    this.guaranteeForm.get('orderType')?.valueChanges.subscribe(value => {
+      this.orderType = value;
+      this.updateFormValidation();
+    });
+  }
+
+  updateFormValidation(): void {
+    const orderIdControl = this.guaranteeForm.get('orderId');
+    const individualOrderIdControl = this.guaranteeForm.get('individualOrderId');
+    
+    if (this.orderType === 'regular') {
+      orderIdControl?.setValidators([Validators.required]);
+      individualOrderIdControl?.clearValidators();
+      this.selectedIndividualOrderId = null;
+    } else {
+      individualOrderIdControl?.setValidators([Validators.required]);
+      orderIdControl?.clearValidators();
+      this.selectedOrderId = null;
+      this.orderItems = [];
+    }
+    
+    orderIdControl?.updateValueAndValidity();
+    individualOrderIdControl?.updateValueAndValidity();
+  }  loadUserIndividualOrders(): void {
+    this.isLoading = true;
+    
+    this.guaranteeService.getUserIndividualOrders().subscribe({
+      next: (orders) => {
+        if (orders && orders.length > 0) {
+          this.individualOrders = orders;
+        }
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Помилка завантаження індивідуальних замовлень:', err);
+        this.isLoading = false;
+      }
     });
   }
 
@@ -100,13 +145,7 @@ export class GuaranteeCreateComponent implements OnInit {
       }
     });
   }
-
   private processOrderItems(orderData: any): void {
-    console.log('Обробка даних замовлення:', orderData);
-    
-    // For debugging - let's examine the raw order data in full
-    console.log('Full order data:', JSON.stringify(orderData, null, 2));
-    
     // Спочатку знайдемо масив товарів
     let items: any[] = [];
     if (orderData.orderItems && Array.isArray(orderData.orderItems)) {
@@ -127,17 +166,7 @@ export class GuaranteeCreateComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-    
-    console.log('Found items:', items);
-    
-    // First, let's try to find the order item ID directly from the response
-    // Look through the first item to see what fields it has
-    if (items.length > 0) {
-      console.log('First item properties:', Object.keys(items[0]));
-      console.log('First item full data:', items[0]);
-    }
-    
-    // Extract items with their actual IDs if possible
+      // Extract items with their actual IDs if possible
     this.orderItems = items.map((item: any) => {
       // Try to extract the actual item ID from the item
       // Prioritize fields that are likely to be order item IDs
@@ -168,12 +197,8 @@ export class GuaranteeCreateComponent implements OnInit {
       // If we couldn't find an ID, generate one based on the index
       // But this should really be a last resort
       if (itemId === null) {
-        // This should NOT happen for a correctly structured API response
-        console.warn('Could not find ID for item, using fallback:', item);
         itemId = 1; // Fallback to using 1 if we can't find an ID
       }
-      
-      console.log(`Item ${itemId} extracted from:`, item);
       
       return {
         id: itemId,
@@ -186,7 +211,6 @@ export class GuaranteeCreateComponent implements OnInit {
       };
     });
     
-    console.log('Final processed order items with IDs:', this.orderItems);
     this.isLoading = false;
   }
 
@@ -236,40 +260,59 @@ export class GuaranteeCreateComponent implements OnInit {
     this.selectedFiles.splice(index, 1);
     this.base64Images.splice(index, 1);
   }
-
   async onSubmit(): Promise<void> {
-    if (this.guaranteeForm.invalid || !this.selectedOrderId) {
+    this.error = '';
+    
+    if (this.guaranteeForm.invalid) {
       this.error = 'Будь ласка, заповніть всі обов\'язкові поля.';
       return;
     }
     
-    const selectedItems = this.selectedItems();
+    // Different validation based on order type
+    if (this.orderType === 'regular') {
+      if (!this.selectedOrderId) {
+        this.error = 'Будь ласка, виберіть замовлення.';
+        return;
+      }
+      
+      const selectedItems = this.selectedItems();
+      if (selectedItems.length === 0) {
+        this.error = 'Будь ласка, виберіть принаймні один товар із вашого замовлення.';
+        return;
+      }
+    } else {
+      if (!this.selectedIndividualOrderId) {
+        this.error = 'Будь ласка, виберіть індивідуальне замовлення.';
+        return;
+      }
+    }
     
-    if (selectedItems.length === 0) {
-      this.error = 'Будь ласка, виберіть принаймні один товар із вашого замовлення.';
+    // Validate photos - required for all order types
+    if (this.base64Images.length === 0) {
+      this.error = 'Будь ласка, завантажте хоча б одну фотографію.';
       return;
     }
     
     this.isLoading = true;
     
     try {
-      // Use the actual item IDs from the selected items
-      const itemIds = selectedItems.map(item => item.id);
-      
-      console.log('Using actual item IDs for submission:', itemIds);
-      
-      const guaranteeRequest = {
-        orderId: this.selectedOrderId,
+      let guaranteeRequest: any = {
         comment: this.guaranteeForm.value.comment,
         photos: this.base64Images,
-        items: itemIds
+        isIndividualOrder: this.orderType === 'individual'
       };
       
-      console.log('Sending guarantee request in correct format:', JSON.stringify(guaranteeRequest));
+      if (this.orderType === 'regular') {
+        // Use the actual item IDs from the selected items
+        const itemIds = this.selectedItems().map(item => item.id);
+        guaranteeRequest.orderId = this.selectedOrderId;
+        guaranteeRequest.items = itemIds;
+      } else {
+        guaranteeRequest.individualOrderId = this.selectedIndividualOrderId;
+      }
       
       this.guaranteeService.addGuarantee(guaranteeRequest).subscribe({
         next: (response) => {
-          console.log('Успіх:', response);
           this.isLoading = false;
           this.success = 'Ваш запит на гарантію успішно відправлено.';
           setTimeout(() => {
@@ -291,6 +334,31 @@ export class GuaranteeCreateComponent implements OnInit {
       this.isLoading = false;
       this.error = 'Сталася помилка. Будь ласка, спробуйте ще раз.';
       console.error('Помилка:', error);
+    }
+  }
+
+  onIndividualOrderSelect(event: any): void {
+    this.error = '';
+    const orderId = event.target.value;
+    this.selectedIndividualOrderId = Number(orderId);
+    
+    if (!orderId) {
+      return;
+    }
+    
+    console.log('Вибране індивідуальне замовлення:', this.selectedIndividualOrderId);
+  }
+
+  onOrderTypeChange(event: any): void {
+    this.orderType = event.target.value;
+    this.error = '';
+    
+    // Reset selections when changing order type
+    if (this.orderType === 'regular') {
+      this.selectedIndividualOrderId = null;
+    } else {
+      this.selectedOrderId = null;
+      this.orderItems = [];
     }
   }
 }

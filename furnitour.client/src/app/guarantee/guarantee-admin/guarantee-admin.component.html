@@ -101,6 +101,25 @@
             </div>
           </div>
         </div>
+
+        <!-- Фільтр за типом замовлення -->
+        <div class="col-md-4 filter-section">
+          <h6>Фільтр за типом замовлення:</h6>
+          <div class="btn-group w-100">
+            <button 
+              class="btn" 
+              [ngClass]="{'btn-primary': orderTypeFilter === 'regular', 'btn-outline-primary': orderTypeFilter !== 'regular'}"
+              (click)="filterByOrderType(orderTypeFilter === 'regular' ? '' : 'regular')">
+              Звичайні ({{ regularOrdersCount }})
+            </button>
+            <button 
+              class="btn" 
+              [ngClass]="{'btn-primary': orderTypeFilter === 'individual', 'btn-outline-primary': orderTypeFilter !== 'individual'}"
+              (click)="filterByOrderType(orderTypeFilter === 'individual' ? '' : 'individual')">
+              Індивідуальні ({{ individualOrdersCount }})
+            </button>
+          </div>
+        </div>
       </div>
       
       <!-- Сортування та скидання фільтрів -->
@@ -129,13 +148,14 @@
         </div>
       </div>
     </div>
-    
-    <!-- Інформація про активні фільтри -->
-    <div *ngIf="statusFilter || userFilter || dateFromFilter || dateToFilter" class="alert alert-info d-flex justify-content-between align-items-center">
+      <!-- Інформація про активні фільтри -->
+    <div *ngIf="statusFilter || userFilter || dateFromFilter || dateToFilter || orderTypeFilter" class="alert alert-info d-flex justify-content-between align-items-center">
       <div>
         <strong>Активні фільтри:</strong> 
         <span *ngIf="statusFilter" class="badge bg-secondary me-2">Статус: {{ statusFilter }}</span>
         <span *ngIf="userFilter" class="badge bg-secondary me-2">Користувач: {{ userFilter }}</span>
+        <span *ngIf="orderTypeFilter === 'regular'" class="badge bg-secondary me-2">Тип: Звичайні замовлення</span>
+        <span *ngIf="orderTypeFilter === 'individual'" class="badge bg-secondary me-2">Тип: Індивідуальні замовлення</span>
         <span *ngIf="dateFromFilter" class="badge bg-secondary me-2">Від: {{ dateFromFilter }}</span>
         <span *ngIf="dateToFilter" class="badge bg-secondary me-2">До: {{ dateToFilter }}</span>
         <span class="ms-2">(знайдено: {{ sortedGuarantees.length }} з {{ totalGuarantees }})</span>
@@ -148,8 +168,7 @@
       <i class="fas fa-exclamation-triangle me-2"></i> Не знайдено гарантій, що відповідають вказаним критеріям фільтрації.
     </div>
     
-    <!-- Таблиця гарантій -->
-    <div *ngIf="sortedGuarantees.length > 0" class="table-responsive">
+    <!-- Таблиця гарантій -->    <div *ngIf="sortedGuarantees.length > 0" class="table-responsive">
       <table class="table table-striped table-hover">
         <thead class="table-light">
           <tr>
@@ -165,7 +184,14 @@
         <tbody>
           <tr *ngFor="let guarantee of sortedGuarantees">
             <td>{{ guarantee.id }}</td>
-            <td>{{ guarantee.orderId }}</td>
+            <td>
+              <ng-container *ngIf="!guarantee.isIndividualOrder">
+                {{ guarantee.orderId }}
+              </ng-container>
+              <ng-container *ngIf="guarantee.isIndividualOrder">
+                <span class="badge bg-info">Інд.зам #{{ guarantee.individualOrderId }}</span>
+              </ng-container>
+            </td>
             <td>{{ guarantee.userName }}</td>
             <td><span [class]="getStatusClass(guarantee.status)">{{ guarantee.status }}</span></td>
             <td>{{ guarantee.dateCreated | date:'short' }}</td>

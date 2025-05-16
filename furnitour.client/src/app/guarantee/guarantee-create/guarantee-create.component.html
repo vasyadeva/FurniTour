@@ -21,11 +21,28 @@
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Завантаження...</span>
             </div>
-          </div>
-
-          <form [formGroup]="guaranteeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
-            <!-- Order Selection -->
+          </div>          <form [formGroup]="guaranteeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+            <!-- Order Type Selection -->
             <div class="mb-3">
+              <label class="form-label">Тип замовлення</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="orderType" id="orderTypeRegular" 
+                  value="regular" formControlName="orderType" (change)="onOrderTypeChange($event)">
+                <label class="form-check-label" for="orderTypeRegular">
+                  Звичайне замовлення
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="orderType" id="orderTypeIndividual" 
+                  value="individual" formControlName="orderType" (change)="onOrderTypeChange($event)">
+                <label class="form-check-label" for="orderTypeIndividual">
+                  Індивідуальне замовлення (мастер-замовлення)
+                </label>
+              </div>
+            </div>
+            
+            <!-- Regular Order Selection -->
+            <div class="mb-3" *ngIf="orderType === 'regular'">
               <label for="orderSelect" class="form-label">Виберіть замовлення</label>
               <select 
                 id="orderSelect" 
@@ -40,8 +57,24 @@
               </select>
             </div>
             
-            <!-- Order Items Selection - Оновлено для кращого відображення ID -->
-            <div class="mb-3" *ngIf="orderItems.length > 0">
+            <!-- Individual Order Selection -->
+            <div class="mb-3" *ngIf="orderType === 'individual'">
+              <label for="individualOrderSelect" class="form-label">Виберіть індивідуальне замовлення</label>
+              <select 
+                id="individualOrderSelect" 
+                class="form-select" 
+                formControlName="individualOrderId"
+                (change)="onIndividualOrderSelect($event)"
+              >
+                <option value="">-- Виберіть індивідуальне замовлення --</option>
+                <option *ngFor="let order of individualOrders" [value]="order.id || order.Id">
+                  #{{ order.id || order.Id }} - {{ order.dateCreated | date:'medium' }} ({{ order.status }})
+                </option>
+              </select>
+            </div>
+            
+            <!-- Order Items Selection - For regular orders only -->
+            <div class="mb-3" *ngIf="orderItems.length > 0 && orderType === 'regular'">
               <label class="form-label fw-bold">Оберіть товари для гарантії</label>
               
               <div class="alert alert-info">
@@ -137,11 +170,10 @@
             </div>
             
             <!-- Submit Button -->
-            <div class="d-grid gap-2">
-              <button 
+            <div class="d-grid gap-2">              <button 
                 type="submit" 
                 class="btn btn-primary"
-                [disabled]="guaranteeForm.invalid || selectedItems().length === 0"
+                [disabled]="guaranteeForm.invalid || (orderType === 'regular' && selectedItems().length === 0) || base64Images.length === 0"
               >
                 Відправити запит на гарантію
               </button>

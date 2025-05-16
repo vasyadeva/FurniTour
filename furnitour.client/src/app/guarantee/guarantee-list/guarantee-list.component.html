@@ -107,18 +107,30 @@
     </div>
   </div>
   <!-- Guarantees list -->
-  <div *ngIf="!loading && guarantees.length > 0" class="row row-cols-1 row-cols-md-2 g-4">
-    <div *ngFor="let guarantee of sortedGuarantees" class="col">      <div class="card h-100">        <div class="card-header d-flex justify-content-between">
+  <div *ngIf="!loading && guarantees.length > 0" class="row row-cols-1 row-cols-md-2 g-4">    <div *ngFor="let guarantee of sortedGuarantees" class="col">
+      <div class="card h-100">
+        <div class="card-header d-flex justify-content-between">
           <span>
-            Замовлення #{{ guarantee.orderId }}
+            <ng-container *ngIf="!guarantee.isIndividualOrder">
+              Замовлення #{{ guarantee.orderId }}
+            </ng-container>
+            <ng-container *ngIf="guarantee.isIndividualOrder">
+              Індивідуальне замовлення #{{ guarantee.individualOrderId }}
+            </ng-container>
             <small *ngIf="isAdmin" class="text-muted">(ID: {{ guarantee.id }})</small>
           </span>
           <span [class]="getStatusClass(guarantee.status)">{{ guarantee.status }}</span>
         </div>
         <div class="card-body">
           <h5 class="card-title mb-3">Гарантія користувача {{ guarantee.userName }}</h5>
-            <p class="mb-1"><strong>Товари:</strong></p>
-          <ul class="list-group mb-3">
+          
+          <div *ngIf="guarantee.isIndividualOrder" class="alert alert-info py-2">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            Індивідуальне замовлення
+          </div>
+          
+          <p class="mb-1"><strong>Товари:</strong></p>
+          <ul class="list-group mb-3" *ngIf="!guarantee.isIndividualOrder">
             <li *ngFor="let item of guarantee.items" class="list-group-item d-flex justify-content-between align-items-center">
               {{ item.furnitureName }}
               <span class="badge bg-primary rounded-pill">{{ item.quantity }}</span>

@@ -38,7 +38,6 @@ export class GuaranteeService {
   getMyGuarantees(): Observable<GuaranteeModel[]> {
     return this.getUserGuarantees();
   }
-
   // Get all guarantees (admin only)
   getAllGuarantees(): Observable<GuaranteeModel[]> {
     return this.http.get<GuaranteeModel[]>(`${this.guaranteeApi}getall`, { withCredentials: true })
@@ -64,7 +63,6 @@ export class GuaranteeService {
         })
       );
   }
-
   // Отримання деталей конкретного замовлення
   getOrderDetails(orderId: string | number): Observable<any> {
     return this.orderService.myorders()
@@ -86,18 +84,23 @@ export class GuaranteeService {
         })
       );
   }
-
   // Додавання нової гарантії
   addGuarantee(guaranteeRequest: any): Observable<any> {
-    // Pass the IDs exactly as they are
-    const preparedRequest = {
-      orderId: Number(guaranteeRequest.orderId),
+    // Prepare the request based on order type
+    const preparedRequest: any = {
       comment: guaranteeRequest.comment,
       photos: guaranteeRequest.photos || [],
-      items: guaranteeRequest.items // Do not modify the item IDs
+      isIndividualOrder: !!guaranteeRequest.isIndividualOrder
     };
     
-    console.log('Sending guarantee request with exact IDs:', JSON.stringify(preparedRequest));
+    if (preparedRequest.isIndividualOrder) {
+      preparedRequest.individualOrderId = Number(guaranteeRequest.individualOrderId);
+    } else {
+      preparedRequest.orderId = Number(guaranteeRequest.orderId);
+      preparedRequest.items = guaranteeRequest.items || []; // Do not modify the item IDs
+    }
+    
+    console.log('Sending guarantee request:', JSON.stringify(preparedRequest));
     
     // Send to the API endpoint
     return this.http.post<any>(`${this.guaranteeApi}add`, preparedRequest, { withCredentials: true })
@@ -244,6 +247,37 @@ export class GuaranteeService {
         console.error('Помилка при масовому оновленні гарантій:', error);
         return throwError(() => new Error('Не вдалося оновити гарантії'));
       })
-    );
+    );  }
+  // Get individual orders for the current user
+  getUserIndividualOrders(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/IndividualOrder`, { withCredentials: true })
+      .pipe(
+        map(orders => {
+          // Filter orders suitable for guarantee (e.g., completed, less than 365 days old)
+          const eligibleOrders = orders.filter(order => {
+            const orderDate = new Date(order.dateCreated);
+            const daysAgo = (new Date().getTime() - orderDate.getTime()) / (1000 * 3600 * 24);
+            return daysAgo <= 365; // Only orders less than a year old
+          });
+          
+          console.log('Eligible individual orders for guarantee:', eligibleOrders);
+          return eligibleOrders;
+        }),
+        catchError(error => {
+          console.error('Error fetching individual orders:', error);
+          return throwError(() => new Error('Не вдалося отримати список індивідуальних замовлень'));
+        })
+      );
+  }
+  
+  // Get individual order details
+  getIndividualOrderDetails(orderId: string | number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/IndividualOrder/${orderId}`, { withCredentials: true })
+      .pipe(
+        catchError(error => {
+          console.error(`Error fetching individual order details for ID ${orderId}:`, error);
+          return throwError(() => new Error('Не вдалося отримати деталі індивідуального замовлення'));
+        })
+      );
   }
 }
