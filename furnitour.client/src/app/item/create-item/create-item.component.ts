@@ -10,10 +10,11 @@ import { ManufacturerModel } from '../../models/manufacturer.model';
 import { ManufacturerService } from '../../services/manufacturer/manufacturer.service';
 import { CategoryModel } from '../../models/category.model';
 import { ColorModel } from '../../models/color.model';
+import { RouterModule } from '@angular/router'; // Add RouterModule import
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, RouterModule], // Include RouterModule in imports
   selector: 'app-create-item',
   templateUrl: './create-item.component.html',
   styleUrls: ['./create-item.component.css']

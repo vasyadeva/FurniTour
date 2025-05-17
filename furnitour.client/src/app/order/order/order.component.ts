@@ -1,22 +1,27 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { CreateOrderModel } from '../../models/create.order.model';
 import { OrderService } from '../../services/order/order.service';
-import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { PopupService } from '../../services/popup/popup.service';
 @Component({
   selector: 'app-order',
   standalone: true,
-  imports: [FormsModule, CommonModule, ReactiveFormsModule],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './order.component.html',
   styleUrl: './order.component.css'
 })
 export class OrderComponent {
   error: string = '';
   orderForm: FormGroup;
-  constructor(private fb: FormBuilder, private router: Router, private orderService: OrderService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private orderService: OrderService,
+    private popupService: PopupService
+  ) {
     this.orderForm = this.fb.group({
       name: ['', [Validators.required]],
       address: ['', [Validators.required]],
@@ -26,18 +31,29 @@ export class OrderComponent {
   }
   submitOrder() {
     if (this.orderForm.valid) {
+      this.popupService.loadingSnackBar();
       const order: CreateOrderModel = this.orderForm.value;
       this.orderService.add(order).subscribe(
         response => {
+          this.popupService.closeSnackBar();
           console.log('Order submitted successfully:', response);
+          this.popupService.openSnackBar('Замовлення успішно оформлено!');
           this.router.navigate(['/myorders']);
         },
         error => {
+          this.popupService.closeSnackBar();
           if (!error?.error?.isSuccess) {
-              this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+            this.error = error?.error?.message || 'Виникла помилка при оформленні замовлення. Спробуйте пізніше.';
+            this.popupService.openSnackBar(this.error);
           }
-      }
+        }
       );
+    } else {
+      // Mark all form controls as touched to trigger validation messages
+      Object.keys(this.orderForm.controls).forEach(key => {
+        const control = this.orderForm.get(key);
+        control?.markAsTouched();
+      });
     }
   }
 }

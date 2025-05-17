@@ -1,19 +1,111 @@
-<div class="container mt-4">
+<div class="container mt-5">
   <div class="row">
-    <div class="col-md-6 offset-md-3">
-      <div class="card">
-        <img *ngIf="item.image" [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
-        <div class="card-body">
-          <h5 class="card-title">{{ item.name }}</h5>
-          <p class="card-text">{{ item.description }}</p>
-          <p *ngIf="item.master!=''" class="card-text"><strong>Майстер:</strong> {{ item.master }}</p>
-          <p *ngIf="item.manufacturer!=''" class="card-text"><strong>Виробник:</strong> {{ item.manufacturer }}</p>
-          <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
-          <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
-          <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
-        </div>
-        <div class="card-footer text-center">
-          <button class="btn btn-primary" [routerLink]="['/items']">Повернутися</button>
+    <div class="col-lg-10 offset-lg-1">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+        <div class="row g-0">
+          <div class="col-md-6">
+            <div class="position-relative h-100" style="background-color: #f0f4f4;">
+              <img *ngIf="item.image" [src]="'data:image/jpeg;base64,' + item.image" 
+                   class="w-100 h-100" style="object-fit: contain; max-height: 500px;" alt="{{ item.name }}" />
+              <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge" style="background-color: #1f3745; color: white; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px;">
+                  {{ item.category }}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card-body p-4" style="background-color: #fff;">
+              <h2 class="card-title mb-3" style="color: #1f3745; font-weight: 600; border-bottom: 3px solid #d8ebeb; padding-bottom: 15px;">
+                {{ item.name }}
+              </h2>
+              
+              <div class="mb-4">
+                <p class="card-text" style="color: #555; line-height: 1.6;">{{ item.description }}</p>
+              </div>
+              
+              <div class="item-details mb-4">
+                <div *ngIf="item.master!=''" class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 35px; height: 35px; background-color: #d8ebeb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-user-cog" style="color: #1f3745;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Майстер:</span>
+                    <span class="ms-2 fw-bold" style="color: #1f3745;">{{ item.master }}</span>
+                  </div>
+                </div>
+                
+                <div *ngIf="item.manufacturer!=''" class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 35px; height: 35px; background-color: #d8ebeb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-industry" style="color: #1f3745;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Виробник:</span>
+                    <span class="ms-2 fw-bold" style="color: #1f3745;">{{ item.manufacturer }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 35px; height: 35px; background-color: #771d17; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-tag" style="color: white;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Ціна:</span>
+                    <span class="ms-2 fw-bold" style="color: #771d17; font-size: 1.4rem;">{{ item.price }} грн</span>
+                  </div>
+                </div>
+                
+                <div class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 35px; height: 35px; background-color: #d8ebeb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-layer-group" style="color: #1f3745;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Категорія:</span>
+                    <span class="ms-2 fw-bold" style="color: #1f3745;">{{ item.category }}</span>
+                  </div>
+                </div>
+                
+                <div class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 35px; height: 35px; background-color: #809da0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-palette" style="color: white;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Колір:</span>
+                    <span class="ms-2">
+                      <span class="badge" style="background-color: #809da0; color: white; padding: 6px 12px; border-radius: 20px;">{{ item.color }}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="quantity-input mb-4" *ngIf="status?.isUser">
+                <label for="quantity" class="form-label" style="color: #1f3745; font-weight: 600;">
+                  <i class="fas fa-cubes me-2"></i>Кількість:
+                </label>
+                <div class="input-group" style="max-width: 150px;">
+                  <button class="btn" style="background-color: #d8ebeb; border: 2px solid #d8ebeb;" type="button" (click)="decrementQuantity()">
+                    <i class="fas fa-minus" style="color: #1f3745;"></i>
+                  </button>
+                  <input type="number" id="quantity" [(ngModel)]="quantity" min="1" 
+                         class="form-control text-center" style="border: 2px solid #d8ebeb;" value="1">
+                  <button class="btn" style="background-color: #d8ebeb; border: 2px solid #d8ebeb;" type="button" (click)="incrementQuantity()">
+                    <i class="fas fa-plus" style="color: #1f3745;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card-footer d-flex justify-content-between p-4" style="background-color: #d8ebeb; border: none;">
+              <button class="btn" style="background-color: #809da0; color: white; border-radius: 8px; padding: 10px 20px;" [routerLink]="['/items']">
+                <i class="fas fa-arrow-left me-2"></i>Повернутися до списку
+              </button>
+              
+              <button *ngIf="status?.isUser" class="btn" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 10px 20px;" (click)="AddToCart(item.id, quantity)">
+                <i class="fas fa-cart-plus me-2"></i>Додати в кошик
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,41 @@
-<div class="item-form container mt-4">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
-    
-    <div class="form-group mb-3">
-      <label for="name" class="form-label">Назва:</label>
-      <input id="name" formControlName="name" type="text" class="form-control">
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="update-manufacturer-card card fade-in">
+        <div class="card-header">
+          <h2 class="update-title">
+            <i class="fas fa-edit me-3"></i>Редагування виробника
+          </h2>
+        </div>
+        <div class="form-container">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="slide-up">
+            <div class="mb-4">
+              <label for="name" class="form-label">
+                <i class="fas fa-building me-2"></i>Назва виробника
+              </label>
+              <input 
+                id="name" 
+                formControlName="name" 
+                type="text" 
+                class="form-control"
+                [ngClass]="{'is-invalid': form.get('name')?.invalid && form.get('name')?.touched}"
+                placeholder="Введіть назву виробника">
+              <div class="invalid-feedback" *ngIf="form.get('name')?.errors?.['required'] && form.get('name')?.touched">
+                Назва виробника обов'язкова
+              </div>
+            </div>
+            
+            <div class="btn-section">
+              <button type="button" class="btn btn-cancel" [routerLink]="['/manufacturers']">
+                Скасувати
+              </button>
+              <button type="submit" class="btn btn-submit" [disabled]="form.invalid">
+                <i class="fas fa-save me-2"></i>Зберегти зміни
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Відправити</button>
-  </form>
+  </div>
 </div>

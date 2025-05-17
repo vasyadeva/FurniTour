@@ -1,52 +1,205 @@
 .preview-image {
   height: 150px;
   object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.preview-image:hover {
+  transform: scale(1.05);
 }
 
 .card {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 12px rgba(31, 55, 69, 0.1);
   border: none;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 25px;
 }
 
 .card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(31, 55, 69, 0.15);
 }
 
 .card-header {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
   font-weight: 500;
+  padding: 20px;
+  border-bottom: none;
+}
+
+.card-body {
+  padding: 25px;
+  background-color: #fff;
 }
 
 .list-group-item {
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
   border-left: 4px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  padding: 15px;
 }
 
 .list-group-item:hover {
-  background-color: #f8f9fa;
-  border-left: 4px solid #0d6efd;
+  background-color: #d8ebeb;
+  border-left: 4px solid #1f3745;
+  transform: translateX(5px);
 }
 
 .list-group-item.active {
-  background-color: rgba(13, 110, 253, 0.15);
-  border-color: #0d6efd;
+  background-color: rgba(31, 55, 69, 0.15);
+  border-color: #1f3745;
   color: inherit;
+  transform: translateX(8px);
 }
 
 .list-group-item.active h5 {
-  color: #0d6efd;
+  color: #1f3745;
   font-weight: 600;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #1f3745;
+  margin-bottom: 8px;
 }
 
 textarea {
   min-height: 120px;
   resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 8px;
+}
+
+textarea:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 0 3px rgba(31, 55, 69, 0.25);
 }
 
 .form-check-input:checked + .form-check-label {
   font-weight: 600;
-  color: #0d6efd;
+  color: #1f3745;
+  animation: pulse 0.3s ease-in-out;
+}
+
+.form-select {
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 0 3px rgba(31, 55, 69, 0.25);
+}
+
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(120deg, #0f1c23, #1f3745);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(31, 55, 69, 0.3);
+}
+
+.btn-outline-secondary {
+  border: 2px solid #809da0;
+  color: #1f3745;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #809da0;
+  color: #d8ebeb;
+}
+
+/* Анімації для елементів */
+.alert {
+  animation: fadeIn 0.5s ease-in-out;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 3px 6px rgba(31, 55, 69, 0.1);
+}
+
+.alert-danger {
+  background-color: #f8e8e8;
+  color: #771d17;
+  border-left: 4px solid #771d17;
+}
+
+.alert-success {
+  background-color: #d8ebeb;
+  color: #1f3745;
+  border-left: 4px solid #1f3745;
+}
+
+.alert-warning {
+  background-color: #f3e7de;
+  color: #771d17;
+  border-left: 4px solid #771d17;
+}
+
+.alert-info {
+  background-color: #d8ebeb;
+  color: #1f3745;
+  border-left: 4px solid #1f3745;
+}
+
+/* Анімації під час завантаження */
+.spinner-border {
+  color: #1f3745;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Стилізація фотогалереї */
+.photo-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.photo-item {
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.photo-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Покращення стилю чекбоксів */
@@ -58,14 +211,14 @@ textarea {
 
 /* Animation for selected items */
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(31, 55, 69, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(31, 55, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(31, 55, 69, 0); }
 }
 
 .list-group-item:has(.form-check-input:checked) {
-  background-color: #e9f0ff;
-  border-color: #0d6efd;
+  background-color: #d8ebeb;
+  border-color: #1f3745;
   animation: pulse 1.5s 1;
 }
 

@@ -1,0 +1,227 @@
+/* Items Component Styles */
+.container-fluid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-img-top {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.card-text {
+  margin-bottom: 1rem;
+}
+
+.btn {
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #1f3745;
+  color: #d8ebeb;
+}
+
+/* Filter Form Styles */
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.form-select,
+.form-control {
+  border: 2px solid #d8ebeb;
+  border-radius: 8px;
+  padding: 10px 15px;
+  transition: border-color 0.3s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 5px rgba(31, 55, 69, 0.2);
+}
+
+.input-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.input-group-text {
+  background-color: #1f3745;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Search Bar Styles */
+.input-group {
+  box-shadow: 0 4px 6px rgba(31, 55, 69, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.input-group input {
+  border: none;
+  padding: 12px 15px;
+  border-radius: 10px 0 0 10px;
+}
+
+.input-group button {
+  border: none;
+  padding: 12px 15px;
+  border-radius: 0 10px 10px 0;
+}
+
+/* Pagination Styles */
+.pagination {
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-item {
+  margin: 0 5px;
+}
+
+.page-link {
+  color: #1f3745;
+  background-color: #d8ebeb;
+  border: 2px solid #d8ebeb;
+  padding: 10px 15px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.page-link:hover {
+  background-color: #1f3745;
+  color: #d8ebeb;
+}
+
+/* Copilot Floating Button Styles */
+.copilot-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1050;
+}
+
+.copilot-button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.copilot-button i {
+  font-size: 24px;
+}
+
+.copilot-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.copilot-panel {
+  width: 350px;
+  height: 500px;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.copilot-header {
+  background: linear-gradient(135deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #d8ebeb;
+  font-size: 16px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.copilot-body {
+  height: calc(100% - 50px);
+}
+
+.copilot-body iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Style for the expanded container */
+.copilot-container.expanded {
+  bottom: 20px;
+  right: 20px;
+}

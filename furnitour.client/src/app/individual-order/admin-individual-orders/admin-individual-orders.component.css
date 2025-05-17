@@ -1,6 +1,7 @@
 .badge {
   font-size: 0.8rem;
   padding: 0.4rem 0.6rem;
+  color: #ffffff;
 }
 
 .table {
@@ -8,5 +9,14 @@
 }
 
 .table th {
-  background-color: #f8f9fa;
+  background-color: #1f3745;
+  color: #ffffff;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f0f5f5;
+}
+
+.table tr:hover {
+  background-color: #d8ebeb;
 }

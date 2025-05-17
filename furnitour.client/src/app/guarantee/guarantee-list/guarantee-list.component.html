@@ -1,82 +1,93 @@
-<div class="container mt-4">  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>
+<div class="container mt-4">  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fade-in">
       {{ isAdmin ? 'Адміністрування гарантій' : 'Мої гарантії' }}
-      <span *ngIf="isAdmin && !loading" class="badge bg-secondary ms-2">{{ guarantees.length }}</span>
+      <span *ngIf="isAdmin && !loading" class="badge bg-secondary ms-2 slide-up">{{ guarantees.length }}</span>
     </h1>
     <div>
-      <button *ngIf="isAdmin && !loading && guarantees.length > 0" class="btn btn-success me-2" (click)="exportToCsv()">
-        <i class="fas fa-file-export"></i> Експорт в CSV
+      <button *ngIf="isAdmin && !loading && guarantees.length > 0" class="btn btn-success me-2 slide-up" (click)="exportToCsv()">
+        <i class="fas fa-file-export me-2"></i> Експорт в CSV
       </button>
-      <a *ngIf="!isAdmin" routerLink="/guarantees/create" class="btn btn-primary">Подати нову гарантію</a>
+      <a *ngIf="!isAdmin" routerLink="/guarantees/create" class="btn btn-primary slide-up">
+        <i class="fas fa-plus-circle me-2"></i> Подати нову гарантію
+      </a>
     </div>
   </div>
-
   <!-- Error alert -->
-  <div *ngIf="error" class="alert alert-danger" role="alert">
-    {{ error }}
+  <div *ngIf="error" class="alert alert-danger fade-in" role="alert">
+    <i class="fas fa-exclamation-circle me-2"></i> {{ error }}
   </div>
 
   <!-- Loading spinner -->
-  <div *ngIf="loading" class="d-flex justify-content-center my-5">
-    <div class="spinner-border text-primary" role="status">
+  <div *ngIf="loading" class="d-flex justify-content-center my-5 fade-in">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
       <span class="visually-hidden">Завантаження...</span>
     </div>
-  </div>  <!-- No guarantees message -->
-  <div *ngIf="!loading && guarantees.length === 0" class="alert alert-info">
-    Гарантій не знайдено. Створіть новий запит на гарантію.
-  </div>
+  </div>  
   
-  <!-- Status filter info -->
-  <div *ngIf="isAdmin && !loading && guarantees.length > 0 && statusFilter" class="alert alert-info">
-    <strong>Фільтр активний:</strong> {{ statusFilter }} ({{ sortedGuarantees.length }} з {{ guarantees.length }} гарантій)
-    <button class="btn btn-sm btn-outline-primary ms-3" (click)="filterByStatus('')">Скинути фільтр</button>
+  <!-- No guarantees message -->
+  <div *ngIf="!loading && guarantees.length === 0" class="empty-state fade-in">
+    <i class="fas fa-shield-alt"></i>
+    <h4>Гарантій не знайдено</h4>
+    <p>У вас поки немає жодних гарантійних запитів. Створіть новий запит на гарантію.</p>
+    <a *ngIf="!isAdmin" routerLink="/guarantees/create" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-2"></i> Подати нову гарантію
+    </a>
+  </div>
+    <!-- Status filter info -->
+  <div *ngIf="isAdmin && !loading && guarantees.length > 0 && statusFilter" class="alert alert-info slide-up" style="animation-delay: 0.1s;">
+    <i class="fas fa-filter me-2"></i> <strong>Фільтр активний:</strong> {{ statusFilter }} ({{ sortedGuarantees.length }} з {{ guarantees.length }} гарантій)
+    <button class="btn btn-sm btn-outline-primary ms-3" (click)="filterByStatus('')">
+      <i class="fas fa-times me-1"></i> Скинути фільтр
+    </button>
   </div>
   
   <!-- No filtered guarantees message -->
-  <div *ngIf="!loading && guarantees.length > 0 && sortedGuarantees.length === 0" class="alert alert-warning">
-    Немає гарантій, що відповідають обраному фільтру.
-    <button class="btn btn-sm btn-outline-primary ms-3" (click)="filterByStatus('')">Скинути фільтр</button>
-  </div>
-  <!-- Admin statistics -->
-  <div *ngIf="isAdmin && !loading && guarantees.length > 0" class="mb-4">
-    <div class="card">
+  <div *ngIf="!loading && guarantees.length > 0 && sortedGuarantees.length === 0" class="alert alert-warning slide-up">
+    <i class="fas fa-exclamation-triangle me-2"></i> Немає гарантій, що відповідають обраному фільтру.
+    <button class="btn btn-sm btn-outline-primary ms-3" (click)="filterByStatus('')">
+      <i class="fas fa-times me-1"></i> Скинути фільтр
+    </button>
+  </div>  <!-- Admin statistics -->
+  <div *ngIf="isAdmin && !loading && guarantees.length > 0" class="mb-4 slide-up" style="animation-delay: 0.2s;">
+    <div class="card stat-card">
       <div class="card-header">
-        <h5 class="mb-0">Статистика гарантій</h5>
+        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Статистика гарантій</h5>
       </div>
       <div class="card-body">
         <div class="row">
           <div class="col-md-8">
-            <h6>Розподіл гарантій за статусами:</h6>
+            <h6 class="mb-3"><i class="fas fa-tags me-2"></i> Розподіл гарантій за статусами:</h6>
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <div *ngFor="let status of availableStatuses" class="badge" 
+              <div *ngFor="let status of availableStatuses; let i = index" class="badge"
                   [ngClass]="getStatusClass(status)" 
-                  style="font-size: 1rem; cursor: pointer;"
+                  style="font-size: 1rem; cursor: pointer; animation: fadeInUp 0.5s ease-out;"
+                  [style.animation-delay]="(i * 0.1) + 's'"
                   (click)="filterByStatus(status)">
                 {{ status }}: {{ statusStats[status] || 0 }}
               </div>
             </div>
           </div>
           <div class="col-md-4 text-center">
-            <h6>Загальна кількість:</h6>
-            <div class="display-4">{{ guarantees.length }}</div>
-            <p class="text-muted">гарантій в системі</p>
+            <h6 class="mb-3"><i class="fas fa-clipboard-list me-2"></i> Загальна кількість:</h6>
+            <div class="stat-value">{{ guarantees.length }}</div>
+            <p class="stat-label">гарантій в системі</p>
           </div>
         </div>
       </div>
     </div>
-  </div>
-    <!-- Admin controls -->
-  <div *ngIf="isAdmin && !loading && guarantees.length > 0" class="mb-3">
+  </div>    <!-- Admin controls -->
+  <div *ngIf="isAdmin && !loading && guarantees.length > 0" class="mb-3 slide-up" style="animation-delay: 0.3s;">
     <div class="card">
       <div class="card-header">
-        <h5 class="mb-0">Керування відображенням</h5>
+        <h5 class="mb-0"><i class="fas fa-sliders-h me-2"></i> Керування відображенням</h5>
       </div>
       <div class="card-body">
-        <div class="mb-3">
-          <h6>Фільтрація за статусом:</h6>
+        <div class="mb-4">
+          <h6 class="mb-3"><i class="fas fa-filter me-2"></i> Фільтрація за статусом:</h6>
           <div class="btn-group flex-wrap">
             <button type="button" class="btn" [ngClass]="{'btn-primary': statusFilter === '', 'btn-outline-primary': statusFilter !== ''}" (click)="filterByStatus('')">
-              Всі статуси
+              <i class="fas fa-list me-1"></i> Всі статуси
             </button>
             <button *ngFor="let status of availableStatuses" type="button" class="btn" 
                 [ngClass]="{'btn-primary': statusFilter === status, 'btn-outline-primary': statusFilter !== status}"
@@ -87,19 +98,19 @@
         </div>
         
         <div>
-          <h6>Сортування:</h6>
+          <h6 class="mb-3"><i class="fas fa-sort me-2"></i> Сортування:</h6>
           <div class="btn-group flex-wrap">
             <button type="button" class="btn" [ngClass]="{'btn-primary': sortField === 'dateCreated', 'btn-outline-primary': sortField !== 'dateCreated'}" (click)="sortGuarantees('dateCreated')">
-              За датою створення {{ sortField === 'dateCreated' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+              <i class="far fa-calendar-alt me-1"></i> За датою створення {{ sortField === 'dateCreated' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
             </button>
             <button type="button" class="btn" [ngClass]="{'btn-primary': sortField === 'status', 'btn-outline-primary': sortField !== 'status'}" (click)="sortGuarantees('status')">
-              За статусом {{ sortField === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+              <i class="fas fa-tag me-1"></i> За статусом {{ sortField === 'status' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
             </button>
             <button type="button" class="btn" [ngClass]="{'btn-primary': sortField === 'userName', 'btn-outline-primary': sortField !== 'userName'}" (click)="sortGuarantees('userName')">
-              За користувачем {{ sortField === 'userName' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+              <i class="fas fa-user me-1"></i> За користувачем {{ sortField === 'userName' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
             </button>
             <button type="button" class="btn" [ngClass]="{'btn-primary': sortField === 'id', 'btn-outline-primary': sortField !== 'id'}" (click)="sortGuarantees('id')">
-              За ID {{ sortField === 'id' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
+              <i class="fas fa-hashtag me-1"></i> За ID {{ sortField === 'id' ? (sortDirection === 'asc' ? '↑' : '↓') : '' }}
             </button>
           </div>
         </div>
@@ -107,66 +118,104 @@
     </div>
   </div>
   <!-- Guarantees list -->
-  <div *ngIf="!loading && guarantees.length > 0" class="row row-cols-1 row-cols-md-2 g-4">    <div *ngFor="let guarantee of sortedGuarantees" class="col">
-      <div class="card h-100">
-        <div class="card-header d-flex justify-content-between">
+    <div *ngIf="!loading && guarantees.length > 0" class="row row-cols-1 row-cols-md-2 g-4">    
+    <div *ngFor="let guarantee of sortedGuarantees; let i = index" class="col">
+      <div class="card h-100 guarantee-card slide-up" [style.animation-delay]="(i * 0.1 + 0.4) + 's'">
+        <div class="card-header d-flex justify-content-between align-items-center">
           <span>
             <ng-container *ngIf="!guarantee.isIndividualOrder">
-              Замовлення #{{ guarantee.orderId }}
+              <i class="fas fa-shopping-cart me-1"></i> Замовлення #{{ guarantee.orderId }}
             </ng-container>
             <ng-container *ngIf="guarantee.isIndividualOrder">
-              Індивідуальне замовлення #{{ guarantee.individualOrderId }}
+              <i class="fas fa-drafting-compass me-1"></i> Індивідуальне замовлення #{{ guarantee.individualOrderId }}
             </ng-container>
-            <small *ngIf="isAdmin" class="text-muted">(ID: {{ guarantee.id }})</small>
+            <small *ngIf="isAdmin" class="text-light ms-2">(ID: {{ guarantee.id }})</small>
           </span>
           <span [class]="getStatusClass(guarantee.status)">{{ guarantee.status }}</span>
         </div>
         <div class="card-body">
-          <h5 class="card-title mb-3">Гарантія користувача {{ guarantee.userName }}</h5>
+          <h5 class="card-title mb-3">
+            <i class="fas fa-user me-2"></i> {{ guarantee.userName }}
+          </h5>
           
           <div *ngIf="guarantee.isIndividualOrder" class="alert alert-info py-2">
-            <i class="bi bi-info-circle-fill me-2"></i>
+            <i class="fas fa-info-circle me-2"></i>
             Індивідуальне замовлення
           </div>
           
-          <p class="mb-1"><strong>Товари:</strong></p>
+          <p class="mb-1"><strong><i class="fas fa-box me-2"></i>Товари:</strong></p>
           <ul class="list-group mb-3" *ngIf="!guarantee.isIndividualOrder">
-            <li *ngFor="let item of guarantee.items" class="list-group-item d-flex justify-content-between align-items-center">
+            <li *ngFor="let item of guarantee.items; let j = index" class="list-group-item d-flex justify-content-between align-items-center"
+                [style.animation]="'fadeInUp 0.3s ease-out'"
+                [style.animation-delay]="(j * 0.05) + 's'">
               {{ item.furnitureName }}
               <span class="badge bg-primary rounded-pill">{{ item.quantity }}</span>
             </li>
           </ul>
 
-          <p class="card-text"><strong>Коментар:</strong> {{ guarantee.comment }}</p>
+          <p class="card-text"><strong><i class="fas fa-comment-alt me-2"></i>Коментар:</strong> 
+            <span class="border-start ps-2 ms-2 border-primary" style="border-left-width: 3px !important;">
+              {{ guarantee.comment }}
+            </span>
+          </p>
           
-          <p class="text-muted mb-0">
-            <small>Створено: {{ guarantee.dateCreated | date:'medium' }}</small>
-          </p>
-          <p class="text-muted">
-            <small>Оновлено: {{ guarantee.dateModified | date:'medium' }}</small>
-          </p>
-        </div>
+          <div class="d-flex justify-content-between mt-3">
+            <div>
+              <p class="text-muted mb-0">
+                <small><i class="far fa-calendar-plus me-1"></i> Створено: {{ guarantee.dateCreated | date:'medium' }}</small>
+              </p>
+              <p class="text-muted">
+                <small><i class="far fa-calendar-check me-1"></i> Оновлено: {{ guarantee.dateModified | date:'medium' }}</small>
+              </p>
+            </div>
+            <div *ngIf="guarantee.photos && guarantee.photos.length > 0" class="text-end">
+              <span class="badge bg-info">
+                <i class="fas fa-camera me-1"></i> {{ guarantee.photos.length }} фото
+              </span>
+            </div>
+          </div>        </div>
         <div class="card-footer bg-transparent">
-          <div class="d-flex justify-content-between">            <a [routerLink]="['/guarantees/', guarantee.id]" class="btn btn-sm btn-outline-primary">Деталі</a>
-              <div *ngIf="isAdmin && guarantee.status === 'Очікує розгляду'" class="btn-group" role="group">
-              <button class="btn btn-sm btn-success" (click)="updateStatus(guarantee, 'Підтверджено')">Підтвердити</button>
-              <button class="btn btn-sm btn-warning" (click)="updateStatus(guarantee, 'На розгляді')">На розгляд</button>
-              <button class="btn btn-sm btn-danger" (click)="updateStatus(guarantee, 'Відхилено')">Відхилити</button>
+          <div class="d-flex justify-content-between align-items-center">          
+            <a [routerLink]="['/guarantees/', guarantee.id]" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-eye me-1"></i> Деталі
+            </a>
+            
+            <div *ngIf="isAdmin && guarantee.status === 'Очікує розгляду'" class="btn-group" role="group">
+              <button class="btn btn-sm btn-success" (click)="updateStatus(guarantee, 'Підтверджено')">
+                <i class="fas fa-check me-1"></i> Підтвердити
+              </button>
+              <button class="btn btn-sm btn-warning" (click)="updateStatus(guarantee, 'На розгляді')">
+                <i class="fas fa-search me-1"></i> На розгляд
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="updateStatus(guarantee, 'Відхилено')">
+                <i class="fas fa-times me-1"></i> Відхилити
+              </button>
             </div>
             
             <div *ngIf="isAdmin && guarantee.status === 'На розгляді'" class="btn-group" role="group">
-              <button class="btn btn-sm btn-success" (click)="updateStatus(guarantee, 'Підтверджено')">Підтвердити</button>
-              <button class="btn btn-sm btn-danger" (click)="updateStatus(guarantee, 'Відхилено')">Відхилити</button>
+              <button class="btn btn-sm btn-success" (click)="updateStatus(guarantee, 'Підтверджено')">
+                <i class="fas fa-check me-1"></i> Підтвердити
+              </button>
+              <button class="btn btn-sm btn-danger" (click)="updateStatus(guarantee, 'Відхилено')">
+                <i class="fas fa-times me-1"></i> Відхилити
+              </button>
             </div>
             
             <div *ngIf="isAdmin && guarantee.status === 'Підтверджено'" class="btn-group" role="group">
-              <button class="btn btn-sm btn-info" (click)="updateStatus(guarantee, 'В обробці')">Почати обробку</button>
+              <button class="btn btn-sm btn-info" (click)="updateStatus(guarantee, 'В обробці')">
+                <i class="fas fa-tools me-1"></i> Почати обробку
+              </button>
             </div>
             
             <div *ngIf="isAdmin && guarantee.status === 'В обробці'" class="btn-group" role="group">
-              <button class="btn btn-sm btn-primary" (click)="updateStatus(guarantee, 'Завершено')">Завершити</button>
+              <button class="btn btn-sm btn-primary" (click)="updateStatus(guarantee, 'Завершено')">
+                <i class="fas fa-flag-checkered me-1"></i> Завершити
+              </button>
             </div>
-          </div>
+            
+            <div *ngIf="!isAdmin && guarantee.status === 'Відхилено'" class="text-danger">
+              <i class="fas fa-exclamation-circle me-1"></i> Відхилено
+            </div>          </div>
         </div>
       </div>
     </div>

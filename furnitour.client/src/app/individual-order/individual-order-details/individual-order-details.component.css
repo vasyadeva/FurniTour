@@ -4,6 +4,7 @@
 .status-badge {
   font-size: 1rem;
   padding: 0.5rem 1rem;
+  color: #ffffff;
 }
 
 .description {
@@ -11,14 +12,17 @@
 }
 
 .card {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(31, 55, 69, 0.1);
   border-radius: 8px;
   margin-bottom: 20px;
+  background-color: #ffffff;
 }
 
 .card-header {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #ffffff;
 }
 
 textarea {
@@ -49,4 +53,9 @@ textarea {
   color: #6c757d;
   background-color: #f8f9fa;
   border-left: 3px solid #dee2e6;
+}
+
+/* Button text color fix */
+.btn-primary, .btn-success, .btn-danger, .btn-info, .btn-warning {
+  color: #ffffff !important;
 }

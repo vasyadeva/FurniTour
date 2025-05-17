@@ -1,35 +1,128 @@
-<div class="container">
-  <h2 class="my-4">Кошик покупок</h2>
-  
-  <div *ngIf="cartItems.length === 0" class="alert alert-info">
-    Ваш кошик порожній.
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-12 text-center py-4" style="background: linear-gradient(135deg, #1f3745, #0f1c23); color: #d8ebeb; border-radius: 15px;">
+      <h1><i class="fas fa-shopping-cart me-3"></i>Кошик покупок</h1>
+    </div>
   </div>
-  <p class="alert alert-info" *ngIf="error != ''">{{ error }}</p>
   
-  <div class="row">
-    <div class="col-md-4" *ngFor="let item of cartItems">
-      <div class="card mb-4 shadow-sm">
-        <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}" />
-        <div class="card-body">
-          <h5 class="card-title">{{ item.name }}</h5>
-          <p class="card-text">{{ item.description }}</p>
-          <p class="card-text"><strong>Ціна:</strong> ${{ item.price }}</p>
-          <p class="card-text"><strong>Кількість:</strong> {{ item.quantity }}</p>
-          <p class="card-text"><strong>Категорія:</strong> {{ item.category }}</p>
-          <p class="card-text"><strong>Колір:</strong> {{ item.color }}</p>
-          <p class="card-text" *ngIf="item.master != ''"><strong>Майстер:</strong> {{ item.master }}</p>
-          <p class="card-text" *ngIf="item.manufacturer != ''"><strong>Виробник:</strong> {{ item.manufacturer }}</p>
-          <div class="d-flex align-items-center my-2">
-            <button class="btn btn-sm btn-dark me-1" (click)="updateQuantity(item.id, item.quantity + 1)">+</button>
-            <button class="btn btn-sm btn-dark me-1" (click)="updateQuantity(item.id, item.quantity - 1)">-</button>
-            <input type="number" [(ngModel)]="quantity[item.id]" min="1" class="form-control form-control-sm me-1" [value]="item.quantity" />
-            <button class="btn btn-primary btn-sm" (click)="updateQuantity(item.id, quantity[item.id])">Оновити</button>
+  <!-- Empty cart message -->
+  <div *ngIf="cartItems.length === 0" class="alert text-center p-5 my-5" style="background-color: #d8ebeb; color: #1f3745; border-left: 5px solid #809da0;">
+    <i class="fas fa-shopping-basket" style="font-size: 48px; color: #809da0;"></i>
+    <h3 class="mt-3">Ваш кошик порожній</h3>
+    <p class="mb-4">Перегляньте наш каталог і додайте товари до кошика</p>
+    <button class="btn" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 10px 20px;" routerLink="/items">
+      <i class="fas fa-shopping-bag me-2"></i>Перейти до каталогу
+    </button>
+  </div>
+  
+  <!-- Error message -->
+  <div class="alert mb-4" *ngIf="error != ''" style="background-color: #f8e6e5; color: #771d17; border-left: 5px solid #771d17;">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+  </div>
+  
+  <!-- Cart items -->
+  <div class="row" *ngIf="cartItems.length > 0">
+    <!-- Cart items list -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-header" style="background-color: #1f3745; color: white; padding: 15px;">
+          <h4 class="mb-0"><i class="fas fa-list-alt me-2"></i>Товари у кошику</h4>
+        </div>
+        
+        <div class="card-body p-0">
+          <div class="cart-item p-3 border-bottom" *ngFor="let item of cartItems" style="transition: background-color 0.3s;">
+            <div class="row align-items-center">
+              <!-- Product image -->
+              <div class="col-md-2 text-center">
+                <img [src]="'data:image/jpeg;base64,' + item.image" class="img-fluid rounded" style="max-height: 100px; object-fit: contain;" alt="{{ item.name }}" />
+              </div>
+              
+              <!-- Product info -->
+              <div class="col-md-5">
+                <h5 style="color: #1f3745; font-weight: 600;">{{ item.name }}</h5>
+                <p class="text-muted small mb-1" style="max-height: 40px; overflow: hidden;">
+                  {{ (item.description.length > 80) ? (item.description | slice:0:80) + '...' : item.description }}
+                </p>
+                
+                <div class="product-meta d-flex flex-wrap mt-2">
+                  <span class="badge me-2 mb-1" style="background-color: #809da0; color: white;">{{ item.category }}</span>
+                  <span class="badge me-2 mb-1" style="background-color: #d8ebeb; color: #1f3745;">{{ item.color }}</span>
+                  
+                  <span *ngIf="item.master != ''" class="small text-muted me-2 mb-1">
+                    <i class="fas fa-user-cog me-1"></i>{{ item.master }}
+                  </span>
+                  <span *ngIf="item.manufacturer != ''" class="small text-muted mb-1">
+                    <i class="fas fa-industry me-1"></i>{{ item.manufacturer }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Price -->
+              <div class="col-md-2 text-center">
+                <span class="fw-bold" style="color: #771d17; font-size: 1.2rem;">{{ item.price }} грн</span>
+              </div>
+              
+              <!-- Quantity controls -->
+              <div class="col-md-3">
+                <div class="d-flex align-items-center justify-content-end">
+                  <div class="quantity-controls d-flex align-items-center me-3">
+                    <button class="btn" style="background-color: #1f3745; color: white; width: 32px; height: 32px; padding: 0; border-radius: 4px 0 0 4px;" 
+                            (click)="updateQuantity(item.id, item.quantity - 1)" [disabled]="item.quantity <= 1">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    
+                    <input type="number" [(ngModel)]="quantity[item.id]" [value]="item.quantity" min="1" 
+                           class="form-control text-center" 
+                           style="width: 50px; height: 32px; border: 1px solid #1f3745; border-left: none; border-right: none;"
+                           (change)="updateQuantity(item.id, quantity[item.id])">
+                    
+                    <button class="btn" style="background-color: #1f3745; color: white; width: 32px; height: 32px; padding: 0; border-radius: 0 4px 4px 0;" 
+                            (click)="updateQuantity(item.id, item.quantity + 1)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  
+                  <button class="btn" style="background-color: #771d17; color: white; width: 32px; height: 32px; padding: 0; border-radius: 4px;" 
+                          (click)="removeFromCart(item.id)">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <button class="btn btn-danger btn-sm" (click)="removeFromCart(item.id)">Видалити</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Order summary -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; position: sticky; top: 20px;">
+        <div class="card-header" style="background-color: #1f3745; color: white; padding: 15px;">
+          <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Підсумок замовлення</h4>
+        </div>
+        
+        <div class="card-body" style="background-color: #f8fafa;">
+          <div class="d-flex justify-content-between mb-3">
+            <span style="color: #1f3745;">Кількість товарів:</span>
+            <span class="fw-bold">{{ getTotalItems() }}</span>
+          </div>
+          
+          <div class="d-flex justify-content-between mb-4">
+            <span style="color: #1f3745;">Загальна сума:</span>
+            <span class="fw-bold" style="color: #771d17; font-size: 1.2rem;">{{ getTotalPrice() }} грн</span>
+          </div>
+          
+          <button class="btn w-100 mb-2" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 12px;" 
+                 (click)="Order()">
+            <i class="fas fa-check-circle me-2"></i>Оформити замовлення
+          </button>
+          
+          <button class="btn w-100" style="background-color: #d8ebeb; color: #1f3745; border-radius: 8px; padding: 12px;" 
+                 routerLink="/items">
+            <i class="fas fa-shopping-bag me-2"></i>Продовжити покупки
+          </button>
         </div>
       </div>
     </div>
   </div>
-  
-  <button class="btn btn-primary w-100 mb-3" *ngIf="cartItems.length > 0" (click)="Order()">Замовити</button>
 </div>

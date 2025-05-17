@@ -58,7 +58,7 @@ export class ItemService {
     return this.http.get<any[]>(api + '/Manufacturer/getall', { withCredentials: true });
   }
 
-  getItemByDescription(description: string): Observable<itemGet> {
-    return this.http.get<itemGet>(this.api + 'search/' + description, { withCredentials: true });
+  getItemByDescription(description: string): Observable<itemGet[]> {
+    return this.http.get<itemGet[]>(`${this.api}/search/${description}`, { withCredentials: true });
   }
 }

@@ -6,9 +6,6 @@
       <span *ngIf="!loading" class="badge bg-primary ms-2">{{ totalGuarantees }}</span>
     </h1>
     <div>
-      <button *ngIf="!loading && guarantees.length > 0" class="btn btn-success me-2" (click)="exportToCsv()">
-        <i class="fas fa-file-export"></i> Експорт в CSV
-      </button>
       <button *ngIf="!loading" class="btn btn-primary" (click)="loadGuarantees()">
         <i class="fas fa-sync-alt"></i> Оновити
       </button>

@@ -18,11 +18,12 @@
 .card {
   transition: transform 0.2s;
   height: 100%;
+  background-color: #ffffff;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(31, 55, 69, 0.1);
 }
 
 .card-footer {
@@ -31,4 +32,10 @@
 
 .badge {
   font-size: 0.8rem;
+  color: #ffffff !important;
+}
+
+/* Dark background elements should have light text */
+.card-header {
+  color: #ffffff;
 }

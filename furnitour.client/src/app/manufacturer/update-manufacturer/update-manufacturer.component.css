@@ -1,0 +1,127 @@
+.update-manufacturer-card {
+  border-radius: 15px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 10px 30px rgba(31, 55, 69, 0.1);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.card-header {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+  text-align: center;
+  padding: 25px;
+  border: none;
+}
+
+.update-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.form-container {
+  padding: 30px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #1f3745;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  border-radius: 8px;
+  padding: 12px 15px;
+  border: 2px solid #d8ebeb;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(31, 55, 69, 0.05);
+}
+
+.form-control:focus {
+  border-color: #1f3745;
+  box-shadow: 0 5px 15px rgba(31, 55, 69, 0.1);
+}
+
+.form-control.is-invalid {
+  border-color: #771d17;
+  background-image: none;
+}
+
+.invalid-feedback {
+  color: #771d17;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.btn-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.btn-submit {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  border: none;
+  box-shadow: 0 4px 8px rgba(31, 55, 69, 0.3);
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(31, 55, 69, 0.4);
+}
+
+.btn-submit:disabled {
+  background: linear-gradient(120deg, #809da0, #d8ebeb);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-cancel {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  background: #f5f5f5;
+  color: #1f3745;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-cancel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  background: #e0e0e0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: fadeInUp 0.5s ease-out;
+}

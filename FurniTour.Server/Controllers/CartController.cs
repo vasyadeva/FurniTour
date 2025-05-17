@@ -48,7 +48,7 @@ namespace FurniTour.Server.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<IActionResult> UpdateCartAsync([FromBody] UpdateCartRequestAI request)
+        public async Task<IActionResult> UpdateCartAsync([FromBody] UpdateCartRequest request)
         {
             var state = await cartService.UpdateCartAsync(request.Id, request.Quantity);
             if (state.IsNullOrEmpty())

@@ -1,37 +1,134 @@
-<div class="container mt-4">
-    <div class="review-form-container">
-      <h1 class="mb-4">Додати відгук</h1>
-      
-      <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
-        <div class="mb-3">
-          <label for="rating" class="form-label">Рейтинг:</label>
-          <input
-            type="number"
-            id="rating"
-            formControlName="rating"
-            class="form-control"
-            min="1"
-            max="5"
-            placeholder="Введіть рейтинг (від 1 до 5)"
-          />
-          <div *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched" class="text-danger">
-            Рейтинг повинен бути в діапазоні від 1 до 5!
-          </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+          <h2 class="mb-0 text-center"><i class="fas fa-star me-2"></i>Додати відгук про виробника</h2>
         </div>
-    
-        <div class="mb-3">
-          <label for="comment" class="form-label">Коментар:</label>
-          <textarea
-            id="comment"
-            formControlName="comment"
-            class="form-control"
-            placeholder="Напишіть тут свій відгук (необов'язково)"
-            rows="4"
-          ></textarea>
+        
+        <div class="card-body p-4" style="background-color: #f8fafa;">
+          <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+            <!-- Rating Input with Stars -->
+            <div class="mb-4">
+              <label for="rating" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-star-half-alt me-2"></i>Рейтинг:
+              </label>
+              
+              <div class="rating-input">
+                <div class="d-flex align-items-center">
+                  <div class="rating-stars me-3">
+                    <span class="star-rating">
+                      <input type="radio" id="star5" name="rating" value="5" formControlName="rating" />
+                      <label for="star5" title="5 stars">
+                        <i class="fas fa-star" style="color: #771d17;"></i>
+                      </label>
+                      
+                      <input type="radio" id="star4" name="rating" value="4" formControlName="rating" />
+                      <label for="star4" title="4 stars">
+                        <i class="fas fa-star" style="color: #771d17;"></i>
+                      </label>
+                      
+                      <input type="radio" id="star3" name="rating" value="3" formControlName="rating" />
+                      <label for="star3" title="3 stars">
+                        <i class="fas fa-star" style="color: #771d17;"></i>
+                      </label>
+                      
+                      <input type="radio" id="star2" name="rating" value="2" formControlName="rating" />
+                      <label for="star2" title="2 stars">
+                        <i class="fas fa-star" style="color: #771d17;"></i>
+                      </label>
+                      
+                      <input type="radio" id="star1" name="rating" value="1" formControlName="rating" />
+                      <label for="star1" title="1 star">
+                        <i class="fas fa-star" style="color: #771d17;"></i>
+                      </label>
+                    </span>
+                  </div>
+                  
+                  <div class="rating-number" style="width: 80px;">
+                    <input
+                      type="number"
+                      id="rating"
+                      formControlName="rating"
+                      class="form-control text-center"
+                      min="1"
+                      max="5"
+                      style="border: 2px solid #d8ebeb; border-radius: 8px;"
+                    />
+                  </div>
+                </div>
+                
+                <div *ngIf="reviewForm.get('rating')?.invalid && reviewForm.get('rating')?.touched" 
+                     class="alert mt-2" style="color: #771d17; background-color: #f8e6e5; border-left: 3px solid #771d17; padding: 8px;">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  Рейтинг повинен бути в діапазоні від 1 до 5!
+                </div>
+              </div>
+            </div>
+          
+            <!-- Comment Input -->
+            <div class="mb-4">
+              <label for="comment" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-comment-alt me-2"></i>Коментар:
+              </label>
+              <textarea
+                id="comment"
+                formControlName="comment"
+                class="form-control"
+                placeholder="Опишіть вашу думку про якість продукції цього виробника..."
+                rows="6"
+                style="border: 2px solid #d8ebeb; border-radius: 8px; resize: none;"
+              ></textarea>
+              <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Коментар необов'язковий, але допоможе іншим користувачам зробити правильний вибір
+              </small>
+            </div>
+          
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn" style="background-color: #809da0; color: white; border-radius: 8px;"
+                      onclick="history.back()">
+                <i class="fas fa-arrow-left me-2"></i>Назад
+              </button>
+              
+              <button type="submit" 
+                      [disabled]="reviewForm.invalid" 
+                      class="btn text-white"
+                      style="background-color: #1f3745; color: white; border-radius: 8px;">
+                <i class="fas fa-paper-plane me-2"></i>Надіслати відгук
+              </button>
+            </div>
+          </form>
         </div>
-    
-        <button type="submit" [disabled]="reviewForm.invalid" class="btn btn-primary">Надіслати відгук</button>
-      </form>
+      </div>
     </div>
   </div>
+</div>
+
+<style>
+  .rating-stars {
+    display: inline-block;
+    position: relative;
+    direction: rtl; /* Right to left */
+    font-size: 1.5rem;
+  }
   
+  .rating-stars input[type="radio"] {
+    display: none;
+  }
+  
+  .rating-stars label {
+    color: #ccc;
+    cursor: pointer;
+    padding: 0 0.2em;
+    margin: 0;
+    display: inline-block;
+    transition: color 0.3s;
+  }
+  
+  .rating-stars label:hover,
+  .rating-stars label:hover ~ label,
+  .rating-stars input[type="radio"]:checked ~ label {
+    color: #771d17;
+  }
+</style>

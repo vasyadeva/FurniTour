@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { ItemService } from '../../services/item/item.service';
 import { itemGet } from '../../models/item.get.model';
@@ -42,7 +41,7 @@ export class SafePipe implements PipeTransform {
 export class ItemsComponent implements OnInit {
   items: itemGet[] = [];
   RecomendedItems: itemGet[] = [];
-  searchResult: itemGet | null = null;
+  searchResult: itemGet[] = []; // Change from itemGet | null to itemGet[]
   quantity: { [key: number]: number } = {}; 
   searchDescription: string = '';
   
@@ -64,6 +63,9 @@ export class ItemsComponent implements OnInit {
     maxPrice: 0,
     searchString: ''
   };
+  
+  // Add this property to track copilot expansion state
+  copilotExpanded: boolean = false;
   
   constructor(
     private itemService: ItemService, 
@@ -234,14 +236,20 @@ export class ItemsComponent implements OnInit {
     this.popupService.loadingSnackBar();
     this.itemService.getItemByDescription(this.searchDescription).subscribe(
       (response) => {
-        this.searchResult = response;
+        this.searchResult = response; // response is now properly handled as an array
         this.popupService.closeSnackBar();
       },
       (error) => {
         console.error('Error fetching item by description:', error);
         this.popupService.closeSnackBar();
         this.popupService.openSnackBar('Помилка пошуку товару за описом');
+        this.searchResult = []; // Initialize as empty array on error
       }
     );
+  }
+
+  // Add this method to toggle copilot expansion
+  toggleCopilot(): void {
+    this.copilotExpanded = !this.copilotExpanded;
   }
 }

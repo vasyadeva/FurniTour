@@ -1,35 +1,76 @@
-<div class="container mt-5">
-  <div class="card shadow">
-    <div class="card-header bg-primary text-white">
-      <h5 class="card-title mb-0 text-center">Інформація профілю</h5>
-    </div>
-    <div class="card-body">
-      <div class="row mb-3">
-        <label class="col-sm-3 col-form-label"><strong>Ім'я користувача:</strong></label>
-        <div class="col-sm-9">
-          <p class="form-control-plaintext">{{ profile.username }}</p>
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+          <h3 class="card-title mb-0 text-center">
+            <i class="fas fa-user-circle me-2"></i>Інформація профілю
+          </h3>
         </div>
-      </div>
-      <div class="row mb-3">
-        <label class="col-sm-3 col-form-label"><strong>Електронна пошта:</strong></label>
-        <div class="col-sm-9">
-          <p class="form-control-plaintext">{{ profile.email }}</p>
+        
+        <div class="card-body p-4" style="background-color: #f8fafa;">
+          <div class="profile-avatar text-center mb-4">
+            <div style="width: 100px; height: 100px; background-color: #d8ebeb; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;">
+              <i class="fas fa-user" style="font-size: 50px; color: #1f3745;"></i>
+            </div>
+          </div>
+          
+          <div class="profile-details">
+            <div class="detail-row d-flex align-items-center mb-4 p-3" style="background-color: #d8ebeb; border-radius: 10px;">
+              <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #1f3745; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user" style="color: white;"></i>
+              </div>
+              <div>
+                <label class="text-muted small mb-0">Ім'я користувача</label>
+                <p class="fw-bold mb-0" style="color: #1f3745; font-size: 1.1rem;">{{ profile.username }}</p>
+              </div>
+            </div>
+            
+            <div class="detail-row d-flex align-items-center mb-4 p-3" style="background-color: #f0f4f4; border-radius: 10px;">
+              <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #809da0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-envelope" style="color: white;"></i>
+              </div>
+              <div>
+                <label class="text-muted small mb-0">Електронна пошта</label>
+                <p class="fw-bold mb-0" style="color: #1f3745; font-size: 1.1rem;">
+                  {{ profile.email || 'Не вказано' }}
+                </p>
+              </div>
+            </div>
+            
+            <div class="detail-row d-flex align-items-center mb-4 p-3" style="background-color: #d8ebeb; border-radius: 10px;">
+              <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #1f3745; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-phone" style="color: white;"></i>
+              </div>
+              <div>
+                <label class="text-muted small mb-0">Номер телефону</label>
+                <p class="fw-bold mb-0" style="color: #1f3745; font-size: 1.1rem;">
+                  {{ profile.phonenumber || 'Не вказано' }}
+                </p>
+              </div>
+            </div>
+            
+            <div class="detail-row d-flex align-items-center mb-4 p-3" style="background-color: #f0f4f4; border-radius: 10px;">
+              <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #771d17; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-tag" style="color: white;"></i>
+              </div>
+              <div>
+                <label class="text-muted small mb-0">Роль</label>
+                <p class="fw-bold mb-0" style="color: #1f3745; font-size: 1.1rem;">
+                  <span class="badge" style="background-color: #771d17; font-size: 0.9rem; padding: 5px 10px;">
+                    {{ profile.role }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="row mb-3">
-        <label class="col-sm-3 col-form-label"><strong>Номер телефону:</strong></label>
-        <div class="col-sm-9">
-          <p class="form-control-plaintext">{{ profile.phonenumber }}</p>
+        
+        <div class="card-footer p-4 text-center" style="background-color: #d8ebeb; border: none;">
+          <a class="btn" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 10px 20px;" [routerLink]="['/changeprofile']">
+            <i class="fas fa-user-edit me-2"></i>Змінити профіль
+          </a>
         </div>
-      </div>
-      <div class="row mb-3">
-        <label class="col-sm-3 col-form-label"><strong>Роль:</strong></label>
-        <div class="col-sm-9">
-          <p class="form-control-plaintext">{{ profile.role }}</p>
-        </div>
-      </div>
-      <div class="text-center">
-        <a class="btn btn-primary" [routerLink]="['/changeprofile']">Змінити профіль</a>
       </div>
     </div>
   </div>

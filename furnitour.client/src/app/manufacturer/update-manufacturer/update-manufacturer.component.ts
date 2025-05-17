@@ -2,14 +2,14 @@ import { Component, model, OnInit } from '@angular/core';
 import { ManufacturerModel } from '../../models/manufacturer.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ManufacturerService } from '../../services/manufacturer/manufacturer.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PopupService } from '../../services/popup/popup.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-update-manufacturer',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './update-manufacturer.component.html',
   styleUrl: './update-manufacturer.component.css'
 })

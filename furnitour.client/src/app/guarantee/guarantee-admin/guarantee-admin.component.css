@@ -1,41 +1,82 @@
 .admin-toolbar {
-  background-color: #f8f9fa;
-  border-radius: 0.25rem;
-  padding: 15px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(to right, #d8ebeb, #f5f5f5);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 12px rgba(31, 55, 69, 0.08);
+  border-left: 5px solid #1f3745;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .status-badge {
   font-size: 0.9rem;
-  font-weight: normal;
-  padding: 0.4em 0.6em;
+  font-weight: 600;
+  padding: 0.4em 0.8em;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .status-count {
   font-size: 0.85rem;
   margin-left: 5px;
-  opacity: 0.8;
+  opacity: 0.9;
+  font-weight: bold;
+}
+
+.status-filter-button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 5px;
+  user-select: none;
 }
 
 .filter-section {
-  border-left: 3px solid #6c757d;
-  padding-left: 15px;
+  border-left: 4px solid #1f3745;
+  padding-left: 20px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.filter-section:hover {
+  border-left-width: 8px;
+  background-color: rgba(31, 55, 69, 0.05);
+}
+
+.filter-section h6 {
+  color: #1f3745;
+  font-weight: 600;
   margin-bottom: 15px;
+  font-size: 1rem;
 }
 
 .guarantee-card {
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  margin-bottom: 20px;
+  border: none;
 }
 
 .guarantee-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(31, 55, 69, 0.15);
 }
 
 .action-buttons .btn {
   margin-right: 5px;
   margin-bottom: 5px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
 }
 
 .status-label {
@@ -43,11 +84,197 @@
   width: 100%;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px 0;
 }
 
 .status-label:hover {
   transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Стилізація таблиці */
+.table {
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.table thead {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+}
+
+.table th {
+  font-weight: 600;
+  border: none;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.table th:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.table td {
+  padding: 15px;
+  vertical-align: middle;
+  transition: all 0.3s ease;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f5f9ff;
+  transform: scale(1.01);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Кольори для статусів */
+.badge {
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(31, 55, 69, 0.1);
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(31, 55, 69, 0.15);
+}
+
+.bg-warning {
+  background: linear-gradient(to right, #809da0, #6a868a) !important;
+  color: #d8ebeb !important;
+}
+
+.bg-success {
+  background: linear-gradient(to right, #1f3745, #0f1c23) !important;
+  color: #d8ebeb !important;
+}
+
+.bg-danger {
+  background: linear-gradient(to right, #771d17, #5e1812) !important;
+  color: #d8ebeb !important;
+}
+
+.bg-info {
+  background: linear-gradient(to right, #809da0, #6a868a) !important;
+  color: #d8ebeb !important;
+}
+
+.bg-primary {
+  background: linear-gradient(to right, #1f3745, #0f1c23) !important;
+  color: #d8ebeb !important;
+}
+
+.bg-secondary {
+  background: linear-gradient(to right, #809da0, #6a868a) !important;
+  color: #d8ebeb !important;
+}
+
+/* Анімації для елементів */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-stat {
+  background-color: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-left: 5px solid #1f3745;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.5s ease-out;
+  animation-delay: calc(var(--animation-order) * 0.1s);
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.dashboard-stat:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(31, 55, 69, 0.15);
+}
+
+.dashboard-stat h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f3745;
+  margin: 0;
+}
+
+.dashboard-stat p {
+  color: #546e7a;
+  margin-bottom: 5px;
+}
+
+/* Стилізація кнопок сортування */
+.btn-group .btn {
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 0 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-group .btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.btn-group .btn:hover::before {
+  transform: translateX(0);
+}
+
+.btn-group .btn-primary {
+  box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+}
+
+.btn-group .btn-outline-primary:hover {
+  box-shadow: 0 4px 8px rgba(30, 136, 229, 0.3);
+}
+
+/* Покращений вигляд алертів */
+.alert {
+  border-radius: 12px;
+  padding: 15px 20px;
+  animation: fadeIn 0.5s ease-in-out;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border: none;
+}
+
+.alert-info {
+  background-color: #d8ebeb;
+  color: #1f3745;
+  border-left: 5px solid #1f3745;
+}
+
+.alert-warning {
+  background-color: #f3e7de;
+  color: #771d17;
+  border-left: 5px solid #771d17;
 }
 
 .dashboard-stat {

@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { ItemService } from '../../services/item/item.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PopupService } from '../../services/popup/popup.service';
 import { itemUpdate } from '../../models/item.update.model';
 import { AppStatusService } from '../../services/auth/app.status.service';
@@ -15,7 +15,7 @@ import { ColorModel } from '../../models/color.model';
 @Component({
   selector: 'app-item-edit',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, RouterModule],
   templateUrl: './item-edit.component.html',
   styleUrl: './item-edit.component.css'
 })
@@ -42,10 +42,12 @@ export class ItemEditComponent implements OnInit {
   error: string = '';
   itemForm: FormGroup;
   base64Photo: string | null = null;
+  loading: boolean = true;
 
   constructor(private fb: FormBuilder, private itemService: ItemService, private route: ActivatedRoute, private router: Router,
     private popupService: PopupService, public status: AppStatusService, private manufacturerService: ManufacturerService
   ) {
+    // Initialize form with empty values - we'll populate it in ngOnInit
     if (status.isAdmin) {
       this.itemForm = this.fb.group({
         name: ['', [Validators.required]],
@@ -53,7 +55,7 @@ export class ItemEditComponent implements OnInit {
         price: [0, [Validators.required, Validators.min(0)]],
         colorId: [0, [Validators.required]],
         categoryId: [0, [Validators.required]],
-        photo: ['', [Validators.required]],
+        photo: [''],  // Remove required validator since we'll use existing image
         manufacturerId: [null, [Validators.required]]
       });
     } else {
@@ -63,11 +65,12 @@ export class ItemEditComponent implements OnInit {
         price: [0, [Validators.required, Validators.min(0)]],
         colorId: [0, [Validators.required]],
         categoryId: [0, [Validators.required]],
-        photo: ['', [Validators.required]],
+        photo: [''],  // Remove required validator
         manufacturerId: [null]
       });
     }
 
+    // Fetch required data for dropdowns
     this.manufacturerService.getAll().subscribe(
       response => {
         this.manufacturers = response;
@@ -107,10 +110,82 @@ export class ItemEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.popupService.loadingSnackBar();
     this.route.paramMap.subscribe(params => {
       this.itemId = params.get('id');
-      this.id = parseInt(this.itemId!);
+      if (this.itemId) {
+        this.id = parseInt(this.itemId);
+        
+        // Fetch item details and populate the form
+        this.itemService.details(this.id).subscribe(
+          (itemDetails) => {
+            this.loading = false;
+            this.popupService.closeSnackBar();
+            
+            // Get category ID and color ID from the loaded data
+            const categoryId = this.getCategoryIdByName(itemDetails.category);
+            const colorId = this.getColorIdByName(itemDetails.color);
+            let manufacturerId = null;
+            
+            // Find manufacturer ID if exists
+            if (itemDetails.manufacturer && this.manufacturers.length > 0) {
+              const manufacturer = this.manufacturers.find(m => m.name === itemDetails.manufacturer);
+              if (manufacturer) {
+                manufacturerId = manufacturer.id;
+              }
+            }
+            
+            // Update form with item details
+            this.itemForm.patchValue({
+              name: itemDetails.description,
+              description: itemDetails.description,
+              price: itemDetails.price,
+              categoryId: categoryId,
+              colorId: colorId,
+              manufacturerId: manufacturerId
+            });
+            
+            // Set base64 photo for preview
+            if (itemDetails.image) {
+              this.base64Photo = 'data:image/jpeg;base64,' + itemDetails.image;
+            }
+            
+            // Set item model
+            this.itemModel = {
+              id: itemDetails.id,
+              name: itemDetails.name,
+              description: itemDetails.description,
+              price: itemDetails.price,
+              image: itemDetails.image,
+              categoryId: categoryId,
+              colorId: colorId,
+              manufacturerId: manufacturerId || 0
+            };
+          },
+          (error) => {
+            this.loading = false;
+            this.popupService.closeSnackBar();
+            this.error = 'Failed to load item details. Please try again.';
+            this.popupService.openSnackBar('Error loading item details: ' + (error.error || 'Unknown error'));
+          }
+        );
+      } else {
+        this.loading = false;
+        this.popupService.closeSnackBar();
+        this.error = 'No item ID provided';
+      }
     });
+  }
+
+  // Helper methods to get IDs from names
+  getCategoryIdByName(categoryName: string): number {
+    const category = this.categories.find(c => c.name === categoryName);
+    return category ? category.id : 0;
+  }
+
+  getColorIdByName(colorName: string): number {
+    const color = this.colors.find(c => c.name === colorName);
+    return color ? color.id : 0;
   }
 
   onFileSelected(event: any): void {
@@ -126,12 +201,20 @@ export class ItemEditComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.itemForm.invalid || !this.base64Photo) {
-      this.popupService.openSnackBar('Please fill all fields and select a file.');
+    if (this.itemForm.invalid) {
+      this.popupService.openSnackBar('Please fill all required fields.');
       return;
     }
 
-    const base64Data = this.base64Photo.split(',')[1];
+    // Extract base64 data for a new uploaded image or keep existing one
+    let base64Data: string;
+    if (this.base64Photo?.includes('data:image')) {
+      base64Data = this.base64Photo.split(',')[1];
+    } else {
+      base64Data = this.itemModel.image;
+    }
+    
+    // Update the item model with form values
     this.itemModel.id = this.id;
     this.itemModel.name = this.itemForm.get('name')?.value;
     this.itemModel.description = this.itemForm.get('description')?.value;
@@ -140,10 +223,11 @@ export class ItemEditComponent implements OnInit {
     this.itemModel.colorId = this.itemForm.get('colorId')?.value;
     this.itemModel.image = base64Data;
     this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value;
+    
     this.itemService.update(this.itemModel).subscribe(
       response => {
         this.popupService.openSnackBar('Item updated successfully!');
-        this.itemForm.reset();
+        this.router.navigate(['/items']);
       },
       error => {
         if (!error?.error?.isSuccess) {

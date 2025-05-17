@@ -251,65 +251,81 @@ namespace FurniTour.Server.Services
 
         private string ValidateStateChange(int currentStateId, int newStateId, bool isUser, bool isAdminOrMaster)
         {
-            if (isUser)
-            {
-                var userValidationMessage = CheckStatusMessage(currentStateId, newStateId, userRole: true);
-                if (!string.IsNullOrEmpty(userValidationMessage))
-                {
-                    return userValidationMessage;
-                }
+            // Check common validations first
+            if (currentStateId == 7) {
+                return "Неможливо змінити статус підтвердженого користувачем замовлення.";
             }
 
-            if (isAdminOrMaster)
-            {
-                var adminValidationMessage = CheckStatusMessage(currentStateId, newStateId, userRole: false);
-                if (!string.IsNullOrEmpty(adminValidationMessage))
-                {
-                    return adminValidationMessage;
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private string CheckStatusMessage(int oldId, int newId, bool userRole)
-        {
-            if (oldId == 2 || oldId == 3)
-            {
+            if (currentStateId == 2 || currentStateId == 3) {
                 return "Неможливо змінити статус, оскільки замовлення вже скасоване.";
             }
-
-            if (userRole)
-            {
-                if (oldId == 4 && newId == 2)
-                {
-                    return "Користувач може скасувати замовлення лише після підтвердження.";
+            
+            // User role validations
+            if (isUser) {
+                // Users can only cancel (status 2) their orders if they are new (1) or confirmed (4)
+                if (newStateId == 2) {
+                    if (currentStateId != 1 && currentStateId != 4) {
+                        return "Користувач може скасувати лише нове або підтверджене замовлення.";
+                    }
+                    return string.Empty; // Valid - user can cancel
                 }
-                if (oldId == 6 && newId == 7)
-                {
-                    return string.Empty;
+                
+                // Users can only confirm delivery (status 7) if the order is delivered (6)
+                if (newStateId == 7) {
+                    if (currentStateId != 6) {
+                        return "Користувач може підтвердити отримання лише для доставлених замовлень.";
+                    }
+                    return string.Empty; // Valid - user can confirm delivery
                 }
-                return "Користувач не має прав для зміни статусу цього замовлення.";
+                
+                return "Користувач не має прав для цієї зміни статусу замовлення.";
             }
-
-            if (oldId == 4 && (newId == 2 || newId == 3))
-            {
-                return "Адміністратор або майстер має спершу підтвердити замовлення перед скасуванням.";
+            
+            // Admin/Master role validations
+            if (isAdminOrMaster) {
+                // Admins can cancel any order that isn't completed or already cancelled
+                if (newStateId == 3) {
+                    if (currentStateId == 7) {
+                        return "Неможливо скасувати завершене замовлення.";
+                    }
+                    return string.Empty; // Valid - admin can cancel
+                }
+                
+                // Order status progression validation
+                switch (currentStateId) {
+                    case 1: // New order
+                        // Can confirm (4) or cancel (3)
+                        if (newStateId != 3 && newStateId != 4) {
+                            return "Нове замовлення можна лише підтвердити або скасувати.";
+                        }
+                        break;
+                        
+                    case 4: // Confirmed
+                        // Can mark as shipped (5) or cancel (3)
+                        if (newStateId != 3 && newStateId != 5) {
+                            return "Підтверджене замовлення можна лише позначити як відправлене або скасувати.";
+                        }
+                        break;
+                        
+                    case 5: // In transit
+                        // Can mark as delivered (6) or cancel (3)
+                        if (newStateId != 3 && newStateId != 6) {
+                            return "Замовлення в дорозі можна лише позначити як доставлене або скасувати.";
+                        }
+                        break;
+                        
+                    case 6: // Delivered
+                        // Cannot change status here - must wait for user to confirm
+                        if (newStateId != 3) {
+                            return "Доставлене замовлення має бути підтверджене користувачем або скасоване адміністратором.";
+                        }
+                        break;
+                }
+                
+                return string.Empty; // Valid state transition
             }
-            if (oldId == 5 && (newId == 2 || newId == 3 || newId == 4))
-            {
-                return "Неможливо змінити статус доставки на попередній.";
-            }
-            if (oldId == 6 && newId == 7)
-            {
-                return string.Empty;
-            }
-            if (oldId == 6 || oldId == 7)
-            {
-                return "Неможливо змінити статус замовлення після підтвердження доставки.";
-            }
-
-            return string.Empty;
+            
+            return "Неавторизований доступ до зміни статусу замовлення.";
         }
 
 

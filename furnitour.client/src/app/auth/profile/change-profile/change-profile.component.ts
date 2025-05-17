@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router'; // Add import for RouterModule
 import { ProfileChangeModel } from '../../../models/profile.change.model';
 import { AuthService } from '../../../services/auth/auth.service';
 import { PopupService } from '../../../services/popup/popup.service';
@@ -8,7 +9,7 @@ import { PopupService } from '../../../services/popup/popup.service';
 @Component({
   selector: 'app-change-profile',
   standalone: true,
-  imports: [FormsModule,CommonModule,ReactiveFormsModule],
+  imports: [FormsModule, CommonModule, ReactiveFormsModule, RouterModule], // Add RouterModule to imports
   templateUrl: './change-profile.component.html',
   styleUrl: './change-profile.component.css'
 })

@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f0f5f5;
+}
+
+::ng-deep .card {
+  background-color: #ffffff;
+}
+
+::ng-deep .card-header {
+  color: #ffffff;
+}
+
+::ng-deep .badge,
+::ng-deep .btn-primary,
+::ng-deep .btn-cart,
+::ng-deep .btn-edit,
+::ng-deep .btn-details,
+::ng-deep .btn-delete,
+::ng-deep .btn-secondary,
+::ng-deep .btn-info,
+::ng-deep .btn-danger,
+::ng-deep .btn-warning,
+::ng-deep .btn-success,
+::ng-deep .table thead th {
+  color: #ffffff !important;
+}
+
+::ng-deep .bg-light {
+  background-color: #edf2f2 !important;
+}

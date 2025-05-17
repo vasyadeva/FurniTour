@@ -1,51 +1,115 @@
-<div class="profile-container" *ngIf="profile.username; else noProfile">
-  <h1>Профіль майстра</h1>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>{{ profile.username }}</h2>
-    </div>
-
-    <div class="card-body">
-      <p>Пошта: {{ profile.email }}</p>
-      <p>Номер телефону: {{ profile.phonenumber }}</p>
-
-      <div *ngIf="profile.reviews.length > 0; else noReviews">
-        <h3>Відгуки:</h3>
-        <ul class="list-group">
-          <li class="list-group-item" *ngFor="let review of profile.reviews">
-            <p><strong>{{ review.username }}:</strong> {{ review.comment }}</p>
-            <p>Рейтинг: {{ review.rating }}/5</p>
-          </li>
-        </ul>
+<div class="container mt-5">
+  <div class="profile-container" *ngIf="profile.username; else noProfile">
+    <div class="row">
+      <div class="col-12 text-center mb-4">
+        <h1 class="fw-bold" style="color: #1f3745; border-bottom: 3px solid #d8ebeb; display: inline-block; padding-bottom: 10px;">
+          <i class="fas fa-user-cog me-3"></i>Профіль майстра
+        </h1>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header">
-        <h2>Summary відгуків від штучного інтелекту</h2>
+    
+    <div class="row">
+      <div class="col-lg-10 offset-lg-1">
+        <!-- Main Profile Card -->
+        <div class="card border-0 shadow-lg mb-4" style="border-radius: 15px; overflow: hidden;">
+          <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+            <h2 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ profile.username }}</h2>
+          </div>
+
+          <div class="card-body p-4" style="background-color: #f8fafa;">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #d8ebeb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-envelope" style="color: #1f3745;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Пошта:</span>
+                    <span class="ms-2 fw-bold" style="color: #1f3745;">{{ profile.email }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-row d-flex align-items-center mb-3">
+                  <div class="icon-box me-3" style="width: 40px; height: 40px; background-color: #d8ebeb; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-phone" style="color: #1f3745;"></i>
+                  </div>
+                  <div>
+                    <span class="text-muted">Номер телефону:</span>
+                    <span class="ms-2 fw-bold" style="color: #1f3745;">{{ profile.phonenumber }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AI Review Card -->
+        <div class="card border-0 shadow-lg mb-4" style="border-radius: 15px; overflow: hidden;">
+          <div class="card-header text-white" style="background-color: #809da0; padding: 15px;">
+            <h3 class="mb-0"><i class="fas fa-robot me-2"></i>Аналіз відгуків від штучного інтелекту</h3>
+          </div>
+          <div class="card-body p-4" style="background-color: #f8fafa;">
+            <div class="p-3" style="border-left: 4px solid #809da0; background-color: #f0f4f4;">
+              <p class="mb-0" style="font-style: italic; color: #333; line-height: 1.6;">{{ this.AIReview.review || 'Відгуки ще аналізуються...' }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Reviews Card -->
+        <div class="card border-0 shadow-lg mb-4" style="border-radius: 15px; overflow: hidden;">
+          <div class="card-header text-white" style="background-color: #1f3745; padding: 15px;">
+            <h3 class="mb-0"><i class="fas fa-comments me-2"></i>Відгуки клієнтів</h3>
+          </div>
+          <div class="card-body p-4" style="background-color: #f8fafa;">
+            <div *ngIf="profile.reviews.length > 0; else noReviews">
+              <div class="review-list">
+                <div class="review-item mb-3 p-3" *ngFor="let review of profile.reviews" 
+                     style="border-radius: 10px; border: 1px solid #d8ebeb; background-color: white;">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0" style="color: #1f3745;">
+                      <i class="fas fa-user me-2"></i>{{ review.username }}
+                    </h5>
+                    <div class="rating" style="color: #771d17;">
+                      <span *ngFor="let star of [1,2,3,4,5]" class="me-1">
+                        <i class="fas" [ngClass]="star <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+                      </span>
+                      <span class="ms-2 fw-bold">{{ review.rating }}/5</span>
+                    </div>
+                  </div>
+                  <p class="mb-0" style="color: #555;">{{ review.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer" style="background-color: #d8ebeb; border: none;">
+            <a class="btn text-white" style="background-color: #1f3745; border-radius: 8px;" 
+               [routerLink]="['/masterreview/add', profile.username]">
+              <i class="fas fa-plus-circle me-2"></i>Додати відгук
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <p>{{ this.AIReview.review }}</p>
-      </div>
-    </div>
-    <div class="card-footer">
-      <a class="btn btn-primary" [routerLink]="['/masterreview/add', profile.username]" routerLinkActive="router-link-active">
-        Додати відгук
-      </a>
     </div>
   </div>
 </div>
 
 <!-- No Profile Available -->
 <ng-template #noProfile>
-  <div class="alert alert-warning" role="alert">
-    Не знайдено профіль для цього майстра.
+  <div class="alert text-center p-5 my-5" style="background-color: #d8ebeb; color: #1f3745; border-left: 5px solid #771d17;">
+    <i class="fas fa-exclamation-triangle me-2" style="font-size: 2rem;"></i>
+    <h3 class="mt-3">Не знайдено профіль для цього майстра</h3>
+    <p class="mt-2">Перевірте правильність URL або зв'яжіться з адміністратором.</p>
+    <button class="btn mt-3" style="background-color: #1f3745; color: white;" routerLink="/items">
+      <i class="fas fa-arrow-left me-2"></i>Повернутися до каталогу
+    </button>
   </div>
 </ng-template>
 
 <!-- No Reviews Available -->
 <ng-template #noReviews>
-  <div class="alert alert-info" role="alert">
-    Немає відгуків для цього майстра.
+  <div class="alert m-3" style="background-color: #f0f4f4; color: #1f3745; border-left: 3px solid #809da0;">
+    <i class="fas fa-info-circle me-2"></i>
+    Немає відгуків для цього майстра. Будьте першим, хто залишить відгук!
   </div>
 </ng-template>

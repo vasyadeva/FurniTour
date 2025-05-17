@@ -1,55 +1,112 @@
-<div class="container mt-4" *ngIf="orders.length > 0; else noOrders">
-  <h2>Мої Замовлення</h2>
-  <div *ngFor="let order of orders" class="card mb-3">
-    <div class="card-header">
-      <h5>Замовлення #{{ order.id }} - {{ order.orderState }}</h5>
+<div class="container mt-5 orders-container" *ngIf="orders.length > 0; else noOrders">
+  <div class="row">
+    <div class="col-12 text-center mb-4">
+      <h1 class="fw-bold" style="color: #1f3745; border-bottom: 3px solid #d8ebeb; display: inline-block; padding-bottom: 10px;">
+        <i class="fas fa-box-open me-3"></i>Мої Замовлення
+      </h1>
+      <p class="text-muted">Перегляд та управління вашими замовленнями</p>
     </div>
-    <div class="card-body">
-      <p><strong>Ім'я:</strong> {{ order.name }}</p>
-      <p *ngIf="order.address"><strong>Адреса:</strong> {{ order.address }}</p>
-      <p *ngIf="order.phone"><strong>Телефон:</strong> {{ order.phone }}</p>
-      <p *ngIf="order.comment"><strong>Коментар:</strong> {{ order.comment }}</p>
-      <p *ngIf="order.orderState"><strong>Стан Замовлення:</strong> {{ order.orderState }}</p>
-      <p><strong>Дата створення:</strong> {{ order.dateCreated | date:'short' }}</p>
-      <p><strong>Загальна Ціна:</strong> {{ order.price | currency }}</p>
+  </div>
 
-      <h6>Товари у замовленні</h6>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Назва</th>
-            <th>Кількість</th>
-            <th>Ціна</th>
-            <th>Майстер/Виробник</th>
-            <th>Колір</th>
-            <th>Категорія</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of order.orderItems">
-            <td>{{ item.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.price | currency }}</td>
-            <td>
-              <ng-container *ngIf="item.master && item.master !== ''; else manufacturer">
-                {{ item.master }}
-              </ng-container>
-              <ng-template #manufacturer>
-                {{ item.manufacturer }}
-              </ng-template>
-            </td>
-            <td>{{ item.color }}</td>
-            <td>{{ item.category }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <button class="btn btn-danger m-1" (click)="updateOrder(order.id, 2)">Скасувати Замовлення</button>
-      <button class="btn btn-success m-1" (click)="updateOrder(order.id, 7)">Підтвердити доставку</button>
+  <div class="row">
+    <div class="col-lg-10 offset-lg-1">
+      <div *ngFor="let order of orders" class="order-card">
+        <div class="order-header">
+          <h5>
+            <i class="fas fa-shopping-bag order-icon"></i>
+            Замовлення #{{ order.id }}
+            <span class="status-badge">{{ order.orderState }}</span>
+          </h5>
+        </div>
+        <div class="order-body">
+          <div class="order-info">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong><i class="fas fa-user me-2"></i>Ім'я:</strong> {{ order.name }}</p>
+                <p *ngIf="order.address"><strong><i class="fas fa-map-marker-alt me-2"></i>Адреса:</strong> {{ order.address }}</p>
+                <p *ngIf="order.phone"><strong><i class="fas fa-phone me-2"></i>Телефон:</strong> {{ order.phone }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong><i class="fas fa-calendar-alt me-2"></i>Дата створення:</strong> {{ order.dateCreated | date:'dd.MM.yyyy HH:mm' }}</p>
+                <p><strong><i class="fas fa-money-bill-wave me-2"></i>Загальна Ціна:</strong> <span style="color: #771d17; font-weight: bold;">{{ order.price | currency }}</span></p>
+                <p *ngIf="order.comment"><strong><i class="fas fa-comment me-2"></i>Коментар:</strong> {{ order.comment }}</p>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="mb-3" style="color: #1f3745; border-left: 4px solid #809da0; padding-left: 10px;">
+            <i class="fas fa-list-ul me-2"></i>Товари у замовленні
+          </h6>
+          
+          <div class="table-container">
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Назва</th>
+                    <th>Кількість</th>
+                    <th>Ціна</th>
+                    <th>Майстер/Виробник</th>
+                    <th>Колір</th>
+                    <th>Категорія</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of order.orderItems">
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price | currency }}</td>
+                    <td>
+                      <ng-container *ngIf="item.master && item.master !== ''; else manufacturer">
+                        <i class="fas fa-hammer me-1" style="color: #809da0;"></i> {{ item.master }}
+                      </ng-container>
+                      <ng-template #manufacturer>
+                        <i class="fas fa-industry me-1" style="color: #809da0;"></i> {{ item.manufacturer }}
+                      </ng-template>
+                    </td>
+                    <td>
+                      <span class="color-dot" [style.background-color]="item.color"></span>
+                      {{ item.color }}
+                    </td>
+                    <td>{{ item.category }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap justify-content-between">
+            <div>
+              <button class="btn-order-action btn-cancel" *ngIf="order.orderState === 'Нове замовлення' || order.orderState === 'Підтверджено'" (click)="updateOrder(order.id, 2)">
+                <i class="fas fa-times-circle me-2"></i>Скасувати
+              </button>
+            </div>
+            <div>
+              <button class="btn-order-action btn-confirm" *ngIf="order.orderState === 'Доставлено'" (click)="updateOrder(order.id, 7)">
+                <i class="fas fa-check-circle me-2"></i>Підтвердити доставку
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Якщо замовлення відсутні -->
 <ng-template #noOrders>
-  <div class="alert alert-warning mt-4">У вас немає замовлень.</div>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8 offset-md-2 no-orders-container">
+        <div class="no-orders-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <h3 class="mb-3" style="color: #1f3745;">У вас ще немає замовлень</h3>
+        <p class="no-orders-text">Час обрати щось зі нашого каталогу меблів та зробити перше замовлення!</p>
+        <a href="/items" class="btn-browse">
+          <i class="fas fa-search me-2"></i>Переглянути каталог
+        </a>
+      </div>
+    </div>
+  </div>
 </ng-template>

@@ -1,50 +1,121 @@
-<form [formGroup]="orderForm" class="m-3" (ngSubmit)="submitOrder()">
-  <div class="mb-3">
-    <label for="name" class="form-label">Ім'я</label>
-    <input
-      id="name"
-      formControlName="name"
-      required
-      class="form-control"
-      [ngClass]="{'is-invalid': orderForm.get('name')?.invalid && orderForm.get('name')?.touched}"
-    />
-    <div class="invalid-feedback">
-      Ім'я є обов'язковим.
+<div class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+          <h3 class="mb-0 text-center">
+            <i class="fas fa-shopping-bag me-2"></i>Оформлення замовлення
+          </h3>
+        </div>
+        
+        <div class="card-body p-4" style="background-color: #f8fafa;">
+          <form [formGroup]="orderForm" (ngSubmit)="submitOrder()">
+            <div class="mb-4">
+              <label for="name" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-user me-2"></i>Ім'я отримувача
+              </label>
+              <input
+                type="text"
+                id="name"
+                formControlName="name"
+                required
+                class="form-control"
+                style="border: 2px solid #d8ebeb; border-radius: 8px; padding: 12px 15px;"
+                placeholder="Введіть ім'я отримувача"
+                [ngClass]="{'is-invalid': orderForm.get('name')?.invalid && orderForm.get('name')?.touched}"
+              />
+              <div class="invalid-feedback">
+                <i class="fas fa-exclamation-circle me-1"></i>Ім'я є обов'язковим полем.
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="address" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-map-marker-alt me-2"></i>Адреса доставки
+              </label>
+              <input
+                type="text"
+                id="address"
+                formControlName="address"
+                required
+                class="form-control"
+                style="border: 2px solid #d8ebeb; border-radius: 8px; padding: 12px 15px;"
+                placeholder="Введіть повну адресу доставки"
+                [ngClass]="{'is-invalid': orderForm.get('address')?.invalid && orderForm.get('address')?.touched}"
+              />
+              <div class="invalid-feedback">
+                <i class="fas fa-exclamation-circle me-1"></i>Адреса є обов'язковим полем.
+              </div>
+              <small class="text-muted mt-1" style="display: block;">
+                <i class="fas fa-info-circle me-1"></i>Вкажіть повну адресу: місто, вулицю, будинок, квартиру, поштовий індекс
+              </small>
+            </div>
+
+            <div class="mb-4">
+              <label for="phone" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-phone me-2"></i>Контактний телефон
+              </label>
+              <div class="input-group">
+                <span class="input-group-text" style="background-color: #1f3745; color: white; border: none;">+380</span>
+                <input
+                  type="tel"
+                  id="phone"
+                  formControlName="phone"
+                  required
+                  class="form-control"
+                  style="border: 2px solid #d8ebeb; border-radius: 0 8px 8px 0; padding: 12px 15px;"
+                  placeholder="XX XXX XX XX"
+                  [ngClass]="{'is-invalid': orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched}"
+                />
+              </div>
+              <div class="invalid-feedback" *ngIf="orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched">
+                <i class="fas fa-exclamation-circle me-1"></i>Введіть коректний номер телефону.
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="comment" class="form-label fw-bold" style="color: #1f3745;">
+                <i class="fas fa-comment-alt me-2"></i>Коментар до замовлення
+              </label>
+              <textarea 
+                id="comment" 
+                formControlName="comment" 
+                class="form-control"
+                style="border: 2px solid #d8ebeb; border-radius: 8px; padding: 12px 15px; min-height: 120px; resize: none;"
+                placeholder="Додаткова інформація про замовлення, побажання щодо доставки, тощо..."
+              ></textarea>
+              <small class="text-muted mt-1" style="display: block;">
+                <i class="fas fa-info-circle me-1"></i>Необов'язкове поле. Додайте будь-яку важливу інформацію для кур'єра або менеджера
+              </small>
+            </div>
+
+            <div *ngIf="error!=''" 
+                 class="alert mb-4" 
+                 style="background-color: #f8e6e5; color: #771d17; border-left: 4px solid #771d17; padding: 12px;">
+              <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+              <a 
+                routerLink="/cart" 
+                class="btn" 
+                style="background-color: #809da0; color: white; border-radius: 8px; padding: 10px 20px;"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Повернутися до кошика
+              </a>
+              
+              <button 
+                type="submit" 
+                class="btn" 
+                style="background-color: #1f3745; color: white; border-radius: 8px; padding: 10px 25px;"
+                [disabled]="orderForm.invalid"
+              >
+                <i class="fas fa-check-circle me-2"></i>Підтвердити замовлення
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-
-  <div class="mb-3">
-    <label for="address" class="form-label">Адреса</label>
-    <input
-      id="address"
-      formControlName="address"
-      required
-      class="form-control"
-      [ngClass]="{'is-invalid': orderForm.get('address')?.invalid && orderForm.get('address')?.touched}"
-    />
-    <div class="invalid-feedback">
-      Адреса є обов'язковою.
-    </div>
-  </div>
-
-  <div class="mb-3">
-    <label for="phone" class="form-label">Телефон</label>
-    <input
-      id="phone"
-      formControlName="phone"
-      required
-      class="form-control"
-      [ngClass]="{'is-invalid': orderForm.get('phone')?.invalid && orderForm.get('phone')?.touched}"
-    />
-    <div class="invalid-feedback">
-      Номер телефону є обов'язковим та повинен бути валідним.
-    </div>
-  </div>
-
-  <div class="mb-3">
-    <label for="comment" class="form-label">Коментар</label>
-    <textarea id="comment" formControlName="comment" class="form-control"></textarea>
-  </div>
-  <p class="alert alert-info" *ngIf="error!=''">{{ error }}</p>
-  <button type="submit" class="btn btn-primary" [disabled]="orderForm.invalid">Відправити</button>
-</form>
+</div>

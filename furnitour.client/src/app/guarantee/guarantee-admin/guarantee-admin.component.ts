@@ -42,13 +42,6 @@ export class GuaranteeAdminComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // Перевіряємо, чи є користувач адміністратором
-    if (!this.authService.isAdmin()) {
-      this.error = 'Доступ заборонено. Тільки адміністратори мають доступ до цієї сторінки.';
-      this.loading = false;
-      return;
-    }
-    
     // Завантажуємо всі гарантії
     this.loadGuarantees();
     

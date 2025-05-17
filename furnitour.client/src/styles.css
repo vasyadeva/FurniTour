@@ -2,13 +2,105 @@
     position: fixed !important;
     bottom: 0 !important;
     right: 0 !important;
-    background-color: #212529;
-    color: white;
+    background-color: #1f3745;
+    color: #d8ebeb;
   }
   .mat-mdc-button .mat-mdc-button-persistent-ripple::before{
-    color: #57606a63 !important;
-    color: black;
+    color: #809da063 !important;
+    color: #1f3745;
   }
+  
+/* Глобальні стилі гарантійної системи */
+:root {
+  --primary-color: #1f3745;
+  --primary-light: #d8ebeb;
+  --primary-dark: #0f1c23;
+  --secondary-color: #809da0;
+  --secondary-light: #d8ebeb;
+  --accent-color: #771d17;
+  --success-color: #2c5f5f;
+  --warning-color: #771d17;
+  --danger-color: #771d17;
+  --info-color: #1f3745;
+  --light-gray: #f5f5f5;
+  --text-dark: #1f3745;
+  --text-light: #d8ebeb;
+  --transition-fast: 0.2s;
+  --transition-normal: 0.3s;
+  --shadow-light: 0 2px 5px rgba(31, 55, 69, 0.1);
+  --shadow-normal: 0 4px 8px rgba(31, 55, 69, 0.1);
+  --shadow-heavy: 0 8px 16px rgba(31, 55, 69, 0.1);
+}
+
+/* Анімації для інтерфейсу */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: slideInUp 0.4s ease-out;
+}
+
+/* Покращені елементи інтерфейсу */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  transition: all var(--transition-normal);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-normal);
+}
+
+.card {
+  transition: all var(--transition-normal);
+  border-radius: 8px;
+  overflow: hidden;
+  border: none;
+  box-shadow: var(--shadow-light);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-normal);
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--text-light);
+  border-bottom: none;
+  padding: 15px 20px;
+}
+
+/* Покращені форми */
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(30, 136, 229, 0.25);
+}
 
 
 .loading-snackbar {
@@ -26,4 +118,45 @@
 .mat-mdc-snack-bar-container .mat-mdc-snackbar-surface
 {
     min-width: 0 !important;
+}
+
+/* Fix text visibility on dark backgrounds and set body background */
+body {
+  background-color: #f0f5f5;
+  color: #1f3745;
+}
+
+/* Ensure text on dark backgrounds is visible */
+.card-header, 
+.btn-primary, 
+.btn-secondary, 
+.btn-cart, 
+.btn-details,
+.btn-edit,
+.btn-delete,
+.items-header,
+.filter-header,
+.search-input-group button,
+.table thead,
+.badge,
+.bg-primary,
+.bg-secondary,
+.bg-success,
+.bg-info,
+.bg-warning,
+.bg-danger {
+  color: #ffffff !important;
+}
+
+/* Improve hover states for buttons and links */
+.btn-primary:hover, 
+.btn-secondary:hover, 
+.btn-cart:hover, 
+.btn-action:hover {
+  color: #ffffff !important;
+}
+
+/* Improved contrast for important content sections */
+.card {
+  background-color: #ffffff;
 }
