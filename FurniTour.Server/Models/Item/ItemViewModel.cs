@@ -1,4 +1,6 @@
-﻿namespace FurniTour.Server.Models.Item
+﻿using FurniTour.Server.Data.Entities;
+
+namespace FurniTour.Server.Models.Item
 {
     public class ItemViewModel
     {
@@ -11,6 +13,9 @@
         public string Color { get; set; }
         public string? Master { get; set; }
         public string? Manufacturer { get; set; }
-
+        public List<FurnitureReviewModel> Reviews { get; set; } = new List<FurnitureReviewModel>();
+        public List<FurnitureAdditionalPhotoModel> AdditionalPhotos { get; set; } = new List<FurnitureAdditionalPhotoModel>();
+        public double AverageRating { get; set; }
+        public int ReviewCount { get; set; }
     }
 }

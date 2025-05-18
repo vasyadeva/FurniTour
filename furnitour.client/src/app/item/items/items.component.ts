@@ -45,6 +45,23 @@ export class ItemsComponent implements OnInit {
   quantity: { [key: number]: number } = {}; 
   searchDescription: string = '';
   
+  // Make Math available in the template
+  math = Math;
+    // Helper methods for rating display
+  getFullStars(rating: number): number[] {
+    const fullStars = Math.floor(rating);
+    return Array(fullStars).fill(0).map((_, i) => i);
+  }
+  
+  getHalfStar(rating: number): boolean {
+    return (rating % 1) > 0;
+  }
+  
+  getEmptyStars(rating: number): number[] {
+    const emptyStars = 5 - Math.ceil(rating);
+    return Array(emptyStars).fill(0).map((_, i) => i);
+  }
+  
   // Дані для фільтрів
   categories: CategoryModel[] = [];
   colors: ColorModel[] = [];
@@ -247,7 +264,6 @@ export class ItemsComponent implements OnInit {
       }
     );
   }
-
   // Add this method to toggle copilot expansion
   toggleCopilot(): void {
     this.copilotExpanded = !this.copilotExpanded;

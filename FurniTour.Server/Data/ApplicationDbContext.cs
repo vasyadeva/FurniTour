@@ -45,13 +45,29 @@ namespace FurniTour.Server.Data
                 .HasOne(oi => oi.Furniture)
                 .WithMany()
                 .HasForeignKey(oi => oi.FurnitureId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<MasterReview>()
+                .OnDelete(DeleteBehavior.Cascade);            builder.Entity<MasterReview>()
        .HasOne(mr => mr.Master)
-       .WithMany()  
+       .WithMany()
        .HasForeignKey(mr => mr.MasterId)
-       .OnDelete(DeleteBehavior.NoAction); 
+       .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<FurnitureReview>()
+       .HasOne(fr => fr.Furniture)
+       .WithMany(f => f.Reviews)
+       .HasForeignKey(fr => fr.FurnitureId)
+       .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<FurnitureReview>()
+       .HasOne(fr => fr.User)
+       .WithMany()
+       .HasForeignKey(fr => fr.UserId)
+       .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<FurnitureAdditionalPhoto>()
+       .HasOne(fap => fap.Furniture)
+       .WithMany(f => f.AdditionalPhotos)
+       .HasForeignKey(fap => fap.FurnitureId)
+       .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MasterReview>()
                 .HasOne(mr => mr.User)
@@ -148,12 +164,13 @@ namespace FurniTour.Server.Data
         public DbSet<Color> Colors { get; set; }
         public DbSet<Clicks> Clicks { get; set; }
         public DbSet<CachedRecommendation> CachedRecommendations { get; set; }
-        public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }
-        public DbSet<Guarantee> Guarantees { get; set; }
+        public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }        public DbSet<Guarantee> Guarantees { get; set; }
         public DbSet<GuaranteeItems> GuaranteeItems { get; set; }
         public DbSet<GuaranteePhoto> GuaranteePhotos { get; set; }
         public DbSet<IndividualOrderStatus> IndividualOrderStatuses { get; set; }
         public DbSet<PriceCategory> PriceCategories { get; set; }
         public DbSet<IndividualOrder> IndividualOrders { get; set; }
+        public DbSet<FurnitureReview> FurnitureReviews { get; set; }
+        public DbSet<FurnitureAdditionalPhoto> FurnitureAdditionalPhotos { get; set; }
     }
 }

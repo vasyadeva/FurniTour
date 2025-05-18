@@ -11,6 +11,7 @@ import { ManufacturerModel } from '../../models/manufacturer.model';
 import { ManufacturerService } from '../../services/manufacturer/manufacturer.service';
 import { CategoryModel } from '../../models/category.model';
 import { ColorModel } from '../../models/color.model';
+import { FurnitureAdditionalPhoto } from '../../models/furniture.review.model';
 
 @Component({
   selector: 'app-item-edit',
@@ -30,7 +31,10 @@ export class ItemEditComponent implements OnInit {
     image: '',
     categoryId: 0,
     colorId: 0,
-    manufacturerId: 0
+    manufacturerId: 0,
+    additionalPhotos: [],
+    photoDescriptions: [],
+    photoIdsToRemove: []
   };
 
   manufacturers: ManufacturerModel[] = [];
@@ -43,8 +47,13 @@ export class ItemEditComponent implements OnInit {
   itemForm: FormGroup;
   base64Photo: string | null = null;
   loading: boolean = true;
-
-  constructor(private fb: FormBuilder, private itemService: ItemService, private route: ActivatedRoute, private router: Router,
+  
+  // Additional photos
+  additionalPhotos: string[] = [];
+  photoDescriptions: string[] = [];
+  existingAdditionalPhotos: FurnitureAdditionalPhoto[] = [];
+  photoIdsToRemove: number[] = [];
+  constructor(private fb: FormBuilder, public itemService: ItemService, private route: ActivatedRoute, private router: Router,
     private popupService: PopupService, public status: AppStatusService, private manufacturerService: ManufacturerService
   ) {
     // Initialize form with empty values - we'll populate it in ngOnInit
@@ -137,7 +146,7 @@ export class ItemEditComponent implements OnInit {
             
             // Update form with item details
             this.itemForm.patchValue({
-              name: itemDetails.description,
+              name: itemDetails.name,
               description: itemDetails.description,
               price: itemDetails.price,
               categoryId: categoryId,
@@ -149,8 +158,7 @@ export class ItemEditComponent implements OnInit {
             if (itemDetails.image) {
               this.base64Photo = 'data:image/jpeg;base64,' + itemDetails.image;
             }
-            
-            // Set item model
+              // Set item model
             this.itemModel = {
               id: itemDetails.id,
               name: itemDetails.name,
@@ -159,8 +167,16 @@ export class ItemEditComponent implements OnInit {
               image: itemDetails.image,
               categoryId: categoryId,
               colorId: colorId,
-              manufacturerId: manufacturerId || 0
+              manufacturerId: manufacturerId || 0,
+              additionalPhotos: [],
+              photoDescriptions: [],
+              photoIdsToRemove: []
             };
+            
+            // Store existing additional photos
+            if (itemDetails.additionalPhotos && itemDetails.additionalPhotos.length > 0) {
+              this.existingAdditionalPhotos = itemDetails.additionalPhotos;
+            }
           },
           (error) => {
             this.loading = false;
@@ -200,6 +216,37 @@ export class ItemEditComponent implements OnInit {
     }
   }
 
+  // Add an additional photo
+  onAdditionalPhotoSelected(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const base64String = e.target.result.split(',')[1];
+        this.additionalPhotos.push(base64String);
+        this.photoDescriptions.push('');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+  
+  // Remove a pending additional photo
+  removeAdditionalPhoto(index: number): void {
+    this.additionalPhotos.splice(index, 1);
+    this.photoDescriptions.splice(index, 1);
+  }
+  
+  // Mark an existing photo for removal
+  removeExistingPhoto(photoId: number): void {
+    this.photoIdsToRemove.push(photoId);
+    // Remove from the displayed list
+    this.existingAdditionalPhotos = this.existingAdditionalPhotos.filter(p => p.id !== photoId);
+  }
+  
+  // Update photo description
+  updatePhotoDescription(index: number, description: string): void {
+    this.photoDescriptions[index] = description;
+  }
   onSubmit(): void {
     if (this.itemForm.invalid) {
       this.popupService.openSnackBar('Please fill all required fields.');
@@ -223,6 +270,11 @@ export class ItemEditComponent implements OnInit {
     this.itemModel.colorId = this.itemForm.get('colorId')?.value;
     this.itemModel.image = base64Data;
     this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value;
+    
+    // Set additional photos data
+    this.itemModel.additionalPhotos = this.additionalPhotos;
+    this.itemModel.photoDescriptions = this.photoDescriptions;
+    this.itemModel.photoIdsToRemove = this.photoIdsToRemove;
     
     this.itemService.update(this.itemModel).subscribe(
       response => {

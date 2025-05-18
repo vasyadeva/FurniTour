@@ -1,3 +1,5 @@
+import { FurnitureAdditionalPhoto, FurnitureReview } from "./furniture.review.model";
+
 export interface itemGet
 {
     id: number;
@@ -9,4 +11,8 @@ export interface itemGet
     image: string;
     manufacturer: string;
     master: string;
+    reviews: FurnitureReview[];
+    additionalPhotos: FurnitureAdditionalPhoto[];
+    averageRating: number;
+    reviewCount: number;
 }

@@ -8,12 +8,15 @@ import { api } from '../../app.api';
 import { ColorModel } from '../../models/color.model';
 import { CategoryModel } from '../../models/category.model';
 import { ItemFilterModel }  from '../../models/item.filter.model';
+import { AddFurnitureReview, FurnitureReview } from '../../models/furniture.review.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ItemService {
   api : string = api+"/Item/";
+  reviewApi : string = api+"/FurnitureReview/";
+  
   constructor(private http: HttpClient) { }
 
   create(item: itemSend) {
@@ -60,5 +63,26 @@ export class ItemService {
 
   getItemByDescription(description: string): Observable<itemGet[]> {
     return this.http.get<itemGet[]>(`${this.api}/search/${description}`, { withCredentials: true });
+  }
+    // New methods for reviews and photos
+  getItemReviews(itemId: number): Observable<FurnitureReview[]> {
+    return this.http.get<FurnitureReview[]>(`${this.api}reviews/${itemId}`, { withCredentials: true });
+  }
+    getReviewSummary(itemId: number): Observable<string> {
+    console.log('Fetching review summary for item:', itemId);
+    return this.http.get(`${this.api}reviews/summary/${itemId}`, { 
+      withCredentials: true,
+      responseType: 'text' // Ensure we get plain text response
+    });
+  }
+    addReview(review: AddFurnitureReview) {
+    return this.http.post(`${this.api}reviews`, review, { withCredentials: true });
+  }
+  
+  getAdditionalImageUrl(photoId: number): string {
+    return `${this.api}additionalImage/${photoId}`;
+  }
+  countAdditionalPhotos(itemId: number): Observable<any> {
+    return this.http.get<any>(`${this.api}count-photos/${itemId}`, { withCredentials: true });
   }
 }

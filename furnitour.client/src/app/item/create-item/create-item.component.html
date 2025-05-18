@@ -136,6 +136,45 @@
                     <p class="mt-2 mb-0" style="color: #809da0;">Завантажте зображення товару</p>
                   </div>
                 </div>
+                
+                <!-- Additional Photos Section -->
+                <div class="mt-4">
+                  <h5 class="mb-3" style="color: #1f3745;">
+                    <i class="fas fa-images me-2"></i>Додаткові фотографії
+                  </h5>
+                  
+                  <!-- Newly added photos (not yet saved) -->
+                  <div *ngIf="additionalPhotos.length > 0" class="mb-3">
+                    <h6 class="text-muted mb-2">Додані фотографії:</h6>
+                    <div class="row g-2">
+                      <div *ngFor="let photo of additionalPhotos; let i = index" class="col-md-4 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                          <div class="position-relative">
+                            <img [src]="'data:image/jpeg;base64,' + photo" class="card-img-top" style="height: 150px; object-fit: contain;">
+                            <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2" 
+                                    (click)="removeAdditionalPhoto(i)">
+                              <i class="fas fa-times"></i>
+                            </button>
+                          </div>
+                          <div class="card-body p-2">
+                            <input type="text" class="form-control form-control-sm" 
+                                   placeholder="Опис фотографії" 
+                                   [(ngModel)]="photoDescriptions[i]" 
+                                   [ngModelOptions]="{standalone: true}">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Add new photo button -->
+                  <div class="text-center">
+                    <label class="btn" style="background-color: #d8ebeb; color: #1f3745; border-radius: 8px;">
+                      <i class="fas fa-plus me-2"></i>Додати фотографію
+                      <input type="file" accept="image/*" style="display: none;" (change)="onAdditionalPhotoSelected($event)">
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
             

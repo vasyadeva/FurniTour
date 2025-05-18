@@ -2,11 +2,70 @@
   <div class="row">
     <div class="col-lg-10 offset-lg-1">
       <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
-        <div class="row g-0">
-          <div class="col-md-6">
+        <div class="row g-0">          <div class="col-md-6">
             <div class="position-relative h-100" style="background-color: #f0f4f4;">
-              <img *ngIf="item.image" [src]="'data:image/jpeg;base64,' + item.image" 
-                   class="w-100 h-100" style="object-fit: contain; max-height: 500px;" alt="{{ item.name }}" />
+              <!-- Photo gallery with navigation buttons -->
+              <div class="position-relative" style="height: 400px;">
+                <!-- Main image or current additional image -->
+                <img [src]="currentPhotoIndex === 0 ? ('data:image/jpeg;base64,' + item.image) : itemService.getAdditionalImageUrl(item.additionalPhotos[currentPhotoIndex-1].id)" 
+                     class="w-100 h-100" style="object-fit: contain; max-height: 400px;" alt="{{ item.name }}" />
+                
+                <!-- Navigation buttons for the photo gallery -->
+                <button *ngIf="item.additionalPhotos && item.additionalPhotos.length > 0" 
+                        class="btn position-absolute start-0 top-50 translate-middle-y ms-2" 
+                        style="background-color: rgba(31, 55, 69, 0.7); color: white;"
+                        (click)="previousPhoto()">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button *ngIf="item.additionalPhotos && item.additionalPhotos.length > 0" 
+                        class="btn position-absolute end-0 top-50 translate-middle-y me-2" 
+                        style="background-color: rgba(31, 55, 69, 0.7); color: white;"
+                        (click)="nextPhoto()">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Photo counter indicator -->
+                <div *ngIf="item.additionalPhotos && item.additionalPhotos.length > 0" 
+                     class="position-absolute bottom-0 start-50 translate-middle-x mb-3">
+                  <span class="badge bg-dark px-3 py-2">
+                    {{ currentPhotoIndex + 1 }} / {{ item.additionalPhotos.length + 1 }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Thumbnail Navigation -->
+              <div *ngIf="item.additionalPhotos && item.additionalPhotos.length > 0" class="mt-3 px-3">
+                <div class="d-flex overflow-auto py-2" style="gap: 10px;">
+                  <!-- Main image thumbnail -->
+                  <div 
+                    class="thumbnail" 
+                    [class.active]="currentPhotoIndex === 0"
+                    (click)="setCurrentPhotoIndex(0)"
+                    style="width: 70px; height: 70px; cursor: pointer; border: 3px solid transparent;"
+                    [ngStyle]="{'border-color': currentPhotoIndex === 0 ? '#1f3745' : 'transparent'}">
+                    <img 
+                      [src]="'data:image/jpeg;base64,' + item.image" 
+                      alt="Main Photo"
+                      style="width: 100%; height: 100%; object-fit: cover;" />
+                  </div>
+                  
+                  <!-- Additional photos thumbnails -->
+                  <div 
+                    *ngFor="let photo of item.additionalPhotos; let i = index"
+                    class="thumbnail" 
+                    [class.active]="currentPhotoIndex === i + 1"
+                    (click)="setCurrentPhotoIndex(i + 1)"
+                    style="width: 70px; height: 70px; cursor: pointer; border: 3px solid transparent;"
+                    [ngStyle]="{'border-color': currentPhotoIndex === i + 1 ? '#1f3745' : 'transparent'}">
+                    <img 
+                      [src]="itemService.getAdditionalImageUrl(photo.id)" 
+                      alt="Photo {{i+1}}"
+                      style="width: 100%; height: 100%; object-fit: cover;" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Category badge -->
               <div class="position-absolute top-0 end-0 m-3">
                 <span class="badge" style="background-color: #1f3745; color: white; font-size: 0.9rem; padding: 8px 15px; border-radius: 20px;">
                   {{ item.category }}
@@ -19,6 +78,17 @@
             <div class="card-body p-4" style="background-color: #fff;">
               <h2 class="card-title mb-3" style="color: #1f3745; font-weight: 600; border-bottom: 3px solid #d8ebeb; padding-bottom: 15px;">
                 {{ item.name }}
+                
+                <!-- Display average rating if available -->
+                <div *ngIf="item.reviewCount > 0" class="mt-2" style="font-size: 1rem;">
+                  <span *ngFor="let star of getStars(item.averageRating)" class="text-warning">
+                    <i class="fas fa-star"></i>
+                  </span>
+                  <span *ngFor="let star of getEmptyStars(item.averageRating)" class="text-muted">
+                    <i class="fas fa-star"></i>
+                  </span>
+                  <span class="ms-2 text-muted">{{ item.averageRating.toFixed(1) }} ({{ item.reviewCount }} відгуків)</span>
+                </div>
               </h2>
               
               <div class="mb-4">
@@ -105,6 +175,118 @@
                 <i class="fas fa-cart-plus me-2"></i>Додати в кошик
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Reviews Section -->
+      <div class="card border-0 shadow-lg mt-4" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header p-4" style="background: linear-gradient(135deg, #1f3745, #0f1c23); color: white;">
+          <h3 class="mb-0">
+            <i class="fas fa-comments me-2"></i>Відгуки та оцінки
+          </h3>
+        </div>        <div class="card-body p-4">          <!-- AI-powered Review Summary -->
+          <div *ngIf="(reviewSummary && item.reviewCount > 0) || isLoadingSummary" class="mb-4 p-4" 
+               style="background-color: #f8f9fa; border-radius: 10px; border-left: 5px solid #1f3745; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <div class="d-flex align-items-center mb-2">
+              <i class="fas fa-robot me-3" style="color: #1f3745; font-size: 1.5rem;"></i>
+              <h5 class="mb-0" style="color: #1f3745; font-weight: 600;">
+                Аналіз відгуків
+              </h5>
+            </div>
+            
+            <!-- Loading spinner -->
+            <div *ngIf="isLoadingSummary" class="text-center py-3">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Завантаження...</span>
+              </div>
+              <p class="mt-2 text-muted">Генерація аналізу відгуків...</p>
+            </div>
+            
+            <!-- Summary content -->
+            <p *ngIf="!isLoadingSummary && reviewSummary" class="mb-0" style="font-style: italic; line-height: 1.6;">{{ reviewSummary }}</p>
+            <div *ngIf="!isLoadingSummary && reviewSummary" class="mt-2 text-end">
+              <small class="text-muted">Згенеровано штучним інтелектом на основі {{ item.reviewCount }} відгуків</small>
+            </div>
+            
+            <!-- Debug information -->
+            <div *ngIf="!isLoadingSummary && !reviewSummary" class="alert alert-warning mt-2">
+              Не вдалося отримати аналіз відгуків. Спробуйте пізніше.
+            </div>
+          </div>
+            <!-- Add Review Form -->
+          <div *ngIf="status?.isUser" class="mb-4">
+            <h5 class="mb-3" style="color: #1f3745;">
+              <i class="fas fa-pen-alt me-2"></i>Додати відгук
+            </h5>
+            <div class="card p-4" style="border: none; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+              <div class="mb-3">
+                <label class="form-label fw-bold" style="color: #1f3745;">Ваша оцінка</label>
+                <div class="rating-select">
+                  <div class="btn-group" role="group">
+                    <button *ngFor="let star of [1,2,3,4,5]" type="button" 
+                            class="btn" 
+                            [ngClass]="{'btn-warning text-white': userReview.rating >= star, 'btn-outline-warning': userReview.rating < star}"
+                            (click)="userReview.rating = star">
+                      <i class="fas fa-star"></i>
+                    </button>
+                  </div>
+                  <small class="d-block mt-1 text-muted">Оберіть від 1 до 5 зірок</small>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="reviewComment" class="form-label fw-bold" style="color: #1f3745;">Ваш коментар</label>
+                <textarea id="reviewComment" 
+                          class="form-control" 
+                          rows="3" 
+                          style="border: 2px solid #d8ebeb; border-radius: 8px;"
+                          placeholder="Поділіться своїми враженнями про цей товар..."
+                          [(ngModel)]="userReview.comment"></textarea>
+              </div>
+              <button class="btn" style="background-color: #1f3745; color: white; border-radius: 8px;" (click)="submitReview()">
+                <i class="fas fa-paper-plane me-2"></i>Відправити відгук
+              </button>
+            </div>
+          </div>
+            <!-- Reviews List -->
+          <div *ngIf="reviews.length > 0">
+            <h5 class="mb-3" style="color: #1f3745;">
+              <i class="fas fa-list-ul me-2"></i>Всі відгуки ({{ reviews.length }})
+            </h5>
+            
+            <div *ngFor="let review of reviews" class="card mb-3" style="border: none; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div class="d-flex align-items-center">
+                    <div class="me-3" style="width: 40px; height: 40px; background-color: #d8ebeb; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                      <i class="fas fa-user" style="color: #1f3745;"></i>
+                    </div>
+                    <div>
+                      <h6 class="mb-0" style="color: #1f3745; font-weight: 600;">{{ review.username }}</h6>
+                      <div class="text-muted small">{{ review.createdAt | date:'dd.MM.yyyy' }}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <span *ngFor="let star of getStars(review.rating)" class="text-warning">
+                      <i class="fas fa-star"></i>
+                    </span>
+                    <span *ngFor="let star of getEmptyStars(review.rating)" class="text-muted">
+                      <i class="fas fa-star"></i>
+                    </span>
+                  </div>
+                </div>
+                <div class="p-3" style="background-color: #f8f9fa; border-radius: 8px;">
+                  <p class="mb-0" style="line-height: 1.6;">{{ review.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- No Reviews Message -->
+          <div *ngIf="reviews.length === 0" class="text-center p-4" style="background-color: #f8f9fa; border-radius: 10px;">
+            <i class="fas fa-comments fa-3x mb-3" style="color: #d8ebeb;"></i>
+            <h5 style="color: #1f3745;">Поки що немає відгуків</h5>
+            <p class="text-muted">Будьте першим, хто залишить відгук про цей товар!</p>
           </div>
         </div>
       </div>

@@ -27,7 +27,9 @@ export class CreateItemComponent {
     image: '',
     categoryId: 0,
     colorId: 0,
-    manufacturerId: 0
+    manufacturerId: 0,
+    additionalPhotos: [],
+    photoDescriptions: []
   };
   manufacturers: ManufacturerModel[] = [];
   filteredManufacturers: ManufacturerModel[] = [];
@@ -37,6 +39,10 @@ export class CreateItemComponent {
   error: string = '';
   itemForm: FormGroup;
   base64Photo: string | null = null;
+
+  // Additional photos
+  additionalPhotos: string[] = [];
+  photoDescriptions: string[] = [];
 
   constructor(private fb: FormBuilder, private itemService: ItemService, private popupService: PopupService,
     public status: AppStatusService, private manufacturerService: ManufacturerService
@@ -101,6 +107,30 @@ export class CreateItemComponent {
     }
   }
 
+  // Add an additional photo
+  onAdditionalPhotoSelected(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const base64String = e.target.result.split(',')[1];
+        this.additionalPhotos.push(base64String);
+        this.photoDescriptions.push('');
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Remove a pending additional photo
+  removeAdditionalPhoto(index: number): void {
+    this.additionalPhotos.splice(index, 1);
+    this.photoDescriptions.splice(index, 1);
+  }
+
+  // Update photo description
+  updatePhotoDescription(index: number, description: string): void {
+    this.photoDescriptions[index] = description;
+  }
   onSubmit(): void {
     if (this.itemForm.invalid || !this.base64Photo) {
       alert('Please fill all fields and select a file.');
@@ -115,6 +145,11 @@ export class CreateItemComponent {
     this.itemModel.colorId = this.itemForm.get('colorId')?.value;
     this.itemModel.image = base64Data;
     this.itemModel.manufacturerId = this.itemForm.get('manufacturerId')?.value;
+    
+    // Add additional photos and descriptions
+    this.itemModel.additionalPhotos = this.additionalPhotos;
+    this.itemModel.photoDescriptions = this.photoDescriptions;
+    
     this.itemService.create(this.itemModel).subscribe(
       response => {
         console.log('Item added successfully!', response);

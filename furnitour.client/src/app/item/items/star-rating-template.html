@@ -1,0 +1,13 @@
+<!-- Star rating template for items -->
+<div *ngIf="item.reviewCount > 0" class="d-flex justify-content-center align-items-center mb-2">
+  <span *ngFor="let star of getFullStars(item.averageRating)" class="text-warning">
+    <i class="fas fa-star"></i>
+  </span>
+  <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
+    <i class="fas fa-star-half-alt"></i>
+  </span>
+  <span *ngFor="let star of getEmptyStars(item.averageRating)" class="text-muted">
+    <i class="fas fa-star"></i>
+  </span>
+  <span class="ms-2 text-muted small">({{ item.reviewCount }})</span>
+</div>

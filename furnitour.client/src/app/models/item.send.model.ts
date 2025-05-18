@@ -7,4 +7,6 @@ export interface itemSend
     categoryId: number;
     colorId: number;
     manufacturerId: number;
+    additionalPhotos: string[]; // Base64 encoded images
+    photoDescriptions: string[];
 }

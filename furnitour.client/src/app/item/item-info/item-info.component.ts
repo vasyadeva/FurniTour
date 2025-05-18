@@ -8,12 +8,13 @@ import { PopupService } from '../../services/popup/popup.service';
 import { ClickService } from '../../services/click/click.service';
 import { CartService } from '../../services/cart/cart.service';
 import { AppStatusService } from '../../services/auth/app.status.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FurnitureReview, AddFurnitureReview } from '../../models/furniture.review.model';
 
 @Component({
   selector: 'app-item-info',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ReactiveFormsModule],
   templateUrl: './item-info.component.html',
   styleUrl: './item-info.component.css'
 })
@@ -21,6 +22,17 @@ export class ItemInfoComponent implements OnInit {
   itemId: string | null = null;
   id!: number;
   quantity: number = 1; // Add quantity property
+  
+  // Reviews related properties
+  reviews: FurnitureReview[] = [];
+  reviewSummary: string = '';
+  isLoadingSummary: boolean = false;
+  currentPhotoIndex: number = 0;
+  userReview: AddFurnitureReview = {
+    furnitureId: 0,
+    comment: '',
+    rating: 5
+  };
   
   item: itemGet = {
     id: 0,
@@ -31,11 +43,14 @@ export class ItemInfoComponent implements OnInit {
     color: '',
     image: '',
     manufacturer: '',
-    master: ''
+    master: '',
+    reviews: [],
+    additionalPhotos: [],
+    averageRating: 0,
+    reviewCount: 0
   };
-
   constructor(
-    private itemService: ItemService, 
+    public itemService: ItemService, 
     private route: ActivatedRoute, 
     private router: Router, 
     private popupService: PopupService,
@@ -49,10 +64,14 @@ export class ItemInfoComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.itemId = params.get('id');
       this.id = parseInt(this.itemId!);
+      this.userReview.furnitureId = this.id;
+      
       this.itemService.details(this.id).subscribe(
-        (response) => {
-          this.popupService.closeSnackBar();
+        (response) => {          this.popupService.closeSnackBar();
           this.item = response;
+          this.loadReviews();
+          // Moved the loadReviewSummary call to be triggered after reviews are loaded
+          
           this.clickService.sendClick(this.id).subscribe(
             (response) => {
               console.log('Click sent');
@@ -69,6 +88,118 @@ export class ItemInfoComponent implements OnInit {
         }
       );
     });
+  }  
+  // Load reviews for the current item
+  loadReviews(): void {
+    this.itemService.getItemReviews(this.id).subscribe(
+      (reviews) => {
+        this.reviews = reviews;
+        // Load summary after reviews are loaded if there are any
+        if (reviews && reviews.length > 0) {
+          this.loadReviewSummary();
+        }
+      },
+      (error) => {
+        console.error('Error loading reviews:', error);
+      }
+    );
+  }
+  
+  // Load AI-generated review summary
+  loadReviewSummary(): void {
+    if (this.item.reviewCount > 0) {
+      this.isLoadingSummary = true;
+      this.reviewSummary = ''; // Clear existing summary
+      console.log('Loading review summary for item:', this.id);
+      
+      this.itemService.getReviewSummary(this.id).subscribe(
+        (summary) => {
+          console.log('Received review summary:', summary);
+          this.reviewSummary = summary;
+          this.isLoadingSummary = false;
+        },
+        (error) => {
+          console.error('Error loading review summary:', error);
+          this.isLoadingSummary = false;
+        }
+      );
+    }
+  }
+    // Submit a new review
+  submitReview(): void {
+    if (!this.userReview.comment) {
+      this.popupService.openSnackBar('Будь ласка, додайте коментар до відгуку');
+      return;
+    }
+    
+    if (!this.status.isUser) {
+      this.popupService.openSnackBar('Ви повинні увійти в систему, щоб залишити відгук');
+      return;
+    }
+    
+    this.itemService.addReview(this.userReview).subscribe(
+      () => {
+        this.popupService.openSnackBar('Відгук успішно додано');        // Reset form
+        this.userReview.comment = '';
+        this.userReview.rating = 5;
+        // Reload reviews
+        this.loadReviews();
+        // No need to call loadReviewSummary here as it will be called from loadReviews
+        // Reload item to get updated average rating
+        this.itemService.details(this.id).subscribe(
+          (response) => {
+            this.item = response;
+          }
+        );
+      },
+      (error) => {
+        console.error('Error adding review:', error);
+        this.popupService.openSnackBar(error?.error || 'Помилка додавання відгуку');
+      }
+    );
+  }
+  
+  // Photo gallery navigation
+  nextPhoto(): void {
+    if (this.item.additionalPhotos && this.item.additionalPhotos.length > 0) {
+      this.currentPhotoIndex = (this.currentPhotoIndex + 1) % (this.item.additionalPhotos.length + 1);
+    }
+  }
+  
+  previousPhoto(): void {
+    if (this.item.additionalPhotos && this.item.additionalPhotos.length > 0) {
+      this.currentPhotoIndex = (this.currentPhotoIndex - 1 + this.item.additionalPhotos.length + 1) % (this.item.additionalPhotos.length + 1);
+    }
+  }
+  
+  // Get current photo URL (main photo or additional photo)
+  getCurrentPhotoUrl(): string {
+    if (this.currentPhotoIndex === 0) {
+      return 'data:image/jpeg;base64,' + this.item.image;
+    } else {
+      const photo = this.item.additionalPhotos[this.currentPhotoIndex - 1];
+      return this.itemService.getAdditionalImageUrl(photo.id);
+    }
+  }
+  
+  // Set the current photo index directly (for thumbnail clicks)
+  setCurrentPhotoIndex(index: number): void {
+    if (index >= 0 && index <= this.item.additionalPhotos.length) {
+      this.currentPhotoIndex = index;
+    }
+  }
+  
+  // Get the stars for rating display
+  getStars(rating: number): number[] {
+    // Ensure rating is a valid number between 0 and 5
+    const validRating = Math.max(0, Math.min(5, isNaN(rating) ? 0 : Math.floor(rating)));
+    return Array(validRating).fill(0).map((_, i) => i + 1);
+  }
+  
+  getEmptyStars(rating: number): number[] {
+    // Ensure rating is a valid number between 0 and 5
+    const validRating = Math.max(0, Math.min(5, isNaN(rating) ? 0 : Math.floor(rating)));
+    return Array(5 - validRating).fill(0).map((_, i) => i + 1);
   }
 
   // Add method to decrement quantity with a minimum of 1
@@ -98,6 +229,19 @@ export class ItemInfoComponent implements OnInit {
       (error) => {
         console.error('Error adding item to cart:', error);
         this.popupService.openSnackBar('Помилка додавання товару до кошика');
+      }
+    );
+  }
+
+  // Test method to verify photo count
+  checkPhotoCount(): void {
+    this.itemService.countAdditionalPhotos(this.id).subscribe(
+      (response) => {
+        this.popupService.openSnackBar(`This item has ${response.count} additional photos`);
+      },
+      (error) => {
+        console.error('Error checking photo count:', error);
+        this.popupService.openSnackBar('Error checking photo count');
       }
     );
   }

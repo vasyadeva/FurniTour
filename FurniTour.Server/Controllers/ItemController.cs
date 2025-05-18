@@ -84,11 +84,11 @@ namespace FurniTour.Server.Controllers
         public IActionResult Details(int id)
         {
             var item = itemFurnitureService.Details(id);
-            if (item != null)
+            if (item == null)
             {
-                return Ok(item);
+                return NotFound("Item not found");
             }
-            return BadRequest();
+            return Ok(item);
         }
 
         [HttpGet("categories/getall")]
@@ -137,10 +137,55 @@ namespace FurniTour.Server.Controllers
         {
             byte[] bytes = itemFurnitureService.GetImage(id);
             return File(bytes, "image/jpg");
+        }        // New endpoints for reviews and additional photos
+        [HttpGet("reviews/{itemId}")]
+        public async Task<IActionResult> GetReviews(int itemId)
+        {
+            var reviews = await itemFurnitureService.GetFurnitureReviews(itemId);
+            return Ok(reviews);
+        }        [HttpGet("reviews/summary/{itemId}")]
+        public async Task<IActionResult> GetReviewSummary(int itemId)
+        {
+            try
+            {
+                var summary = await itemFurnitureService.GetReviewsSummary(itemId);
+                Console.WriteLine($"Generated summary for item {itemId}: {summary}");
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting review summary: {ex.Message}");
+                return StatusCode(500, "Помилка при генерації аналізу відгуків");
+            }
         }
 
+        [HttpPost("reviews")]
+        public async Task<IActionResult> AddReview([FromBody] AddFurnitureReviewModel model)
+        {
+            var result = await itemFurnitureService.AddItemReview(model);
+            if (string.IsNullOrEmpty(result))
+            {
+                return Ok();
+            }
+            return BadRequest(result);
+        }
 
+        [HttpGet("additionalImage/{photoId}")]
+        public IActionResult GetAdditionalImage(int photoId)
+        {
+            var imageData = itemFurnitureService.GetAdditionalImage(photoId);
+            if (imageData == null)
+            {
+                return NotFound();
+            }
+            return File(imageData, "image/jpeg");
+        }
 
-
+        [HttpGet("count-photos/{itemId}")]
+        public async Task<IActionResult> CountAdditionalPhotos(int itemId)
+        {
+            var count = await itemFurnitureService.GetAdditionalPhotoCount(itemId);
+            return Ok(new { count });
+        }
     }
 }

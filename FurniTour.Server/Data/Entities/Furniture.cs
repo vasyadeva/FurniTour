@@ -24,5 +24,9 @@ namespace FurniTour.Server.Data.Entities
         public int? ManufacturerId { get; set; }
         [ForeignKey(nameof(ManufacturerId))]
         public Manufacturer Manufacturer { get; set; }
+
+        // Navigation properties for reviews and additional photos
+        public ICollection<FurnitureReview> Reviews { get; set; } = new List<FurnitureReview>();
+        public ICollection<FurnitureAdditionalPhoto> AdditionalPhotos { get; set; } = new List<FurnitureAdditionalPhoto>();
     }
 }

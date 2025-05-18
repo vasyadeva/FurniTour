@@ -44,14 +44,18 @@ namespace FurniTour.Server.Services
                     var Master = string.Empty;
                     if (item.ManufacturerId != null)
                     {
-                        Manufacturer = context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
+                        var manufacturerEntity = context.Manufacturers.FirstOrDefault(c => c.Id == item.ManufacturerId);
+                        Manufacturer = manufacturerEntity?.Name ?? string.Empty;
                     }
                     if (item.MasterId != null)
                     {
-                        Master = context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
+                        var masterEntity = context.Users.FirstOrDefault(c => c.Id == item.MasterId);
+                        Master = masterEntity?.UserName ?? string.Empty;
                     }
-                    var category = context.Categories.Where(c => c.Id == item.CategoryId).FirstOrDefault().Name;
-                    var color = context.Colors.Where(c => c.Id == item.ColorId).FirstOrDefault().Name;
+                    var categoryEntity = context.Categories.FirstOrDefault(c => c.Id == item.CategoryId);
+                    var category = categoryEntity?.Name ?? string.Empty;
+                    var colorEntity = context.Colors.FirstOrDefault(c => c.Id == item.ColorId);
+                    var color = colorEntity?.Name ?? string.Empty;
                     var itemModel = new ItemViewModel
                     {
                         Id = item.Id,
@@ -70,38 +74,33 @@ namespace FurniTour.Server.Services
                 return itemListModel;
             }
             return null;
-        }
-
-
-
-        public List<ItemViewModel> getFilteredItems(ItemFilterModel model)
+        }        public List<ItemViewModel> getFilteredItems(ItemFilterModel model)
         {
             var Items = context.Furnitures.AsQueryable();
-            if (model.categoryID != null && model.categoryID != 0)
+            if (model.categoryID != 0)
             {
                 Items = Items.Where(c => c.CategoryId == model.categoryID);
             }
-            if (model.colorID != null && model.colorID != 0)
+            if (model.colorID != 0)
             {
                 Items = Items.Where(c => c.ColorId == model.colorID);
             }
-            if (model.manufacturerID != null && model.manufacturerID != 0)
+            if (model.manufacturerID != 0)
             {
-                Items = Items.Where(c => c.ManufacturerId == model.manufacturerID);
-            }
-            if (model.masterID != null && model.masterID != string.Empty)
+                Items = Items.Where(c => c.ManufacturerId == model.manufacturerID);            }
+            if (!string.IsNullOrEmpty(model.masterID))
             {
                 Items = Items.Where(c => c.MasterId == model.masterID);
             }
-            if (model.minPrice != null && model.minPrice != 0)
+            if (model.minPrice != 0)
             {
                 Items = Items.Where(c => c.Price >= model.minPrice);
             }
-            if (model.maxPrice != null && model.maxPrice != 0)
+            if (model.maxPrice != 0)
             {
                 Items = Items.Where(c => c.Price <= model.maxPrice);
             }
-            if (model.searchString != null && model.searchString != string.Empty)
+            if (!string.IsNullOrEmpty(model.searchString))
             {
                 Items = Items.Where(c => c.Name.Contains(model.searchString) || c.Description.Contains(model.searchString));
             }
@@ -110,19 +109,22 @@ namespace FurniTour.Server.Services
             {
                 var itemListModel = new List<ItemViewModel>();
                 foreach (var item in itemObj)
-                {
-                    var Manufacturer = string.Empty;
+                {                    var Manufacturer = string.Empty;
                     var Master = string.Empty;
                     if (item.ManufacturerId != null)
                     {
-                        Manufacturer = context.Manufacturers.Where(c => c.Id == item.ManufacturerId).FirstOrDefault().Name;
+                        var manufacturerEntity = context.Manufacturers.FirstOrDefault(c => c.Id == item.ManufacturerId);
+                        Manufacturer = manufacturerEntity?.Name ?? string.Empty;
                     }
                     if (item.MasterId != null)
                     {
-                        Master = context.Users.Where(c => c.Id == item.MasterId).FirstOrDefault().UserName;
+                        var masterEntity = context.Users.FirstOrDefault(c => c.Id == item.MasterId);
+                        Master = masterEntity?.UserName ?? string.Empty;
                     }
-                    var category = context.Categories.Where(c => c.Id == item.CategoryId).FirstOrDefault().Name;
-                    var color = context.Colors.Where(c => c.Id == item.ColorId).FirstOrDefault().Name;
+                    var categoryEntity = context.Categories.FirstOrDefault(c => c.Id == item.CategoryId);
+                    var category = categoryEntity?.Name ?? string.Empty;
+                    var colorEntity = context.Colors.FirstOrDefault(c => c.Id == item.ColorId);
+                    var color = colorEntity?.Name ?? string.Empty;
                     var itemModel = new ItemViewModel
                     {
                         Id = item.Id,
@@ -157,10 +159,13 @@ namespace FurniTour.Server.Services
                 {
                     return "Color not found";
                 }
+                
+                Furniture itemObj = null;
+                
                 switch (authService.IsMaster())
                 {
                     case "":
-                        var itemObj = new Furniture
+                        itemObj = new Furniture
                         {
                             Name = itemModel.Name,
                             Description = itemModel.Description,
@@ -170,15 +175,13 @@ namespace FurniTour.Server.Services
                             ColorId = itemModel.ColorId,
                             MasterId = authService.GetUser().Id
                         };
-                        await context.Furnitures.AddAsync(itemObj);
-                        await context.SaveChangesAsync();
-                        return string.Empty;
+                        break;
                     default:
                         if (itemModel.ManufacturerId == null || itemModel.ManufacturerId == 0)
                         {
                             return "ManufacturerId is required";
                         }
-                        var itemObjAdm = new Furniture
+                        itemObj = new Furniture
                         {
                             Name = itemModel.Name,
                             Description = itemModel.Description,
@@ -188,51 +191,57 @@ namespace FurniTour.Server.Services
                             ColorId = itemModel.ColorId,
                             ManufacturerId = itemModel.ManufacturerId
                         };
-                        await context.Furnitures.AddAsync(itemObjAdm);
-                        await context.SaveChangesAsync();
-                        return string.Empty;
+                        break;
                 }
-
+                
+                await context.Furnitures.AddAsync(itemObj);
+                await context.SaveChangesAsync();
+                
+                // Add additional photos if provided
+                if (itemModel.AdditionalPhotos != null && itemModel.AdditionalPhotos.Any())
+                {
+                    for (int i = 0; i < itemModel.AdditionalPhotos.Count; i++)
+                    {
+                        var photoBase64 = itemModel.AdditionalPhotos[i];
+                        string description = "";
+                        
+                        // Get description if available
+                        if (itemModel.PhotoDescriptions != null && 
+                            i < itemModel.PhotoDescriptions.Count &&
+                            !string.IsNullOrEmpty(itemModel.PhotoDescriptions[i]))
+                        {
+                            description = itemModel.PhotoDescriptions[i];
+                        }
+                        
+                        var additionalPhoto = new FurnitureAdditionalPhoto
+                        {
+                            FurnitureId = itemObj.Id,
+                            PhotoData = Convert.FromBase64String(photoBase64),
+                            Description = description
+                        };
+                        
+                        await context.FurnitureAdditionalPhotos.AddAsync(additionalPhoto);
+                    }
+                    
+                    await context.SaveChangesAsync();
+                }
+                
+                return string.Empty;
             }
             return check;
-        }
-
-        public ItemViewModel Details(int id)
+        }        public ItemViewModel Details(int id)
         {
-            var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
+            var itemObj = context.Furnitures
+                .Include(f => f.Reviews)
+                .Include(f => f.AdditionalPhotos)
+                .FirstOrDefault(x => x.Id == id);
+            
             if (itemObj != null)
             {
-                var Manufacturer = string.Empty;
-                var Master = string.Empty;
-                if (itemObj.ManufacturerId != null)
-                {
-                    Manufacturer = context.Manufacturers.Where(c => c.Id == itemObj.ManufacturerId).FirstOrDefault().Name;
-                }
-                if (itemObj.MasterId != null)
-                {
-                    Master = context.Users.Where(c => c.Id == itemObj.MasterId).FirstOrDefault().UserName;
-                }
-                var category = context.Categories.Where(c => c.Id == itemObj.CategoryId).FirstOrDefault().Name;
-                var color = context.Colors.Where(c => c.Id == itemObj.ColorId).FirstOrDefault().Name;
-                var itemModel = new ItemViewModel
-                {
-                    Id = itemObj.Id,
-                    Name = itemObj.Name,
-                    Description = itemObj.Description,
-                    Price = itemObj.Price,
-                    Image = Convert.ToBase64String(itemObj.Image),
-                    Category = category,
-                    Color = color,
-                    Manufacturer = Manufacturer,
-                    Master = Master
-                };
-                return itemModel;
+                return MapFurnitureToViewModel(itemObj);
             }
-            return null;
-        }
-
-
-        public async Task<string> Edit(int id, ItemUpdateModel itemModel)
+            return new ItemViewModel(); // Return empty view model instead of null
+        }public async Task<string> Edit(int id, ItemUpdateModel itemModel)
         {
             byte[] photoData = Convert.FromBase64String(itemModel.Image);
             authService.CheckRoleMasterOrAdmin();
@@ -246,7 +255,10 @@ namespace FurniTour.Server.Services
                 {
                     return "Color not found";
                 }
-                var itemObj = context.Furnitures.FirstOrDefault(x => x.Id == id);
+                var itemObj = await context.Furnitures
+                    .Include(f => f.AdditionalPhotos)
+                    .FirstOrDefaultAsync(x => x.Id == id);
+                    
                 if (itemObj != null)
                 {
                     itemObj.Name = itemModel.Name;
@@ -259,6 +271,49 @@ namespace FurniTour.Server.Services
                     {
                         itemObj.ManufacturerId = itemModel.ManufacturerId;
                     }
+                    
+                    // Handle photo removal
+                    if (itemModel.PhotoIdsToRemove != null && itemModel.PhotoIdsToRemove.Count > 0)
+                    {
+                        var photosToRemove = itemObj.AdditionalPhotos
+                            .Where(p => itemModel.PhotoIdsToRemove.Contains(p.Id))
+                            .ToList();
+                        
+                        if (photosToRemove.Any())
+                        {
+                            foreach (var photo in photosToRemove)
+                            {
+                                context.FurnitureAdditionalPhotos.Remove(photo);
+                            }
+                        }
+                    }
+                    
+                    // Add new photos
+                    if (itemModel.AdditionalPhotos != null && itemModel.AdditionalPhotos.Count > 0)
+                    {
+                        for (int i = 0; i < itemModel.AdditionalPhotos.Count; i++)
+                        {
+                            var photoBase64 = itemModel.AdditionalPhotos[i];
+                            if (string.IsNullOrEmpty(photoBase64))
+                                continue;
+                                
+                            var description = "";
+                            if (itemModel.PhotoDescriptions != null && i < itemModel.PhotoDescriptions.Count)
+                            {
+                                description = itemModel.PhotoDescriptions[i] ?? "";
+                            }
+                                
+                            var newPhoto = new Data.Entities.FurnitureAdditionalPhoto
+                            {
+                                FurnitureId = id,
+                                PhotoData = Convert.FromBase64String(photoBase64),
+                                Description = description
+                            };
+                            
+                            await context.FurnitureAdditionalPhotos.AddAsync(newPhoto);
+                        }
+                    }
+                    
                     await context.SaveChangesAsync();
                     return string.Empty;
                 }
@@ -346,28 +401,27 @@ namespace FurniTour.Server.Services
                 ["content"] = $"Here is a list of items: {JsonSerializer.Serialize(itemDescriptions)}. Please return the ID of the most relevant item in the format 'ID: <id>'. User wants: {description}"
             }
         }
-            };
-
-            var result = await groqApi.CreateChatCompletionAsync(request);
+            };            var result = await groqApi.CreateChatCompletionAsync(request);
             var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
 
-            var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"ID: (\d+)");
-            if (match.Success && int.TryParse(match.Groups[1].Value, out int itemId))
+            if (!string.IsNullOrEmpty(aiResponse))
             {
-                var item = items.FirstOrDefault(i => i.Id == itemId);
-                if (item != null)
+                var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"ID: (\d+)");
+                if (match.Success && int.TryParse(match.Groups[1].Value, out int itemId))
                 {
-                    return item;
+                    var item = items.FirstOrDefault(i => i.Id == itemId);
+                    if (item != null)
+                    {
+                        return item;
+                    }
                 }
             }
 
             throw new InvalidOperationException("AI response did not contain a valid item ID.");
-        }
-
-        public byte[] GetImage(int id)
+        }        public byte[] GetImage(int id)
         {
             var item = context.Furnitures.FirstOrDefault(c => c.Id == id);
-            return item.Image;
+            return item?.Image ?? Array.Empty<byte>();
         }
 
         //        public async Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description, int category,
@@ -641,6 +695,251 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
             }).ToList();
 
             return result;
+        }
+
+        // Methods for reviews and additional photos
+        public async Task<List<FurnitureReviewModel>> GetFurnitureReviews(int itemId)
+        {
+            var furniture = await context.Furnitures
+                .Include(f => f.Reviews)
+                .ThenInclude(r => r.User)
+                .FirstOrDefaultAsync(f => f.Id == itemId);
+                
+            if (furniture == null || furniture.Reviews == null)
+            {
+                return new List<FurnitureReviewModel>();
+            }
+            
+            return furniture.Reviews.Select(r => new FurnitureReviewModel
+            {
+                Id = r.Id,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                Username = r.User?.UserName ?? "Unknown",
+                CreatedAt = r.CreatedAt
+            }).ToList();
+        }
+        
+        public async Task<string> AddItemReview(AddFurnitureReviewModel reviewModel)
+        {
+            var userCheck = authService.IsAuthenticated();
+            if (!userCheck.IsNullOrEmpty())
+            {
+                return userCheck;
+            }
+            
+            var furniture = await context.Furnitures.FindAsync(reviewModel.FurnitureId);
+            if (furniture == null)
+            {
+                return "Furniture not found";
+            }
+            
+            // Check if user already reviewed this furniture
+            var userId = authService.GetUser().Id;
+            var existingReview = await context.FurnitureReviews
+                .FirstOrDefaultAsync(r => r.FurnitureId == reviewModel.FurnitureId && r.UserId == userId);
+                
+            if (existingReview != null)
+            {
+                // Update existing review
+                existingReview.Comment = reviewModel.Comment;
+                existingReview.Rating = reviewModel.Rating;
+                existingReview.CreatedAt = DateTime.Now;
+            }
+            else
+            {
+                // Create new review
+                var review = new FurnitureReview
+                {
+                    FurnitureId = reviewModel.FurnitureId,
+                    UserId = userId,
+                    Comment = reviewModel.Comment,
+                    Rating = reviewModel.Rating,
+                    CreatedAt = DateTime.Now
+                };
+                
+                await context.FurnitureReviews.AddAsync(review);
+            }
+            
+            await context.SaveChangesAsync();
+            return string.Empty;
+        }        public async Task<string> GetReviewsSummary(int itemId)
+        {
+            var reviews = await GetFurnitureReviews(itemId);
+            Console.WriteLine($"GetReviewsSummary: Found {reviews.Count} reviews for item {itemId}");
+            
+            if (reviews == null || !reviews.Any())
+            {
+                Console.WriteLine("GetReviewsSummary: No reviews found");
+                return "Поки що немає відгуків для цього товару.";
+            }
+            
+            var api = configuration["key:api"];
+            if (string.IsNullOrEmpty(api))
+            {
+                Console.WriteLine("GetReviewsSummary: API key is missing");
+                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок.";
+            }
+            
+            var groqApi = new GroqApiClient(api);            var request = new JsonObject
+            {
+                ["model"] = "gemma2-9b-it",
+                ["messages"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["role"] = "user",
+                        ["content"] = $"Тут відгуки для меблевого товару: {JsonSerializer.Serialize(reviews)}. Будь ласка, надайте коротке резюме 2-3 реченнями українською мовою про те, що клієнтам подобається і що не подобається в цьому товарі на основі цих відгуків. Формат: 'Резюме: <ваше резюме тут>'"
+                    }
+                }
+            };
+            
+            try
+            {
+                var result = await groqApi.CreateChatCompletionAsync(request);
+                var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
+                  if (!string.IsNullOrEmpty(aiResponse))
+                {
+                    var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"Резюме: (.+)", System.Text.RegularExpressions.RegexOptions.Singleline);
+                    if (match.Success)
+                    {
+                        return match.Groups[1].Value.Trim();
+                    }
+                    return aiResponse;
+                }                
+                // Fallback if AI doesn't respond as expected
+                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок";
+            }
+            catch (Exception ex)
+            {
+                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок. " + ex.Message;
+            }
+        }
+          public byte[] GetAdditionalImage(int photoId)
+        {
+            var photo = context.FurnitureAdditionalPhotos.FirstOrDefault(p => p.Id == photoId);
+            if (photo != null)
+            {
+                return photo.PhotoData ?? Array.Empty<byte>();
+            }
+            return Array.Empty<byte>();
+        }
+
+        private ItemViewModel MapFurnitureToViewModel(Furniture furniture)
+        {
+            // Extract manufacturer and master info
+            var manufacturer = string.Empty;
+            var master = string.Empty;
+            
+            if (furniture.ManufacturerId.HasValue)
+            {
+                var manufacturerEntity = context.Manufacturers.FirstOrDefault(c => c.Id == furniture.ManufacturerId);
+                if (manufacturerEntity != null)
+                {
+                    manufacturer = manufacturerEntity.Name;
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(furniture.MasterId))
+            {
+                var masterEntity = context.Users.FirstOrDefault(c => c.Id == furniture.MasterId);
+                if (masterEntity != null)
+                {
+                    master = masterEntity.UserName;
+                }
+            }
+            
+            // Extract category and color
+            var category = context.Categories.FirstOrDefault(c => c.Id == furniture.CategoryId)?.Name ?? string.Empty;
+            var color = context.Colors.FirstOrDefault(c => c.Id == furniture.ColorId)?.Name ?? string.Empty;
+            
+            // Get reviews if included
+            var reviews = new List<FurnitureReviewModel>();
+            if (furniture.Reviews != null)
+            {
+                reviews = furniture.Reviews.Select(r => new FurnitureReviewModel
+                {
+                    Id = r.Id,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    Username = context.Users.FirstOrDefault(u => u.Id == r.UserId)?.UserName ?? "Unknown",
+                    CreatedAt = r.CreatedAt
+                }).ToList();
+            }
+            
+            // Get additional photos if included
+            var additionalPhotos = new List<FurnitureAdditionalPhotoModel>();
+            if (furniture.AdditionalPhotos != null)
+            {
+                additionalPhotos = furniture.AdditionalPhotos.Select(p => new FurnitureAdditionalPhotoModel
+                {
+                    Id = p.Id,
+                    PhotoData = Convert.ToBase64String(p.PhotoData),
+                    Description = p.Description ?? string.Empty
+                }).ToList();
+            }
+            
+            // Calculate ratings
+            double averageRating = 0;
+            if (reviews.Any())
+            {
+                averageRating = reviews.Average(r => r.Rating);
+            }
+            
+            return new ItemViewModel
+            {
+                Id = furniture.Id,
+                Name = furniture.Name,
+                Description = furniture.Description,
+                Price = furniture.Price,
+                Image = Convert.ToBase64String(furniture.Image),
+                Category = category,
+                Color = color,
+                Manufacturer = manufacturer,
+                Master = master,
+                Reviews = reviews,
+                AdditionalPhotos = additionalPhotos,
+                AverageRating = averageRating,
+                ReviewCount = reviews.Count
+            };
+        }
+
+        public async Task<int> GetAdditionalPhotoCount(int itemId)
+        {
+            var furniture = await context.Furnitures
+                .Include(f => f.AdditionalPhotos)
+                .FirstOrDefaultAsync(f => f.Id == itemId);
+                
+            if (furniture == null || furniture.AdditionalPhotos == null)
+            {
+                return 0;
+            }
+            
+            return furniture.AdditionalPhotos.Count;
+        }
+
+        // Forward the GetItemReviews calls to GetFurnitureReviews for backward compatibility
+        public async Task<List<FurnitureReviewModel>> GetItemReviews(int itemId)
+        {
+            // Forward to the implementation in GetFurnitureReviews
+            var furniture = await context.Furnitures
+                .Include(f => f.Reviews)
+                .ThenInclude(r => r.User)
+                .FirstOrDefaultAsync(f => f.Id == itemId);
+                
+            if (furniture == null || furniture.Reviews == null)
+            {
+                return new List<FurnitureReviewModel>();
+            }
+            
+            return furniture.Reviews.Select(r => new FurnitureReviewModel
+            {
+                Id = r.Id,
+                Comment = r.Comment,
+                Rating = r.Rating,
+                Username = r.User?.UserName ?? "Unknown",
+                CreatedAt = r.CreatedAt
+            }).ToList();
         }
     }
 }
