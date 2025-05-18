@@ -121,15 +121,15 @@
             <div class="card-body">
               <h5 class="card-title text-center fw-bold" style="color: #1f3745;">{{ item.name }}</h5>
               
-              <!-- Add average rating display -->
+              <!-- Updated average rating display with better half-star handling -->
               <div *ngIf="item.reviewCount > 0" class="d-flex justify-content-center align-items-center mb-2">
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, math.floor(item.averageRating))" class="text-warning">
+                <span *ngFor="let i of getFullStars(item.averageRating)" class="text-warning">
                   <i class="fas fa-star"></i>
                 </span>
-                <span *ngIf="item.averageRating % 1 > 0" class="text-warning">
+                <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
                   <i class="fas fa-star-half-alt"></i>
                 </span>
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, 5 - math.ceil(item.averageRating))" class="text-muted">
+                <span *ngFor="let i of getEmptyStars(item.averageRating)" class="text-muted">
                   <i class="fas fa-star"></i>
                 </span>
                 <span class="ms-2 text-muted small">({{ item.reviewCount }})</span>
@@ -206,15 +206,15 @@
             <div class="card-body">
               <h5 class="card-title text-center fw-bold" style="color: #1f3745;">{{ item.name }}</h5>
               
-              <!-- Add average rating display -->
+              <!-- Updated average rating display with better half-star handling -->
               <div *ngIf="item.reviewCount > 0" class="d-flex justify-content-center align-items-center mb-2">
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, math.floor(item.averageRating))" class="text-warning">
+                <span *ngFor="let i of getFullStars(item.averageRating)" class="text-warning">
                   <i class="fas fa-star"></i>
                 </span>
-                <span *ngIf="item.averageRating % 1 > 0" class="text-warning">
+                <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
                   <i class="fas fa-star-half-alt"></i>
                 </span>
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, 5 - math.ceil(item.averageRating))" class="text-muted">
+                <span *ngFor="let i of getEmptyStars(item.averageRating)" class="text-muted">
                   <i class="fas fa-star"></i>
                 </span>
                 <span class="ms-2 text-muted small">({{ item.reviewCount }})</span>
@@ -287,15 +287,15 @@
             <div class="card-body">
               <h5 class="card-title text-center fw-bold" style="color: #1f3745;">{{ item.name }}</h5>
               
-              <!-- Add average rating display -->
+              <!-- Updated average rating display with better half-star handling -->
               <div *ngIf="item.reviewCount > 0" class="d-flex justify-content-center align-items-center mb-2">
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, math.floor(item.averageRating))" class="text-warning">
+                <span *ngFor="let i of getFullStars(item.averageRating)" class="text-warning">
                   <i class="fas fa-star"></i>
                 </span>
-                <span *ngIf="item.averageRating % 1 > 0" class="text-warning">
+                <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
                   <i class="fas fa-star-half-alt"></i>
                 </span>
-                <span *ngFor="let i of [1,2,3,4,5].slice(0, 5 - math.ceil(item.averageRating))" class="text-muted">
+                <span *ngFor="let i of getEmptyStars(item.averageRating)" class="text-muted">
                   <i class="fas fa-star"></i>
                 </span>
                 <span class="ms-2 text-muted small">({{ item.reviewCount }})</span>

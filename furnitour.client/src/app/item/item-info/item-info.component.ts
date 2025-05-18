@@ -189,17 +189,35 @@ export class ItemInfoComponent implements OnInit {
     }
   }
   
-  // Get the stars for rating display
+  // Updated methods for rating display with proper half-star handling
   getStars(rating: number): number[] {
-    // Ensure rating is a valid number between 0 and 5
-    const validRating = Math.max(0, Math.min(5, isNaN(rating) ? 0 : Math.floor(rating)));
-    return Array(validRating).fill(0).map((_, i) => i + 1);
+    const fullStars = Math.floor(rating);
+    return Array(fullStars).fill(0).map((_, i) => i);
+  }
+  
+  getHalfStar(rating: number): boolean {
+    // Consider a half star for decimal parts between 0.3 and 0.8
+    const decimal = rating % 1;
+    return decimal >= 0.3 && decimal < 0.8;
   }
   
   getEmptyStars(rating: number): number[] {
-    // Ensure rating is a valid number between 0 and 5
-    const validRating = Math.max(0, Math.min(5, isNaN(rating) ? 0 : Math.floor(rating)));
-    return Array(5 - validRating).fill(0).map((_, i) => i + 1);
+    // For decimals >= 0.8, round up to next full star
+    // For decimals between 0.3 and 0.8, count as half star
+    // For decimals < 0.3, round down
+    let effectiveRating: number;
+    const decimal = rating % 1;
+    
+    if (decimal >= 0.8) {
+      effectiveRating = Math.ceil(rating);
+    } else if (decimal >= 0.3) {
+      effectiveRating = Math.floor(rating) + 0.5;
+    } else {
+      effectiveRating = Math.floor(rating);
+    }
+    
+    const emptyStars = 5 - Math.ceil(effectiveRating);
+    return Array(emptyStars).fill(0).map((_, i) => i);
   }
 
   // Add method to decrement quantity with a minimum of 1

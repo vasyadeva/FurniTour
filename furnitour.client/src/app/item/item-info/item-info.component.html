@@ -84,6 +84,9 @@
                   <span *ngFor="let star of getStars(item.averageRating)" class="text-warning">
                     <i class="fas fa-star"></i>
                   </span>
+                  <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
+                    <i class="fas fa-star-half-alt"></i>
+                  </span>
                   <span *ngFor="let star of getEmptyStars(item.averageRating)" class="text-muted">
                     <i class="fas fa-star"></i>
                   </span>
@@ -269,6 +272,9 @@
                   <div>
                     <span *ngFor="let star of getStars(review.rating)" class="text-warning">
                       <i class="fas fa-star"></i>
+                    </span>
+                    <span *ngIf="getHalfStar(review.rating)" class="text-warning">
+                      <i class="fas fa-star-half-alt"></i>
                     </span>
                     <span *ngFor="let star of getEmptyStars(review.rating)" class="text-muted">
                       <i class="fas fa-star"></i>

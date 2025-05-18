@@ -34,46 +34,51 @@ namespace FurniTour.Server.Services
 
         public List<ItemViewModel> getAll()
         {
-            var itemObj = context.Furnitures.ToList();
-            if (itemObj != null)
+            var itemObj = context.Furnitures.Include(c => c.Reviews).Include(c => c.AdditionalPhotos).ToList();
+            //if (itemObj != null)
+            //{
+            //    var itemListModel = new List<ItemViewModel>();
+            //    foreach (var item in itemObj)
+            //    {
+            //        var Manufacturer = string.Empty;
+            //        var Master = string.Empty;
+            //        if (item.ManufacturerId != null)
+            //        {
+            //            var manufacturerEntity = context.Manufacturers.FirstOrDefault(c => c.Id == item.ManufacturerId);
+            //            Manufacturer = manufacturerEntity?.Name ?? string.Empty;
+            //        }
+            //        if (item.MasterId != null)
+            //        {
+            //            var masterEntity = context.Users.FirstOrDefault(c => c.Id == item.MasterId);
+            //            Master = masterEntity?.UserName ?? string.Empty;
+            //        }
+            //        var categoryEntity = context.Categories.FirstOrDefault(c => c.Id == item.CategoryId);
+            //        var category = categoryEntity?.Name ?? string.Empty;
+            //        var colorEntity = context.Colors.FirstOrDefault(c => c.Id == item.ColorId);
+            //        var color = colorEntity?.Name ?? string.Empty;
+            //        var itemModel = new ItemViewModel
+            //        {
+            //            Id = item.Id,
+            //            Name = item.Name,
+            //            Description = item.Description,
+            //            Price = item.Price,
+            //            Image = Convert.ToBase64String(item.Image),
+            //            Category = category,
+            //            Color = color,
+            //            Manufacturer = Manufacturer,
+            //            Master = Master
+            //        };
+            //        itemListModel.Add(itemModel);
+            //    }
+            //    return itemListModel;
+            //}
+            var itemList = new List<ItemViewModel>();
+            foreach (var item in itemObj)
             {
-                var itemListModel = new List<ItemViewModel>();
-                foreach (var item in itemObj)
-                {
-                    var Manufacturer = string.Empty;
-                    var Master = string.Empty;
-                    if (item.ManufacturerId != null)
-                    {
-                        var manufacturerEntity = context.Manufacturers.FirstOrDefault(c => c.Id == item.ManufacturerId);
-                        Manufacturer = manufacturerEntity?.Name ?? string.Empty;
-                    }
-                    if (item.MasterId != null)
-                    {
-                        var masterEntity = context.Users.FirstOrDefault(c => c.Id == item.MasterId);
-                        Master = masterEntity?.UserName ?? string.Empty;
-                    }
-                    var categoryEntity = context.Categories.FirstOrDefault(c => c.Id == item.CategoryId);
-                    var category = categoryEntity?.Name ?? string.Empty;
-                    var colorEntity = context.Colors.FirstOrDefault(c => c.Id == item.ColorId);
-                    var color = colorEntity?.Name ?? string.Empty;
-                    var itemModel = new ItemViewModel
-                    {
-                        Id = item.Id,
-                        Name = item.Name,
-                        Description = item.Description,
-                        Price = item.Price,
-                        Image = Convert.ToBase64String(item.Image),
-                        Category = category,
-                        Color = color,
-                        Manufacturer = Manufacturer,
-                        Master = Master
-
-                    };
-                    itemListModel.Add(itemModel);
-                }
-                return itemListModel;
-            }
-            return null;
+                var it = MapFurnitureToViewModel(item);
+                itemList.Add(it);
+            }    
+            return itemList;
         }        public List<ItemViewModel> getFilteredItems(ItemFilterModel model)
         {
             var Items = context.Furnitures.AsQueryable();
