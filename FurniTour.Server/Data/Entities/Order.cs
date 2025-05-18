@@ -17,6 +17,10 @@ namespace FurniTour.Server.Data.Entities
         public string? Comment { get; set; }
         [Precision(18, 2)]
         public decimal TotalPrice { get; set; }
+        [Precision(18, 2)]
+        public decimal OriginalPrice { get; set; }
+        [Precision(18, 2)]
+        public decimal AppliedDiscount { get; set; }
         [ForeignKey(nameof(OrderStateId))]
         public OrderState OrderState { get; set; }
         public int OrderStateId { get; set; }

@@ -64,6 +64,40 @@
               </div>
             </div>
           </div>
+          
+          <!-- Loyalty Card -->
+          <div class="card border-0 shadow-sm mt-4" *ngIf="loyalty">
+            <div class="card-header" style="background: linear-gradient(135deg, #1f3745, #0f1c23); color: white;">
+              <h5 class="mb-0"><i class="fas fa-gem me-2"></i>Програма лояльності</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="loyalty-badge me-3" [ngClass]="getLoyaltyBadgeClass()">
+                  <i [class]="'fas ' + getLoyaltyIcon()"></i>
+                </div>
+                <div>
+                  <h5 class="mb-1">Рівень: <span [class]="'badge ' + getLoyaltyBadgeClass()">{{ loyalty.loyaltyName }}</span></h5>
+                  <p class="mb-0" *ngIf="loyalty?.discountPercent && loyalty.discountPercent > 0">Ваша знижка: <span class="fw-bold text-success">{{ loyalty.discountPercent }}%</span></p>
+                </div>
+              </div>
+              
+              <div *ngIf="loyalty?.amountToNextLevel && loyalty.amountToNextLevel > 0" class="mt-3">
+                <label class="form-label">Прогрес до наступного рівня:</label>
+                <div class="progress" style="height: 10px; border-radius: 5px;">
+                  <div class="progress-bar" 
+                       [ngStyle]="{'width': getProgressPercentage() + '%', 'background-color': getLoyaltyColor()}"
+                       role="progressbar"></div>
+                </div>
+                <small class="text-muted mt-1 d-block">
+                  Замовте ще на <strong>{{ loyalty.amountToNextLevel }}</strong> грн для досягнення наступного рівня
+                </small>
+              </div>
+              
+              <div *ngIf="loyalty?.loyaltyLevel === 3" class="alert alert-success mt-3">
+                <i class="fas fa-trophy me-2"></i> Вітаємо! Ви досягли максимального рівня лояльності.
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="card-footer p-4 text-center" style="background-color: #d8ebeb; border: none;">

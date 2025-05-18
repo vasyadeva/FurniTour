@@ -160,3 +160,47 @@ body {
 .card {
   background-color: #ffffff;
 }
+
+/* Loyalty badges styling */
+.badge-standard {
+  background-color: #6c757d;
+  color: white;
+}
+
+.badge-bronze {
+  background-color: #cd7f32;
+  color: white;
+}
+
+.badge-silver {
+  background-color: #c0c0c0;
+  color: #333;
+}
+
+.badge-gold {
+  background-color: #ffd700;
+  color: #333;
+}
+
+.text-bronze {
+  color: #cd7f32;
+}
+
+.text-silver {
+  color: #c0c0c0;
+}
+
+.text-gold {
+  color: #ffd700;
+}
+
+.loyalty-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f4f4;
+  font-size: 24px;
+}

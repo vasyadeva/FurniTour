@@ -28,6 +28,7 @@ builder.Services.AddScoped<IRecomendationService, RecomendationService>();
 builder.Services.AddScoped<IClickService, ClickService>();
 builder.Services.AddScoped<IGuaranteeService, GuaranteeService>();
 builder.Services.AddScoped<IIndividualOrderService, IndividualOrderService>();
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

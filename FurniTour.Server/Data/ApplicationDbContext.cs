@@ -172,5 +172,6 @@ namespace FurniTour.Server.Data
         public DbSet<IndividualOrder> IndividualOrders { get; set; }
         public DbSet<FurnitureReview> FurnitureReviews { get; set; }
         public DbSet<FurnitureAdditionalPhoto> FurnitureAdditionalPhotos { get; set; }
+        public DbSet<UserLoyalty> UserLoyalties { get; set; }
     }
 }

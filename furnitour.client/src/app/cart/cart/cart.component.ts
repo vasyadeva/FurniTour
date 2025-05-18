@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { PopupService } from '../../services/popup/popup.service';
 import { FormsModule } from '@angular/forms';
+import { LoyaltyService } from '../../services/loyalty/loyalty.service';
+import { AppStatusService } from '../../services/auth/app.status.service'; // Add this import
 
 @Component({
   selector: 'app-cart',
@@ -17,7 +19,15 @@ export class CartComponent implements OnInit {
   quantity: { [key: number]: number } = {}; 
   error : string = '';
   cartItems: CartGet[] = []; 
-  constructor(private cartService: CartService, private router: Router, private popupService: PopupService) {}
+  discountPercent: number = 0;
+  
+  constructor(
+    private cartService: CartService, 
+    private router: Router, 
+    private popupService: PopupService,
+    private loyaltyService: LoyaltyService,
+    public status: AppStatusService // Add this property
+  ) {}
 
   ngOnInit(): void {
     this.popupService.loadingSnackBar();
@@ -40,6 +50,31 @@ export class CartComponent implements OnInit {
         }
       }
     );
+
+    this.loadUserDiscount();
+  }
+
+  loadUserDiscount(): void {
+    if (this.status.isUser) {
+      this.loyaltyService.getUserDiscount().subscribe({
+        next: (data) => {
+          this.discountPercent = data.discountPercent;
+        },
+        error: (error) => {
+          console.error('Error loading user discount:', error);
+          this.discountPercent = 0;
+        }
+      });
+    }
+  }
+  
+  // Method to get price with discount applied
+  getDiscountedPrice(): number {
+    const totalPrice = this.getTotalPrice();
+    if (this.discountPercent > 0) {
+      return Math.round(totalPrice * (1 - this.discountPercent / 100));
+    }
+    return totalPrice;
   }
   
   removeFromCart(itemId: number): void {

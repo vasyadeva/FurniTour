@@ -9,4 +9,6 @@ export interface OrderModel {
     orderState: string;
     price: number;
     orderItems: OrderItemModel[];
+    appliedDiscount: number;
+    originalPrice: number;
   }

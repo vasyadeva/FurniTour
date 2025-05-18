@@ -7,6 +7,7 @@ import { ProfileManufacturerModel } from '../../models/profile.manufacturer.mode
 import { ManufacturerAddReviewModel } from '../../models/manufacturer.add.review.model';
 import { api } from '../../app.api';
 import { AIReviewModel } from '../../models/ai.review.model';
+import { ProfileModel } from '../../models/profile.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -43,5 +44,9 @@ export class ProfileService {
   addManufacturerReview(model: ManufacturerAddReviewModel)
   {
     return this.http.post(this.api + 'addmanufacturer', model, { withCredentials: true });
+  }
+
+  profile(): Observable<ProfileModel> {
+    return this.http.get<ProfileModel>(api + '/auth/profile', { withCredentials: true });
   }
 }

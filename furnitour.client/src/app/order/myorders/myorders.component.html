@@ -29,6 +29,14 @@
               <div class="col-md-6">
                 <p><strong><i class="fas fa-calendar-alt me-2"></i>Дата створення:</strong> {{ order.dateCreated | date:'dd.MM.yyyy HH:mm' }}</p>
                 <p><strong><i class="fas fa-money-bill-wave me-2"></i>Загальна Ціна:</strong> <span style="color: #771d17; font-weight: bold;">{{ order.price | currency }}</span></p>
+                
+                <!-- Display discount if applied - use safe navigation operator -->
+                <p *ngIf="order?.appliedDiscount && order.appliedDiscount > 0">
+                  <strong><i class="fas fa-tag me-2"></i>Застосована знижка:</strong> 
+                  <span class="text-success">{{ (order.appliedDiscount || 0) * 100 }}%</span>
+                  <span class="ms-2 text-muted text-decoration-line-through" *ngIf="order?.originalPrice">(початкова ціна: {{ order.originalPrice | currency }})</span>
+                </p>
+                
                 <p *ngIf="order.comment"><strong><i class="fas fa-comment me-2"></i>Коментар:</strong> {{ order.comment }}</p>
               </div>
             </div>

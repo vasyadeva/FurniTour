@@ -18,6 +18,10 @@ export class CartService {
       return this.http.get<CartGet[]>(this.api +'getcart',  { withCredentials: true });
   }
 
+  getCartItems(): Observable<CartGet[]> {
+    return this.getCart();
+  }
+
   updateQuantity(itemId: number, quantity: number) {
       return this.http.post(this.api +'update', {id:itemId, quantity}, { withCredentials: true });
   }

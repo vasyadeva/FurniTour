@@ -9,6 +9,25 @@
         </div>
         
         <div class="card-body p-4" style="background-color: #f8fafa;">
+          <!-- Loyalty discount information -->
+          <div *ngIf="discountPercent > 0" class="alert alert-success mb-4">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-tag me-3" style="font-size: 1.5rem;"></i>
+              <div>
+                <h5 class="mb-1">Програма лояльності активована!</h5>
+                <p class="mb-0">Ваша знижка <strong>{{ discountPercent }}%</strong> буде застосована до цього замовлення.</p>
+              </div>
+            </div>
+            <div class="mt-2 d-flex justify-content-between">
+              <span>Сума без знижки:</span>
+              <span class="text-decoration-line-through">{{ originalPrice }} грн</span>
+            </div>
+            <div class="d-flex justify-content-between fw-bold">
+              <span>Сума зі знижкою:</span>
+              <span>{{ discountedPrice }} грн</span>
+            </div>
+          </div>
+
           <form [formGroup]="orderForm" (ngSubmit)="submitOrder()">
             <div class="mb-4">
               <label for="name" class="form-label fw-bold" style="color: #1f3745;">

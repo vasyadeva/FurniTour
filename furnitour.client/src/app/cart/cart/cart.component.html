@@ -94,7 +94,7 @@
       </div>
     </div>
     
-    <!-- Order summary -->
+    <!-- Order summary section -->
     <div class="col-lg-4">
       <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; overflow: hidden; position: sticky; top: 20px;">
         <div class="card-header" style="background-color: #1f3745; color: white; padding: 15px;">
@@ -107,9 +107,31 @@
             <span class="fw-bold">{{ getTotalItems() }}</span>
           </div>
           
-          <div class="d-flex justify-content-between mb-4">
-            <span style="color: #1f3745;">Загальна сума:</span>
-            <span class="fw-bold" style="color: #771d17; font-size: 1.2rem;">{{ getTotalPrice() }} грн</span>
+          <div class="d-flex justify-content-between mb-3">
+            <span style="color: #1f3745;">Вартість без знижки:</span>
+            <span class="fw-bold">{{ getTotalPrice() }} грн</span>
+          </div>
+
+          <!-- Loyalty discount section -->
+          <div *ngIf="discountPercent > 0" class="alert alert-success mb-3 py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <span>
+                <i class="fas fa-tag me-2"></i>
+                Знижка програми лояльності:
+              </span>
+              <span class="fw-bold">{{ discountPercent }}%</span>
+            </div>
+          </div>
+          
+          <!-- Final price with discount -->
+          <div class="d-flex justify-content-between mb-4" [ngClass]="{'text-success': discountPercent > 0}">
+            <span style="color: #1f3745;" class="fw-bold">Загальна сума:</span>
+            <span class="fw-bold" style="color: #771d17; font-size: 1.2rem;">
+              {{ getDiscountedPrice() }} грн
+              <small *ngIf="discountPercent > 0" class="text-muted text-decoration-line-through ms-2" style="font-size: 0.9rem;">
+                {{ getTotalPrice() }} грн
+              </small>
+            </span>
           </div>
           
           <button class="btn w-100 mb-2" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 12px;" 

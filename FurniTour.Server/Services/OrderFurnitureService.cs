@@ -15,12 +15,15 @@ namespace FurniTour.Server.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IAuthService authService;
+        private readonly ILoyaltyService loyaltyService;
 
-        public OrderFurnitureService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager, IAuthService authService) {
+        public OrderFurnitureService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, 
+            UserManager<IdentityUser> userManager, IAuthService authService, ILoyaltyService loyaltyService) {
             this.context = context;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
             this.authService = authService;
+            this.loyaltyService = loyaltyService;
         }
 
 
@@ -107,19 +110,32 @@ namespace FurniTour.Server.Services
                         var CartItems = context.CartItems.Where(ci => ci.CartId == Cart.Id).ToList();
                         if (CartItems.Count > 0)
                         {
+                            // Calculate original total price
+                            var originalTotalPrice = (decimal)CartItems.Sum(ci => ci.Quantity * context.Furnitures.Where(f => f.Id == ci.FurnitureId).FirstOrDefault().Price);
+                            
+                            // Get user's discount
+                            var discount = await loyaltyService.GetUserDiscountAsync(user.Id);
+                            
+                            // Apply discount
+                            var discountedTotalPrice = loyaltyService.CalculateDiscountedTotal(originalTotalPrice, discount);
+                            
                             var orderdb = new Order
                             {
                                 UserId = user.Id,
                                 OrderStateId = 1,
                                 DateCreated = DateTime.Now,
-                                TotalPrice = (int)CartItems.Sum(ci => ci.Quantity * context.Furnitures.Where(f => f.Id == ci.FurnitureId).FirstOrDefault().Price),
+                                TotalPrice = (int)Math.Round(discountedTotalPrice), // Store discounted price
+                                OriginalPrice = (int)Math.Round(originalTotalPrice), // Store original price
+                                AppliedDiscount = discount,
                                 Name = order.Name,
                                 Address = order.Address,
                                 Phone = order.Phone,
                                 Comment = order.Comment
                             };
+                            
                             context.Orders.Add(orderdb);
                             await context.SaveChangesAsync();
+                            
                             var Order = context.Orders.Where(o => o.UserId == user.Id && o.DateCreated == orderdb.DateCreated).FirstOrDefault();
                             if (Order != null)
                             {
@@ -139,6 +155,9 @@ namespace FurniTour.Server.Services
                                     }
                                 }
                                 await context.SaveChangesAsync();
+                                
+                                // Update user's total spent
+                                await loyaltyService.UpdateUserSpendingAsync(user.Id, originalTotalPrice);
                             }
                             return "Some error occurred while making order";
                         }
