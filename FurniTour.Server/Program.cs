@@ -1,4 +1,5 @@
 using FurniTour.Server.Data;
+using FurniTour.Server.Hubs;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -29,6 +30,8 @@ builder.Services.AddScoped<IClickService, ClickService>();
 builder.Services.AddScoped<IGuaranteeService, GuaranteeService>();
 builder.Services.AddScoped<IIndividualOrderService, IndividualOrderService>();
 builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddSignalR();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -110,6 +113,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<ChatHub>("/chatHub");
 
 app.MapFallbackToFile("/index.html");
 

@@ -46,6 +46,12 @@
           <li class="nav-item" *ngIf="status.isAdmin">
             <a class="nav-link active" aria-current="page" routerLink="admin/guarantees">Адміністрування гарантій</a>
           </li>
+          <li class="nav-item" *ngIf="status.isSignedIn">
+            <a class="nav-link active" aria-current="page" routerLink="chat">
+              <i class="fa fa-comments"></i> Чат
+              <span class="badge bg-danger" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            </a>
+          </li>
         </ul>
         <ul class="nav navbar-nav ms-auto">
           <li class="nav-item" *ngIf="status.isAdmin">

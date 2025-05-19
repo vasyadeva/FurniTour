@@ -1,0 +1,70 @@
+<div class="chat-window" *ngIf="conversation || selectedUser">
+  <div class="chat-header">
+    <div class="recipient-info">
+      <div class="profile-pic">
+        <div class="initials">{{ getRecipientName().charAt(0) }}</div>
+      </div>
+      <div class="name">{{ getRecipientName() }}</div>
+    </div>
+  </div>
+  
+  <div class="chat-messages" #scrollContainer>
+    <div class="loading" *ngIf="loading">
+      <div class="spinner"></div>
+      <div>Завантаження повідомлень...</div>
+    </div>
+    
+    <div class="error-message" *ngIf="error">
+      {{ error }}
+    </div>
+    
+    <div class="empty-chat" *ngIf="messages.length === 0 && !loading && !error">
+      <div class="empty-icon">
+        <i class="fa fa-comments"></i>
+      </div>
+      <div class="empty-text">
+        Напишіть своє перше повідомлення внизу
+      </div>
+    </div>
+    
+    <div class="message-container" 
+         *ngFor="let message of messages"
+         [class.my-message-container]="isMyMessage(message)"
+         [class.other-message-container]="!isMyMessage(message)">
+      <div class="message" [class.my-message]="isMyMessage(message)" [class.other-message]="!isMyMessage(message)">
+        <div class="message-content">
+          {{ message.content }}
+        </div>
+        <div class="message-info">
+          <span class="message-time">{{ formatTime(message.sentAt) }}</span>
+          <span class="message-status" *ngIf="isMyMessage(message)">
+            <i class="fa" [class.fa-check]="!message.isRead" [class.fa-check-double]="message.isRead"></i>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="chat-input">
+    <textarea 
+      [(ngModel)]="newMessage" 
+      placeholder="Введіть повідомлення..." 
+      (keydown.enter)="$event.preventDefault(); sendMessage()">
+    </textarea>
+    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">
+      <i class="fa fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<div class="empty-state" *ngIf="!conversation && !selectedUser">
+  <div class="empty-icon">
+    <i class="fa fa-comments-o"></i>
+  </div>
+  <div class="empty-title">
+    Оберіть розмову
+  </div>
+  <div class="empty-subtitle">
+    Або знайдіть нового співрозмовника
+  </div>
+</div> 

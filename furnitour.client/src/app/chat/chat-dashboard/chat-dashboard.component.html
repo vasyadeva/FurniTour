@@ -1,0 +1,21 @@
+<div class="chat-dashboard">
+  <div class="contacts-panel">
+    <app-chat-contact-list
+      [conversations]="getFilteredConversations()"
+      [onlineUsers]="getFilteredUsers()"
+      [view]="view"
+      [searchTerm]="searchTerm"
+      (conversationSelected)="selectConversation($event)"
+      (userSelected)="selectUser($event)"
+      (viewChange)="switchView($event)"
+      (searchTermChange)="searchTerm = $event; search()">
+    </app-chat-contact-list>
+  </div>
+  
+  <div class="chat-panel">
+    <app-chat-window
+      [conversation]="selectedConversation"
+      [selectedUser]="getSelectedUser()">
+    </app-chat-window>
+  </div>
+</div> 

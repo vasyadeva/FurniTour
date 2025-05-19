@@ -1,6 +1,7 @@
 ﻿using FurniTour.Configurations.Entities;
 using FurniTour.Server.Configurations.Entities;
 using FurniTour.Server.Data.Entities;
+using FurniTour.Server.Models.Chat;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
@@ -118,6 +119,37 @@ namespace FurniTour.Server.Data
                 .HasForeignKey(o => o.MasterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure relationships for Chat entities
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User1)
+                .WithMany()
+                .HasForeignKey(c => c.User1Id)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Conversation>()
+                .HasOne(c => c.User2)
+                .WithMany()
+                .HasForeignKey(c => c.User2Id)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<ChatMessage>()
+                .HasOne(m => m.Sender)
+                .WithMany()
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<ChatMessage>()
+                .HasOne(m => m.Receiver)
+                .WithMany()
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<ChatMessage>()
+                .HasOne(m => m.Conversation)
+                .WithMany(c => c.Messages)
+                .HasForeignKey(m => m.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<IndividualOrderStatus>().HasData(
       new IndividualOrderStatus { Id = 1, Name = "Нове індивідуальне замовлення" },
       new IndividualOrderStatus { Id = 2, Name = "Скасовано користувачем" },
@@ -164,7 +196,8 @@ namespace FurniTour.Server.Data
         public DbSet<Color> Colors { get; set; }
         public DbSet<Clicks> Clicks { get; set; }
         public DbSet<CachedRecommendation> CachedRecommendations { get; set; }
-        public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }        public DbSet<Guarantee> Guarantees { get; set; }
+        public DbSet<UserRecomendationState> UserRecomendationStates { get; set; }        
+        public DbSet<Guarantee> Guarantees { get; set; }
         public DbSet<GuaranteeItems> GuaranteeItems { get; set; }
         public DbSet<GuaranteePhoto> GuaranteePhotos { get; set; }
         public DbSet<IndividualOrderStatus> IndividualOrderStatuses { get; set; }
@@ -173,5 +206,7 @@ namespace FurniTour.Server.Data
         public DbSet<FurnitureReview> FurnitureReviews { get; set; }
         public DbSet<FurnitureAdditionalPhoto> FurnitureAdditionalPhotos { get; set; }
         public DbSet<UserLoyalty> UserLoyalties { get; set; }
+        public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
     }
 }

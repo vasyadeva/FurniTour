@@ -34,6 +34,8 @@ import { GuaranteeListComponent } from './guarantee/guarantee-list/guarantee-lis
 import { GuaranteeDetailComponent } from './guarantee/guarantee-detail/guarantee-detail.component';
 import { GuaranteeCreateComponent } from './guarantee/guarantee-create/guarantee-create.component';
 import { GuaranteeAdminComponent } from './guarantee/guarantee-admin/guarantee-admin.component';
+import { ChatDashboardComponent } from './chat/chat-dashboard/chat-dashboard.component';
+
 export const routes: Routes = [
     //login paths
     {path: 'admin',component: AdminComponent,canActivate: [AuthGuard],data: { roles: ['Administrator'] }},
@@ -78,5 +80,7 @@ export const routes: Routes = [
     {path: 'guarantees/create', component: GuaranteeCreateComponent, canActivate: [AuthGuard], data: { roles: ['User'] }},
     {path: 'guarantees/:id', component: GuaranteeDetailComponent, canActivate: [AuthGuard], data: { roles: ['User', 'Administrator'] }},
     {path: 'guarantees', component: GuaranteeListComponent, canActivate: [AuthGuard], data: { roles: ['User', 'Administrator'] }},
-    {path: 'admin/guarantees', component: GuaranteeAdminComponent, canActivate: [AuthGuard], data: { roles: ['Administrator'] }}
+    {path: 'admin/guarantees', component: GuaranteeAdminComponent, canActivate: [AuthGuard], data: { roles: ['Administrator'] }},
+    //chat path
+    {path: 'chat', component: ChatDashboardComponent, canActivate: [AuthGuard],data: { roles: ['User','Administrator', 'Master'] }}
 ];

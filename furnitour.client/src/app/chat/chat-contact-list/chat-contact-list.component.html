@@ -1,0 +1,103 @@
+<div class="chat-contacts">
+  <div class="search-bar">
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Пошук..." (keyup.enter)="search()">
+    <button (click)="search()">
+      <i class="fa fa-search"></i>
+    </button>
+  </div>
+  
+  <div class="tabs">
+    <div class="tab" [class.active]="view === 'conversations'" (click)="switchView('conversations')">
+      Недавні
+    </div>
+    <div class="tab" [class.active]="view === 'online'" (click)="switchView('online')">
+      Онлайн
+    </div>
+    <div class="tab" [class.active]="view === 'search'" (click)="switchView('search')" *ngIf="searchTerm">
+      Пошук
+    </div>
+  </div>
+  
+  <div class="contact-list" *ngIf="view === 'conversations'">
+    <div class="contact" *ngFor="let conversation of conversations; trackBy: trackByConversationId" 
+         (click)="selectConversation(conversation)">
+      <div class="profile-pic">
+        <!-- Use avatar or initials based on username -->
+        <div class="initials">{{ getOtherUserName(conversation).charAt(0) }}</div>
+      </div>
+      <div class="info">
+        <div class="name-time">
+          <div class="name">{{ getOtherUserName(conversation) }}</div>
+          <div class="time">{{ getConversationTime(conversation) }}</div>
+        </div>
+        <div class="last-message" *ngIf="conversation.lastMessage">
+          {{ conversation.lastMessage.content.length > 30 ? 
+             conversation.lastMessage.content.substring(0, 30) + '...' : 
+             conversation.lastMessage.content }}
+        </div>
+      </div>
+      <div class="badge" *ngIf="conversation.unreadCount > 0">
+        {{ conversation.unreadCount }}
+      </div>
+    </div>
+    <div class="no-items" *ngIf="conversations.length === 0">
+      У вас поки немає розмов
+    </div>
+  </div>
+  
+  <div class="contact-list" *ngIf="view === 'online'">
+    <!-- Only display users who are actually online -->
+    <div class="section-title">Користувачі онлайн</div>
+    <div class="contact" *ngFor="let user of onlineFilteredUsers; trackBy: trackByUserId" 
+         (click)="selectUser(user)">
+      <div class="profile-pic">
+        <div class="initials">{{ user.userName.charAt(0) }}</div>
+        <div class="status online"></div>
+      </div>
+      <div class="info">
+        <div class="name">{{ user.userName }}</div>
+        <div class="role">{{ user.role }}</div>
+      </div>
+    </div>
+    <div class="no-items" *ngIf="!hasOnlineUsers">
+      Немає користувачів онлайн
+    </div>
+  </div>
+  
+  <div class="contact-list" *ngIf="view === 'search'">
+    <!-- Search results - includes both online and offline users -->
+    <ng-container *ngIf="searchTerm">
+      <!-- Online users first -->
+      <div class="section-title" *ngIf="hasOnlineUsers">Користувачі онлайн</div>
+      <div class="contact" *ngFor="let user of onlineFilteredUsers; trackBy: trackByUserId" 
+           (click)="selectUser(user)">
+        <div class="profile-pic">
+          <div class="initials">{{ user.userName.charAt(0) }}</div>
+          <div class="status online"></div>
+        </div>
+        <div class="info">
+          <div class="name">{{ user.userName }}</div>
+          <div class="role">{{ user.role }}</div>
+        </div>
+      </div>
+      
+      <!-- Offline users next -->
+      <div class="section-title" *ngIf="hasOfflineUsers">Користувачі офлайн</div>
+      <div class="contact" *ngFor="let user of offlineFilteredUsers; trackBy: trackByUserId" 
+           (click)="selectUser(user)">
+        <div class="profile-pic">
+          <div class="initials">{{ user.userName.charAt(0) }}</div>
+          <div class="status"></div>
+        </div>
+        <div class="info">
+          <div class="name">{{ user.userName }}</div>
+          <div class="role">{{ user.role }}</div>
+        </div>
+      </div>
+      
+      <div class="no-items" *ngIf="onlineUsers.length === 0">
+        Користувачів не знайдено
+      </div>
+    </ng-container>
+  </div>
+</div> 
