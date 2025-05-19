@@ -7,6 +7,24 @@
   box-shadow: 0 6px 15px rgba(31, 55, 69, 0.1);
 }
 
+.search-container {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.search-container input {
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 8px rgba(31, 55, 69, 0.2);
+}
+
 .manufacturer-table {
   box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
   border-radius: 12px;

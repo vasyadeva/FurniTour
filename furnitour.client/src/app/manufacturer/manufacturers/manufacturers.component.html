@@ -6,13 +6,37 @@
     </a>
   </div>
   
-  <div *ngIf="manufacturers.length === 0" class="empty-state fade-in">
+  <div *ngIf="manufacturers.length === 0 && !searchTerm" class="empty-state fade-in">
     <i class="fas fa-industry"></i>
     <h4>Немає доступних виробників</h4>
     <p>Додайте нового виробника, щоб побачити його в списку</p>
     <a class="btn btn-primary" routerLink="/manufacturers/add">
       <i class="fas fa-plus me-2"></i>Додати виробника
     </a>
+  </div>
+  
+  <!-- Search box -->
+  <div *ngIf="allManufacturers.length > 0" class="search-container my-4 fade-in">
+    <div class="input-group">
+      <span class="input-group-text" style="background-color: #1f3745; color: white; border: none;">
+        <i class="fas fa-search"></i>
+      </span>
+      <input 
+        type="text" 
+        class="form-control" 
+        placeholder="Пошук виробників за назвою або ID..." 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="searchManufacturers()"
+        style="border: 2px solid #809da0; border-left: 0; padding: 12px 15px;"
+      >
+    </div>
+  </div>
+  
+  <!-- No results from search -->
+  <div *ngIf="manufacturers.length === 0 && searchTerm" class="empty-state fade-in">
+    <i class="fas fa-search"></i>
+    <h4>Нічого не знайдено</h4>
+    <p>За вашим запитом "{{ searchTerm }}" нічого не знайдено</p>
   </div>
   
   <div *ngIf="manufacturers.length > 0" class="fade-in">
