@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace FurniTour.Server.Services
 {
@@ -16,17 +17,20 @@ namespace FurniTour.Server.Services
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly UserManager<IdentityUser> userManager;
         private readonly IAuthService authService;
+        private readonly INotificationService _notificationService;
 
         public IndividualOrderService(
             ApplicationDbContext context,
             IHttpContextAccessor httpContextAccessor,
             UserManager<IdentityUser> userManager,
-            IAuthService authService)
+            IAuthService authService,
+            INotificationService notificationService)
         {
             this.context = context;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
             this.authService = authService;
+            _notificationService = notificationService;
         }
 
         public async Task<List<IndividualOrderViewModel>> GetMyIndividualOrdersAsync()
@@ -137,6 +141,9 @@ namespace FurniTour.Server.Services
             context.IndividualOrders.Add(order);
             await context.SaveChangesAsync();
 
+            // Відправка сповіщення про нове індивідуальне замовлення
+            await _notificationService.NotifyNewIndividualOrderAsync(order.Id);
+
             return string.Empty;
         }
 
@@ -243,6 +250,14 @@ namespace FurniTour.Server.Services
             context.IndividualOrders.Update(order);
             await context.SaveChangesAsync();
 
+            // Відправка сповіщення про зміну статусу індивідуального замовлення
+            var statusName = await context.IndividualOrderStatuses
+                .Where(s => s.Id == newStatusId)
+                .Select(s => s.Name)
+                .FirstOrDefaultAsync() ?? "Статус змінено";
+                
+            await _notificationService.NotifyIndividualOrderStatusChangedAsync(id, statusName);
+
             return string.Empty;
         }        private string ValidateStatusChange(int currentStatusId, int newStatusId, bool isUser, bool isAdminOrMaster)
         {
@@ -314,6 +329,10 @@ namespace FurniTour.Server.Services
             order.MasterId = masterId;
             context.IndividualOrders.Update(order);
             await context.SaveChangesAsync();
+            
+            // Відправка сповіщення про призначення майстра для індивідуального замовлення
+            var statusName = "Призначено майстра";
+            await _notificationService.NotifyIndividualOrderStatusChangedAsync(orderId, statusName);
 
             return string.Empty;
         }

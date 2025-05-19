@@ -17,12 +17,14 @@ namespace FurniTour.Server.Services
         private readonly ApplicationDbContext context;
         private readonly IAuthService authService;
         private readonly ILogger<GuaranteeService> logger;
+        private readonly INotificationService _notificationService;
 
-        public GuaranteeService(ApplicationDbContext context, IAuthService authService, ILogger<GuaranteeService> logger)
+        public GuaranteeService(ApplicationDbContext context, IAuthService authService, ILogger<GuaranteeService> logger, INotificationService notificationService)
         {
             this.context = context;
             this.authService = authService;
             this.logger = logger;
+            _notificationService = notificationService;
         }
 
         public string AddGuarantee(GuaranteeAddModel guarantee)
@@ -170,6 +172,10 @@ namespace FurniTour.Server.Services
             }
             
             context.SaveChanges();
+            
+            // Відправка сповіщення про нову гарантійну заявку
+            _notificationService.NotifyGuaranteeStatusChangedAsync(guaranteeEntity.Id, "Нова заявка").Wait();
+            
             return string.Empty;
         }
 
@@ -385,6 +391,9 @@ namespace FurniTour.Server.Services
                 guar.DateModified = DateTime.Now;
                 context.Guarantees.Update(guar);
                 context.SaveChanges();
+                
+                // Відправка сповіщення про зміну статусу гарантійної заявки
+                _notificationService.NotifyGuaranteeStatusChangedAsync(guaranteeId, status).Wait();
             }
         }
     }

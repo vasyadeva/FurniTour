@@ -1,0 +1,68 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Всі сповіщення</h5>
+          <button class="btn btn-sm btn-outline-primary" (click)="markAllAsRead()" *ngIf="hasUnreadNotifications()">
+            Позначити всі як прочитані
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="loading && currentPage === 1" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Завантаження...</span>
+            </div>
+          </div>
+          
+          <div *ngIf="!loading && notifications.length === 0" class="text-center p-4">
+            <p class="text-muted">У вас немає сповіщень</p>
+          </div>
+          
+          <div class="notification-list">
+            <div *ngFor="let notification of notifications" 
+                 class="notification-item" 
+                 [class.unread]="!notification.isRead"
+                 (click)="notification.redirectUrl ? markAsRead(notification.id) : null"
+                 [routerLink]="notification.redirectUrl">
+              <div class="notification-icon">
+                <i [class]="getNotificationIcon(notification.notificationType)"></i>
+              </div>
+              <div class="notification-content">
+                <div class="notification-title">
+                  {{ notification.title }}
+                  <span class="notification-badge" *ngIf="!notification.isRead">Нове</span>
+                </div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-meta">
+                  <span class="notification-type">{{ getNotificationTypeText(notification.notificationType) }}</span>
+                  <span class="notification-time">{{ notification.createdAt | date:'medium' }}</span>
+                </div>
+              </div>
+              <div class="notification-actions">
+                <button class="btn btn-sm btn-outline-secondary" *ngIf="!notification.isRead" (click)="markAsRead(notification.id); $event.stopPropagation()">
+                  <i class="fa fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteNotification(notification.id, $event)">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="loading && currentPage > 1" class="text-center p-3">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Завантаження...</span>
+            </div>
+          </div>
+          
+          <div *ngIf="!loading && notifications.length >= currentPage * pageSize" class="text-center p-3">
+            <button class="btn btn-outline-primary" (click)="loadMore()">
+              Завантажити більше
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

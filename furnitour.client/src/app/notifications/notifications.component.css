@@ -1,0 +1,97 @@
+.notification-list {
+  border-radius: 0.25rem;
+}
+
+.notification-item {
+  padding: 16px;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f6f8fa;
+}
+
+.notification-item.unread {
+  background-color: #f0f7ff;
+}
+
+.notification-icon {
+  width: 40px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0366d6;
+}
+
+.notification-content {
+  flex: 1;
+  margin: 0 16px;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.notification-badge {
+  font-size: 0.7rem;
+  background-color: #0366d6;
+  color: white;
+  padding: 0.15rem 0.4rem;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.notification-message {
+  font-size: 0.95rem;
+  color: #24292e;
+  margin-bottom: 4px;
+}
+
+.notification-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6a737d;
+}
+
+.notification-type {
+  background-color: #f1f8ff;
+  color: #0366d6;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+.notification-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-actions button {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 576px) {
+  .notification-actions {
+    flex-direction: row;
+  }
+  
+  .notification-content {
+    margin: 0 8px;
+  }
+  
+  .notification-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+} 

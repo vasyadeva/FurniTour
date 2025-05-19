@@ -80,9 +80,18 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
       return;
     }
     
+    // Ensure we have content for the message - if only a photo is selected, use default text
+    let messageContent = this.newMessage.trim();
+    if (!messageContent && this.selectedPhoto) {
+      messageContent = "Photo attachment";  // Default text when only photo is sent
+    }
+    
+    console.log("Sending message with content:", messageContent);
+    console.log("Has photo:", !!this.selectedPhoto);
+    
     const message: SendMessage = {
       receiverId: receiverId,
-      content: this.newMessage.trim()
+      content: messageContent
     };
     
     // Add photo if selected
@@ -94,6 +103,7 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
     this.chatService.sendMessage(message);
     this.newMessage = '';
     this.selectedPhoto = null;
+    this.selectedPhotoUrl = null;
     
     // Reset file input
     if (this.fileInput) {
@@ -186,5 +196,9 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
   
   getPhotoUrl(message: Message): string | null {
     return this.chatService.getPhotoUrl(message);
+  }
+
+  isPhotoOnlyMessage(message: Message): boolean {
+    return message.hasPhoto === true && message.content === 'Photo attachment';
   }
 } 

@@ -6,6 +6,10 @@ using FurniTour.Server.Models.Order;
 using FurniTour.Server.Models.Order.AI;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using FurniTour.Server.Models;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using FurniTour.Server.Configurations.Entities;
 
 namespace FurniTour.Server.Services
 {
@@ -16,14 +20,18 @@ namespace FurniTour.Server.Services
         private readonly UserManager<IdentityUser> userManager;
         private readonly IAuthService authService;
         private readonly ILoyaltyService loyaltyService;
+        private readonly INotificationService _notificationService;
 
         public OrderFurnitureService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, 
-            UserManager<IdentityUser> userManager, IAuthService authService, ILoyaltyService loyaltyService) {
+            UserManager<IdentityUser> userManager, IAuthService authService, ILoyaltyService loyaltyService,
+            INotificationService notificationService)
+        {
             this.context = context;
             this.httpContextAccessor = httpContextAccessor;
             this.userManager = userManager;
             this.authService = authService;
             this.loyaltyService = loyaltyService;
+            _notificationService = notificationService;
         }
 
 
@@ -158,6 +166,13 @@ namespace FurniTour.Server.Services
                                 
                                 // Update user's total spent
                                 await loyaltyService.UpdateUserSpendingAsync(user.Id, originalTotalPrice);
+                                
+                                // Відправка сповіщення про нове замовлення
+                                var orderState = context.OrderStates.FirstOrDefault(os => os.Id == 1);
+                                var stateName = orderState != null ? orderState.Name : "Нове замовлення";
+                                await _notificationService.NotifyOrderStatusChangedAsync(Order.Id, stateName);
+                                
+                                return string.Empty; // Успішне виконання
                             }
                             return "Some error occurred while making order";
                         }
@@ -263,6 +278,12 @@ namespace FurniTour.Server.Services
                 order.OrderStateId = newState;
                 context.Orders.Update(order);
                 await context.SaveChangesAsync();
+                
+                // Відправка сповіщення про зміну статусу замовлення
+                var orderState = context.OrderStates.FirstOrDefault(os => os.Id == newState);
+                var stateName = orderState != null ? orderState.Name : "Статус змінено";
+                await _notificationService.NotifyOrderStatusChangedAsync(id, stateName);
+                
                 return string.Empty;
             }
             return "Користувач неавторизований.";

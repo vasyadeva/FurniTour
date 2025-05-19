@@ -162,6 +162,11 @@ export class ChatService {
 
   private setupSignalRListeners(): void {
     this.hubConnection.on('ReceiveMessage', (message: Message) => {
+      // Process message to check for photo-only messages
+      if (this.isPhotoOnlyMessage(message)) {
+        console.log('Received photo-only message');
+      }
+      
       const currentMessages = this.messagesSource.value;
       this.messagesSource.next([...currentMessages, message]);
       this.refreshConversations();
@@ -229,6 +234,11 @@ export class ChatService {
     });
   }
 
+  // Helper method to identify photo-only messages
+  private isPhotoOnlyMessage(message: Message): boolean {
+    return message.hasPhoto === true && message.content === 'Photo attachment';
+  }
+
   // API methods
   public getConversations(): Observable<Conversation[]> {
     return this.http.get<Conversation[]>(`${this.baseUrl}/conversations`, { withCredentials: true })
@@ -291,8 +301,11 @@ export class ChatService {
       return;
     }
 
-    // Ensure content is not empty
-    const messageContent = message.content?.trim() || "Photo attachment";
+    // Ensure content is not empty - if it's default "Photo attachment", use a space
+    let messageContent = message.content?.trim() || "Photo attachment";
+    if (messageContent === "Photo attachment") {
+      messageContent = " "; // Use a single space to prevent visible text
+    }
 
     // Create a FormData object to send the file
     const formData = new FormData();
@@ -370,7 +383,7 @@ export class ChatService {
   }
 
   public getPhotoUrl(message: Message): string | null {
-    if (!message.hasPhoto || !message.photoId) {
+    if (message.hasPhoto !== true || !message.photoId) {
       return null;
     }
     

@@ -2,6 +2,11 @@
   display: block;
   min-height: 100vh;
   background-color: #f0f5f5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::ng-deep .card {
@@ -29,4 +34,125 @@
 
 ::ng-deep .bg-light {
   background-color: #edf2f2 !important;
+}
+
+.boxed {
+  border: 1px solid black;
+}
+
+nav {
+  margin-bottom: 20px;
+}
+
+/* Notification styles */
+.notification-container {
+  position: relative;
+}
+
+.notification-container .nav-link {
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-container .badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 0.6rem;
+  padding: 0.2rem 0.4rem;
+}
+
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 350px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-height: 500px;
+  overflow-y: auto;
+  color: #333;
+}
+
+.notification-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-header h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.notification-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e1e4e8;
+  display: flex;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f6f8fa;
+}
+
+.notification-item.unread {
+  background-color: #f0f7ff;
+}
+
+.notification-icon {
+  margin-right: 12px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  color: #0366d6;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+  color: #586069;
+  margin-bottom: 4px;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #6a737d;
+}
+
+.notification-footer {
+  padding: 8px 16px;
+  border-top: 1px solid #e1e4e8;
+  text-align: center;
+}
+
+.notification-footer a {
+  color: #0366d6;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.empty-notifications {
+  padding: 16px;
+  text-align: center;
+  color: #586069;
+  font-style: italic;
 }

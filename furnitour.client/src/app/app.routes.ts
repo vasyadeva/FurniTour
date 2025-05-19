@@ -82,5 +82,11 @@ export const routes: Routes = [
     {path: 'guarantees', component: GuaranteeListComponent, canActivate: [AuthGuard], data: { roles: ['User', 'Administrator'] }},
     {path: 'admin/guarantees', component: GuaranteeAdminComponent, canActivate: [AuthGuard], data: { roles: ['Administrator'] }},
     //chat path
-    {path: 'chat', component: ChatDashboardComponent, canActivate: [AuthGuard],data: { roles: ['User','Administrator', 'Master'] }}
+    {path: 'chat', component: ChatDashboardComponent, canActivate: [AuthGuard],data: { roles: ['User','Administrator', 'Master'] }},
+    {
+      path: 'notifications',
+      loadComponent: () => import('./notifications/notifications.component').then(c => c.NotificationsComponent),
+      canActivate: [AuthGuard],
+      data: { roles: ['User', 'Administrator', 'Master'] }
+    }
 ];
