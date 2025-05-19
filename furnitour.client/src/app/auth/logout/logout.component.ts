@@ -16,10 +16,7 @@ export class SignOutComponent {
   public signout() {
       this.authService.signOut().subscribe(
         data => {
-          this.status.isSignedIn = false;
-          this.status.isAdmin = false;
-          this.status.isMaster = false;
-          this.status.isUser = false;
+          this.status.signOut();
           this.router.navigate(['/login']);
         },
         error => {

@@ -44,22 +44,31 @@ export class LoginComponent implements OnInit {
       this.authService.signIn(userName, password).subscribe(
           (response : any)=> {
               if (response.isSuccess) {
-                this.status.isSignedIn = true;
+                // Create new auth status object with signed in set to true
+                const authStatus = {
+                  isSignedIn: true,
+                  isAdmin: false,
+                  isMaster: false,
+                  isUser: false
+                };
+                
                 this.authService.getUserRole().subscribe(
                     (response : any )=> {
                         switch(response){
                             case "Administrator":
-                                this.status.isAdmin = true;
+                                authStatus.isAdmin = true;
                                 break;
                             case "Master":
-                                this.status.isMaster = true;
+                                authStatus.isMaster = true;
                                 break;
                             case "User":
-                                this.status.isUser = true;
+                                authStatus.isUser = true;
                                 break;
                             default:
                                 break;
                         }
+                        // Update the auth status with the complete object
+                        this.status.updateAuthStatus(authStatus);
                     });
                 this.router.navigateByUrl('')
               }
@@ -76,6 +85,7 @@ export class LoginComponent implements OnInit {
   public logout() {
         this.authService.signOut().subscribe(
             () => {
+                this.status.signOut();
                 this.router.navigateByUrl('logout');
             });
   }

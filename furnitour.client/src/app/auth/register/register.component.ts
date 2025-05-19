@@ -59,7 +59,12 @@ export class RegisterComponent {
       const { username, password, isMaster } = this.registerForm.value;
       this.authService.register(username, password, isMaster).subscribe(
         () => { 
-          this.status.isSignedIn = true;
+          this.status.updateAuthStatus({
+            isSignedIn: true,
+            isAdmin: false,
+            isMaster: false,
+            isUser: true
+          });
           this.router.navigate(['/login']);
         }, 
         error => {

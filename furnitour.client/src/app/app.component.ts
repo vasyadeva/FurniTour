@@ -35,22 +35,32 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.authService.isSignedIn().subscribe(isSignedIn => {
       if (isSignedIn) {
-        this.status.isSignedIn = true;
+        // Create new auth status object with signed in set to true
+        const authStatus = {
+          isSignedIn: true,
+          isAdmin: false,
+          isMaster: false,
+          isUser: false
+        };
+        
         this.authService.getUserRole().subscribe(role => {
           console.log(role);
           switch (role) {
             case 'Administrator':
-              this.status.isAdmin = true;
+              authStatus.isAdmin = true;
               break;
             case 'Master':
-              this.status.isMaster = true;
+              authStatus.isMaster = true;
               break;
             case 'User':
-              this.status.isUser = true;
+              authStatus.isUser = true;
               break;
             default:
               break;
           }
+          
+          // Update the auth status with the complete object
+          this.status.updateAuthStatus(authStatus);
         });
         
         // Start the chat service connection when user is signed in
