@@ -138,3 +138,86 @@
 .slide-up {
   animation: fadeInUp 0.5s ease-out;
 }
+
+/* Search styles */
+.search-container {
+  margin-bottom: 20px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.search-container .input-group {
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.search-container .input-group-text {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+  border: none;
+}
+
+.search-container .form-control {
+  border: 2px solid #d8ebeb;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.search-container .form-control:focus {
+  border-color: #1f3745;
+  box-shadow: 0 3px 8px rgba(31, 55, 69, 0.1);
+}
+
+/* Pagination styles */
+.pagination-container {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.pagination {
+  margin-bottom: 15px;
+}
+
+.pagination .page-link {
+  border-radius: 6px;
+  margin: 0 3px;
+  border: none;
+  color: #1f3745;
+  box-shadow: 0 2px 5px rgba(31, 55, 69, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pagination .page-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(31, 55, 69, 0.15);
+  background-color: #d8ebeb;
+}
+
+.pagination .page-item.active .page-link {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+}
+
+.pagination .page-item.disabled .page-link {
+  color: #aaa;
+  opacity: 0.6;
+}
+
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #5c6f7a;
+}
+
+.page-size-selector .form-select {
+  width: auto;
+  margin-left: 10px;
+  border-radius: 6px;
+  border: 1px solid #d8ebeb;
+  padding: 5px 10px;
+  box-shadow: 0 2px 5px rgba(31, 55, 69, 0.05);
+}

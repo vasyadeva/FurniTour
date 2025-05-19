@@ -1,11 +1,41 @@
-<div class="item-form container mt-4">
-  <form [formGroup]="manufacturerForm" (ngSubmit)="onSubmit()">
-    
-    <div class="form-group mb-3">
-      <label for="Name" class="form-label">Назва:</label>
-      <input id="Name" formControlName="Name" type="text" class="form-control">
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="add-manufacturer-card card fade-in">
+        <div class="card-header">
+          <h2 class="add-title">
+            <i class="fas fa-plus-circle me-3"></i>Додавання виробника
+          </h2>
+        </div>
+        <div class="form-container">
+          <form [formGroup]="manufacturerForm" (ngSubmit)="onSubmit()" class="slide-up">
+            <div class="mb-4">
+              <label for="Name" class="form-label">
+                <i class="fas fa-building me-2"></i>Назва виробника
+              </label>
+              <input 
+                id="Name" 
+                formControlName="Name" 
+                type="text" 
+                class="form-control"
+                [ngClass]="{'is-invalid': manufacturerForm.get('Name')?.invalid && manufacturerForm.get('Name')?.touched}"
+                placeholder="Введіть назву виробника">
+              <div class="invalid-feedback" *ngIf="manufacturerForm.get('Name')?.errors?.['required'] && manufacturerForm.get('Name')?.touched">
+                Назва виробника обов'язкова
+              </div>
+            </div>
+            
+            <div class="btn-section">
+              <button type="button" class="btn btn-cancel" [routerLink]="['/manufacturers']">
+                Скасувати
+              </button>
+              <button type="submit" class="btn btn-submit" [disabled]="manufacturerForm.invalid">
+                <i class="fas fa-save me-2"></i>Зберегти
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-    
-    <button type="submit" class="btn btn-primary" [disabled]="manufacturerForm.invalid">Відправити</button>
-  </form>
+  </div>
 </div>
