@@ -31,13 +31,13 @@ namespace FurniTour.Server.Services
         {
             if (guarantee == null)
             {
-                return "Query cannot be empty";
+                return "Запит не може бути порожнім";
             }
             
             var user = authService.GetUser();
             if (user == null)
             {
-                return "User not found";
+                return "Користувача не знайдено";
             }
             
             // Create guarantee entity with required fields
@@ -58,19 +58,19 @@ namespace FurniTour.Server.Services
                 // Handle individual order
                 if (!guarantee.IndividualOrderId.HasValue)
                 {
-                    return "Individual order ID is required";
+                    return "Ідентифікатор індивідуального замовлення обов'язковий";
                 }
 
                 var individualOrder = context.IndividualOrders.Find(guarantee.IndividualOrderId);
                 if (individualOrder == null)
                 {
-                    return "Individual order not found";
+                    return "Індивідуальне замовлення не знайдено";
                 }
 
                 // Check if order belongs to the user
                 if (individualOrder.UserId != user.Id)
                 {
-                    return "Individual order does not belong to the current user";
+                    return "Індивідуальне замовлення не належить поточному користувачу";
                 }
 
                 // Set the individual order ID
@@ -85,24 +85,24 @@ namespace FurniTour.Server.Services
                 // Handle regular order
                 if (!guarantee.OrderId.HasValue)
                 {
-                    return "Order ID is required";
+                    return "Ідентифікатор замовлення обов'язковий";
                 }
 
                 var order = context.Orders.Find(guarantee.OrderId);
                 if (order == null)
                 {
-                    return "Order not found";
+                    return "Замовлення не знайдено";
                 }
 
                 // Check if order belongs to the user
                 if (order.UserId != user.Id)
                 {
-                    return "Order does not belong to the current user";
+                    return "Замовлення не належить поточному користувачу";
                 }
 
                 if (!IsGuaranteeValid(guarantee.OrderId.Value))
                 {
-                    return "Time for guarantee service has expired";
+                    return "Час для гарантійного обслуговування минув";
                 }
 
                 // Set the order ID
@@ -111,14 +111,14 @@ namespace FurniTour.Server.Services
                 // Process order items
                 if (guarantee.Items == null || guarantee.Items.Count == 0)
                 {
-                    return "No items selected for guarantee";
+                    return "Не вибрано жодного товару для гарантії";
                 }
 
                 // Filter out null or invalid items and check if any remain
                 var validItems = guarantee.Items.Where(i => i > 0).ToList();
                 if (validItems.Count == 0)
                 {
-                    return "No valid items selected for guarantee";
+                    return "Не вибрано жодного дійсного товару для гарантії";
                 }
 
                 // Add the guarantee to the database first to get its ID
@@ -153,7 +153,7 @@ namespace FurniTour.Server.Services
                 
                 if (successCount == 0)
                 {
-                    return "Could not find any valid order items with the provided IDs";
+                    return "Не знайдено жодного дійсного товару з вказаними ідентифікаторами";
                 }
             }
             

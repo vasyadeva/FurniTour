@@ -65,7 +65,7 @@ export class RegisterComponent {
         error => {
           console.error('Registration error:', error);
           this.registerFailed = true;
-          this.errorRegister = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+          this.errorRegister = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
         }
       );
     }

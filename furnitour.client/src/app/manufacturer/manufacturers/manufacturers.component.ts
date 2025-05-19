@@ -24,18 +24,18 @@ export class ManufacturersComponent implements OnInit {
     },
     error => {
       this.popupService.closeSnackBar();
-      this.popupService.openSnackBar('Error loading manufacturers');
+      this.popupService.openSnackBar('Помилка при завантаженні виробників');
       console.log(error);
     });
   }
 
   deleteManufacturer(id: number) {
       this.manufacturerService.remove(id).subscribe(data => {
-        this.popupService.openSnackBar('Manufacturer deleted successfully');
+        this.popupService.openSnackBar('Виробник успішно видалений');
         this.ngOnInit();
       },
       error => {
-        this.popupService.openSnackBar('Error deleting manufacturer');
+        this.popupService.openSnackBar('Помилка при видаленні виробника');
         console.log(error);
       });
   }

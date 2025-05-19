@@ -46,12 +46,12 @@ export class UpdateManufacturerComponent implements OnInit {
     this.manufacturerService.update(this.model).subscribe(
       (response) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar('Manufacturer updated successfully');
+        this.popupService.openSnackBar('Виробник успішно оновлений');
         this.router.navigate(['/manufacturer']);
       },
       (error) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar(error?.error || 'Error updating manufacturer');
+        this.popupService.openSnackBar(error?.error || 'Помилка при оновленні виробника');
         console.error('Error updating manufacturer:', error);
       }
     );

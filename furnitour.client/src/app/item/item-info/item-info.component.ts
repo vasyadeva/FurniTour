@@ -83,7 +83,7 @@ export class ItemInfoComponent implements OnInit {
         },
         (error) => {
           this.popupService.closeSnackBar();
-          this.popupService.openSnackBar(error?.error || 'Error fetching item details');
+          this.popupService.openSnackBar(error?.error || 'Помилка при отриманні деталей товару');
           console.error('Error fetching item details:', error);
         }
       );
@@ -259,7 +259,7 @@ export class ItemInfoComponent implements OnInit {
       },
       (error) => {
         console.error('Error checking photo count:', error);
-        this.popupService.openSnackBar('Error checking photo count');
+        this.popupService.openSnackBar('Помилка перевірки кількості фотографій');
       }
     );
   }

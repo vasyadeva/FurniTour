@@ -174,15 +174,15 @@ namespace FurniTour.Server.Services
                                 
                                 return string.Empty; // Успішне виконання
                             }
-                            return "Some error occurred while making order";
+                            return "Виникла помилка під час створення замовлення";
                         }
-                        return "Cart is empty";
+                        return "Кошик порожній";
                     }
-                    return "Cart is empty";
+                    return "Кошик порожній";
                 }
-                return "You are not logged in";
+                return "Ви не увійшли в систему";
             }
-            return "The form information is not valid";
+            return "Інформація форми недійсна";
         }
 
         public List<OrderViewModel> AdminOrders()
@@ -488,15 +488,15 @@ namespace FurniTour.Server.Services
                                 await context.SaveChangesAsync();
                                 return string.Empty;
                             }
-                            return "Some error occurred while making order";
+                            return "Виникла помилка під час створення замовлення";
                         }
-                        return "Cart is empty";
+                        return "Кошик порожній";
                     }
-                    return "Cart is empty";
+                    return "Кошик порожній";
                 }
-                return "You are not logged in";
+                return "Ви не увійшли в систему";
             }
-            return "The form information is not valid";
+            return "Інформація форми недійсна";
         }
 
         #endregion

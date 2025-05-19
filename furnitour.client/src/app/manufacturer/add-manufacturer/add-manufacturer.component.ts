@@ -26,16 +26,16 @@ export class AddManufacturerComponent {
 
   onSubmit(): void {
     if (this.manufacturerForm.invalid) {
-      this.popupService.openSnackBar('Please fill all fields.');
+      this.popupService.openSnackBar('Будь ласка, заповніть всі поля.');
       return;
     }
     this.manufacturerModel.Name = this.manufacturerForm.get('Name')?.value;
     this.manufacturerService.add(this.manufacturerModel).subscribe(
       response => {
-        this.popupService.openSnackBar('Manufacturer added successfully');
+        this.popupService.openSnackBar('Виробник успішно доданий');
       },
       error => {
-        this.popupService.openSnackBar('Error adding manufacturer');
+        this.popupService.openSnackBar('Помилка при додаванні виробника');
         console.log(error);
       }
     );

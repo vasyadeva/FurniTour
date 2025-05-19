@@ -63,7 +63,7 @@ export class CreateItemComponent {
         this.filterManufacturers();
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -72,7 +72,7 @@ export class CreateItemComponent {
         this.categories = response;
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -81,7 +81,7 @@ export class CreateItemComponent {
         this.colors = response;
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -133,7 +133,7 @@ export class CreateItemComponent {
   }
   onSubmit(): void {
     if (this.itemForm.invalid || !this.base64Photo) {
-      alert('Please fill all fields and select a file.');
+      alert('Будь ласка, заповніть всі поля та виберіть файл.');
       return;
     }
 
@@ -153,13 +153,13 @@ export class CreateItemComponent {
     this.itemService.create(this.itemModel).subscribe(
       response => {
         console.log('Item added successfully!', response);
-        this.popupService.openSnackBar('Item added successfully!');
+        this.popupService.openSnackBar('Товар успішно додано!');
         this.itemForm.reset();
       },
       error => {
         if (!error?.error?.isSuccess) {
-          this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
-          this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+          this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
+          this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
         }
       }
     );

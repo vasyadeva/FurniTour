@@ -23,7 +23,7 @@ export class AdminOrdersComponent {
       },
       (error) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar(error?.error || 'Error fetching my orders');
+        this.popupService.openSnackBar(error?.error || 'Помилка при отриманні замовлень');
         console.error('Error fetching my orders:', error);
       }
     );
@@ -33,11 +33,11 @@ export class AdminOrdersComponent {
     this.orderService.update(id, state).subscribe(
       (response) => {
         console.log('Order updated:', response);
-        this.popupService.openSnackBar('Order updated successfully');
+        this.popupService.openSnackBar('Замовлення успішно оновлено');
       },
       (error) => {
         console.error('Error updating order:', error);
-        this.popupService.openSnackBar(error?.error|| 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error|| 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
   }

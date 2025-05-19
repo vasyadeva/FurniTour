@@ -68,7 +68,7 @@ export class LoginComponent implements OnInit {
           error => {
               if (!error?.error?.isSuccess) {
                   this.authFailed = true;
-                  this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+                  this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
               }
 
           });

@@ -44,9 +44,9 @@ export class CartComponent implements OnInit {
       },
       error => {
         this.popupService.closeSnackBar();
-        this.error = error?.error || 'Error fetching cart';
+        this.error = error?.error || 'Помилка при отриманні кошику';
         if (!error?.error?.isSuccess) {
-            this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+            this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
         }
       }
     );
@@ -88,7 +88,7 @@ export class CartComponent implements OnInit {
       error => {
         this.popupService.closeSnackBar();
         if (!error?.error?.isSuccess) {
-            this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+            this.error = error?.error?.message || 'Помилка при видаленні товару з кошика';
             this.popupService.openSnackBar(this.error);
         }
       }
@@ -119,8 +119,8 @@ export class CartComponent implements OnInit {
       error => {
         this.popupService.closeSnackBar();
         if (!error?.error?.isSuccess) {
-            this.popupService.openSnackBar(error?.error || 'An unexpected error occurred. Please try again later.');
-            this.error = error?.error?.message || 'An unexpected error occurred. Please try again later.';
+            this.popupService.openSnackBar(error?.error || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
+            this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
         }
       }
     );

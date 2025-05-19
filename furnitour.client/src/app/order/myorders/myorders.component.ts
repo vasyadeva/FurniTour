@@ -24,7 +24,7 @@ export class MyordersComponent {
       },
       (error) => {
         this.popupService.closeSnackBar();
-        this.popupService.openSnackBar(error?.error || 'Error fetching my orders');
+        this.popupService.openSnackBar(error?.error || 'Помилка при отриманні замовлень');
         console.error('Error fetching my orders:', error);
       }
     );
@@ -34,7 +34,7 @@ export class MyordersComponent {
     this.orderService.update(id, state).subscribe(
       (response) => {
         console.log('Order updated:', response);
-            this.popupService.openSnackBar('Order updated successfully');
+        this.popupService.openSnackBar('Замовлення успішно оновлено');
       },
       error => {
         if (!error?.error?.isSuccess) {

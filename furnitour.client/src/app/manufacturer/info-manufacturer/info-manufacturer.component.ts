@@ -31,7 +31,7 @@ export class InfoManufacturerComponent implements OnInit {
         },
         (error) => {
           this.popupService.closeSnackBar();
-          this.popupService.openSnackBar(error?.error || 'Error fetching manufacturer details');
+          this.popupService.openSnackBar(error?.error || 'Помилка при отриманні деталей виробника');
           console.error('Error fetching manufacturer details:', error);
         }
       );

@@ -25,7 +25,7 @@ namespace FurniTour.Server.Controllers
             var state = await authService.SignInAsync(loginModel);
             if (state.IsNullOrEmpty())
             {
-                return Ok(new Response { IsSuccess = true, Message = "Signed in successfully" });
+                return Ok(new Response { IsSuccess = true, Message = "Успішно увійшли в систему" });
             }
             else
             {
@@ -57,7 +57,7 @@ namespace FurniTour.Server.Controllers
             var state = authService.RegisterAsync(registerModel);
             if (state.Result.IsNullOrEmpty())
             {
-                return Ok(new Response { IsSuccess = true, Message = "Registered successfully" });
+                return Ok(new Response { IsSuccess = true, Message = "Успішно зареєстровані" });
             }
             else
             {
@@ -96,7 +96,7 @@ namespace FurniTour.Server.Controllers
             var state =  authService.ChangeProfile(model);
             if (state.IsNullOrEmpty())
             {
-                return Ok(new Response { IsSuccess = true, Message = "Profile changed successfully" });
+                return Ok(new Response { IsSuccess = true, Message = "Профіль успішно змінено" });
             }
             return BadRequest(new Response { IsSuccess = false, Message = state });
         }

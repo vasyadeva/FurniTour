@@ -86,7 +86,7 @@ export class ItemEditComponent implements OnInit {
         this.filterManufacturers();
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -95,7 +95,7 @@ export class ItemEditComponent implements OnInit {
         this.categories = response;
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -104,7 +104,7 @@ export class ItemEditComponent implements OnInit {
         this.colors = response;
       },
       error => {
-        this.popupService.openSnackBar(error?.error?.message || 'An unexpected error occurred. Please try again later.');
+        this.popupService.openSnackBar(error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
       }
     );
 
@@ -181,14 +181,14 @@ export class ItemEditComponent implements OnInit {
           (error) => {
             this.loading = false;
             this.popupService.closeSnackBar();
-            this.error = 'Failed to load item details. Please try again.';
-            this.popupService.openSnackBar('Error loading item details: ' + (error.error || 'Unknown error'));
+            this.error = 'Не вдалося завантажити деталі товару. Будь ласка, спробуйте знову.';
+            this.popupService.openSnackBar('Помилка при завантаженні деталей товару: ' + (error.error || 'Невідома помилка'));
           }
         );
       } else {
         this.loading = false;
         this.popupService.closeSnackBar();
-        this.error = 'No item ID provided';
+        this.error = 'ID товару не вказано';
       }
     });
   }
@@ -249,7 +249,7 @@ export class ItemEditComponent implements OnInit {
   }
   onSubmit(): void {
     if (this.itemForm.invalid) {
-      this.popupService.openSnackBar('Please fill all required fields.');
+      this.popupService.openSnackBar("Будь ласка, заповніть всі обов'язкові поля.");
       return;
     }
 
@@ -278,12 +278,12 @@ export class ItemEditComponent implements OnInit {
     
     this.itemService.update(this.itemModel).subscribe(
       response => {
-        this.popupService.openSnackBar('Item updated successfully!');
+        this.popupService.openSnackBar('Товар успішно оновлено!');
         this.router.navigate(['/items']);
       },
       error => {
         if (!error?.error?.isSuccess) {
-          this.popupService.openSnackBar(error?.error || 'An unexpected error occurred. Please try again later.');
+          this.popupService.openSnackBar(error?.error || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.');
         }
       }
     );

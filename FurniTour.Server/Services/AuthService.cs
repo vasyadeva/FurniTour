@@ -50,7 +50,7 @@ namespace FurniTour.Server.Services
             var userExists = await userManager.FindByNameAsync(registerModel.UserName);
             if (userExists != null)
             {
-                return "The user already exists";
+                return "Користувач вже існує";
             }
             var result = await userManager.CreateAsync(user, registerModel.Password);
             if (result.Succeeded)
@@ -85,14 +85,14 @@ namespace FurniTour.Server.Services
 
             if (user is null)
             {
-                return "The user doesn't exists";
+                return "Користувача не існує";
             }
 
             var isCorrectPassword = hasher.VerifyHashedPassword(user, user.PasswordHash, loginModel.Password);
 
             if (isCorrectPassword != PasswordVerificationResult.Success)
             {
-                return "Wrong password";
+                return "Невірний пароль";
             }
 
             var role = await userManager.GetRolesAsync(user);
@@ -154,21 +154,21 @@ namespace FurniTour.Server.Services
 
         public string IsMaster()
         {
-            return IsRole(Roles.Master) ? string.Empty : "You are not a Master";
+            return IsRole(Roles.Master) ? string.Empty : "Ви не є Майстром";
         }
 
         public string IsAdmin()
         {
-            return IsRole(Roles.Administrator) ? string.Empty : "You are not an Admin";
+            return IsRole(Roles.Administrator) ? string.Empty : "Ви не є Адміністратором";
         }
         public string IsMasterOrAdmin()
         {
             return IsRole(Roles.Master) || IsRole(Roles.Administrator) ? 
-                string.Empty : "You are not a Master or Admin";
+                string.Empty : "Ви не є Майстром або Адміністратором";
         }
         public string IsUser()
         {
-            return IsRole(Roles.User) ? string.Empty : "You are not a User";
+            return IsRole(Roles.User) ? string.Empty : "Ви не є Користувачем";
         }
 
         public string CheckRoleMasterOrAdmin()
@@ -263,7 +263,7 @@ namespace FurniTour.Server.Services
                 }
                 return result.Errors.ToString();
             }
-            return "User not found";
+            return "Користувача не знайдено";
         }
 
         public async Task<IdentityUser> GetUserById(string UserId)

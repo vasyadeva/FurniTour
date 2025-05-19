@@ -66,7 +66,7 @@ namespace FurniTour.Server.Services
                 await context.SaveChangesAsync();
                 return string.Empty;
             }
-            return "Some problem occured while adding item to cart";
+            return "Виникла проблема при додаванні товару до кошика";
         }
         public List<CartItemViewModel> GetCartFurniture()
         {
@@ -140,7 +140,7 @@ namespace FurniTour.Server.Services
                 var CartUser = await context.Carts.Where(c => c.UserId == authService.GetUser().Id).FirstOrDefaultAsync();
                 if (CartUser == null)
                 {
-                    return "Cart is empty";
+                    return "Кошик порожній";
                 }
                 var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
                 if (CartItem != null)
@@ -149,7 +149,7 @@ namespace FurniTour.Server.Services
                     await context.SaveChangesAsync();
                     return string.Empty;
                 }
-                return "Some error occurred while removing item from cart";
+                return "Виникла помилка при видаленні товару з кошика";
             }
             return isAuth;
         }
@@ -159,16 +159,16 @@ namespace FurniTour.Server.Services
             var User = authService.GetUser();
             if (User == null)
             {
-                return "You are not logged in";
+                return "Ви не увійшли в систему";
             }
             if (quantity <= 0)
             {
-                return "Item quantity must be greater than 0";
+                return "Кількість товару повинна бути більше 0";
             }
             var CartUser = await context.Carts.Where(c => c.UserId == User.Id).FirstOrDefaultAsync();
             if (CartUser == null)
             {
-                return "Cart is empty";
+                return "Кошик порожній";
             }
             var CartItem = await context.CartItems.Where(ci => ci.Id == id && ci.CartId == CartUser.Id).FirstOrDefaultAsync();
             if (CartItem != null)
@@ -178,7 +178,7 @@ namespace FurniTour.Server.Services
                 await context.SaveChangesAsync();
                 return string.Empty;
             }
-            return "Some error occurred while updating cart";
+            return "Виникла помилка при оновленні кошика";
         }
 
         #region AImethods
@@ -186,12 +186,12 @@ namespace FurniTour.Server.Services
         {
             if (quantity <= 0)
             {
-                return "Item quantity must be greater than 0";
+                return "Кількість товару повинна бути більше 0";
             }
             var user = await authService.GetUserById(userID);
             if (user == null)
             {
-                return "You are not logged in";
+                return "Ви не увійшли в систему";
             }
             var Cart = await context.Carts.Where(c => c.UserId == user.Id).FirstOrDefaultAsync();
             if (Cart == null)
@@ -224,7 +224,7 @@ namespace FurniTour.Server.Services
                 await context.SaveChangesAsync();
                 return string.Empty;
             }
-            return "Some problem occured while adding item to cart";
+            return "Виникла проблема при додаванні товару до кошика";
         }
 
 

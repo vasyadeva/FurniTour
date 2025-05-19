@@ -19,12 +19,12 @@ namespace FurniTour.Server.Services
             var user = authService.GetUser();
             if (user == null)
             {
-                return "User not found";
+                return "Користувача не знайдено";
             }
             var item = context.Furnitures.FirstOrDefault(x => x.Id == itemId);
             if (item == null)
             {
-                return "Item not found";
+                return "Товар не знайдено";
             }
             var click = context.Clicks.FirstOrDefault(x => x.UserId == user.Id && x.FurnitureId == itemId);
             if (click != null)
