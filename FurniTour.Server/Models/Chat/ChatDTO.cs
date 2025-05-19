@@ -13,6 +13,14 @@ namespace FurniTour.Server.Models.Chat
         public string ReceiverId { get; set; } = string.Empty;
         public string ReceiverName { get; set; } = string.Empty;
         public int? ConversationId { get; set; }
+        
+        // Photo attachment properties
+        public bool HasPhoto { get; set; }
+        public string? PhotoContentType { get; set; }
+        
+        // The actual photo data will be retrieved separately through a dedicated endpoint to avoid
+        // large data transfers in regular message lists
+        public int? PhotoId => HasPhoto ? Id : null; // Use message ID to retrieve photo
     }
 
     public class ConversationDTO
@@ -31,6 +39,11 @@ namespace FurniTour.Server.Models.Chat
     {
         public string ReceiverId { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
+        
+        // Photo data as Base64 string
+        public string? PhotoData { get; set; }
+        public string? PhotoContentType { get; set; }
+        public bool HasPhoto => !string.IsNullOrEmpty(PhotoData);
     }
 
     public class UserOnlineDTO

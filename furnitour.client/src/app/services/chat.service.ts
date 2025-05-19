@@ -14,6 +14,11 @@ export interface Message {
   receiverId: string;
   receiverName: string;
   conversationId?: number;
+  
+  // Photo attachment properties
+  hasPhoto?: boolean;
+  photoContentType?: string;
+  photoId?: number; // Same as message ID if photo exists
 }
 
 export interface Conversation {
@@ -37,6 +42,10 @@ export interface UserOnline {
 export interface SendMessage {
   receiverId: string;
   content: string;
+  
+  // Photo attachment (optional)
+  photoData?: File;  // This remains File type on the frontend
+  photoContentType?: string;
 }
 
 @Injectable({
@@ -267,8 +276,106 @@ export class ChatService {
 
   public sendMessage(message: SendMessage): void {
     if (this.connectionIsEstablished) {
-      this.hubConnection.invoke('SendMessage', message);
+      // If there's a photo attached, we need to handle it differently
+      if (message.photoData) {
+        this.sendPhotoViaApi(message);
+      } else {
+        this.hubConnection.invoke('SendMessage', message);
+      }
     }
+  }
+
+  private sendPhotoViaApi(message: SendMessage): void {
+    if (!message.photoData) {
+      this.hubConnection.invoke('SendMessage', message);
+      return;
+    }
+
+    // Ensure content is not empty
+    const messageContent = message.content?.trim() || "Photo attachment";
+
+    // Create a FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', message.photoData);
+    formData.append('receiverId', message.receiverId);
+    formData.append('content', messageContent);
+
+    console.log('Sending photo via API. File size:', message.photoData.size);
+    console.log('Message content:', messageContent);
+
+    // Use HttpClient to send the FormData
+    this.http.post<Message>(`${this.baseUrl}/upload-photo`, formData, { 
+      withCredentials: true 
+    }).subscribe({
+      next: (response) => {
+        console.log('Photo uploaded successfully:', response);
+        // Add the message to the list
+        const currentMessages = this.messagesSource.value;
+        this.messagesSource.next([...currentMessages, response]);
+        
+        // Update the conversation list
+        this.refreshConversations();
+        
+        // Notify the recipient via SignalR that they have a new message
+        if (this.connectionIsEstablished) {
+          this.hubConnection.invoke('NotifyNewMessage', response.id);
+        }
+      },
+      error: (error) => {
+        console.error('Error uploading photo:', error);
+      }
+    });
+  }
+
+  private sendMessageWithPhoto(message: SendMessage): void {
+    if (!message.photoData) {
+      this.hubConnection.invoke('SendMessage', message);
+      return;
+    }
+
+    // Ensure content is not empty
+    const messageContent = message.content?.trim() || "Photo attachment";
+
+    // Convert the file to a base64 string instead of byte array
+    const reader = new FileReader();
+    reader.readAsDataURL(message.photoData);
+    reader.onload = () => {
+      // Get base64 data without the prefix (e.g., "data:image/jpeg;base64,")
+      const base64data = (reader.result as string).split(',')[1];
+      
+      // Create a message DTO with the photo data
+      const messageWithPhoto = {
+        receiverId: message.receiverId,
+        content: messageContent,
+        photoData: base64data,
+        photoContentType: message.photoData?.type || 'image/jpeg'
+      };
+      
+      console.log('Sending message with photo, size:', base64data.length);
+      
+      // Send the message with photo data
+      this.hubConnection.invoke('SendMessage', messageWithPhoto)
+        .catch(err => {
+          console.error('Error sending message with photo via SignalR:', err);
+          // Fall back to HTTP API if SignalR fails
+          this.sendPhotoViaApi(message);
+        });
+    };
+    
+    reader.onerror = (error) => {
+      console.error('Error reading file:', error);
+      // Fall back to HTTP API
+      this.sendPhotoViaApi(message);
+    };
+  }
+
+  public getPhotoUrl(message: Message): string | null {
+    if (!message.hasPhoto || !message.photoId) {
+      return null;
+    }
+    
+    // Add timestamp to prevent caching
+    return `${this.baseUrl}/message-photo/${message.photoId}?t=${new Date().getTime()}`;
   }
 
   public joinConversation(conversationId: number): void {

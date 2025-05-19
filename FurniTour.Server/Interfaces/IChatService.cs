@@ -16,5 +16,11 @@ namespace FurniTour.Server.Interfaces
         Task<List<UserOnlineDTO>> SearchUsersAsync(string currentUserId, string searchTerm);
         Task<int> GetUnreadCountAsync(string userId);
         void UpdateUserActivity(string userId);
+        
+        // New method for photo retrieval
+        Task<(bool HasPhoto, byte[]? PhotoData, string? PhotoContentType)> GetMessagePhotoAsync(int messageId);
+        
+        // Direct photo message sending with byte array
+        Task<MessageDTO> SendPhotoMessageAsync(string senderId, SendMessageDTO messageDto, byte[] photoData);
     }
 } 

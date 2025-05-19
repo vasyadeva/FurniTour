@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using FurniTour.Server.Data;
 
 namespace FurniTour.Server.Hubs
 {
@@ -14,11 +16,13 @@ namespace FurniTour.Server.Hubs
         private readonly IChatService _chatService;
         private readonly IAuthService _authService;
         private static readonly ConcurrentDictionary<string, string> _userConnectionMap = new();
+        private readonly ApplicationDbContext _context;
 
-        public ChatHub(IChatService chatService, IAuthService authService)
+        public ChatHub(IChatService chatService, IAuthService authService, ApplicationDbContext context)
         {
             _chatService = chatService;
             _authService = authService;
+            _context = context;
 
             // Share the connection dictionary with the chat service if possible
             if (chatService is ChatService concreteChatService)
@@ -256,6 +260,44 @@ namespace FurniTour.Server.Hubs
             
             // Send ping response to confirm the connection is working
             await Clients.Caller.SendAsync("HeartbeatResponse");
+        }
+
+        public async Task NotifyNewMessage(int messageId)
+        {
+            var userId = _authService.GetUser().Id;
+            if (string.IsNullOrEmpty(userId))
+                throw new HubException("User not authenticated");
+                
+            var message = await _context.ChatMessages
+                .Include(m => m.Sender)
+                .Include(m => m.Receiver)
+                .FirstOrDefaultAsync(m => m.Id == messageId);
+                
+            if (message == null || message.SenderId != userId)
+                throw new HubException("Message not found or you're not the sender");
+                
+            // Create a DTO to send to the recipient
+            var messageDto = new MessageDTO
+            {
+                Id = message.Id,
+                Content = message.Content,
+                SentAt = message.SentAt,
+                IsRead = message.IsRead,
+                SenderId = message.SenderId,
+                SenderName = message.Sender.UserName ?? "",
+                ReceiverId = message.ReceiverId,
+                ReceiverName = message.Receiver.UserName ?? "",
+                ConversationId = message.ConversationId,
+                HasPhoto = message.HasPhoto,
+                PhotoContentType = message.PhotoContentType
+            };
+                
+            // Send to receiver if online
+            if (_userConnectionMap.TryGetValue(message.ReceiverId, out var receiverConnectionId))
+            {
+                await Clients.Client(receiverConnectionId).SendAsync("ReceiveMessage", messageDto);
+                await Clients.Client(receiverConnectionId).SendAsync("UpdateUnreadCount");
+            }
         }
     }
 } 

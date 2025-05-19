@@ -114,7 +114,9 @@ namespace FurniTour.Server.Services
                     SenderName = (await _userManager.FindByIdAsync(lastMessage.SenderId))?.UserName ?? "",
                     ReceiverId = lastMessage.ReceiverId,
                     ReceiverName = (await _userManager.FindByIdAsync(lastMessage.ReceiverId))?.UserName ?? "",
-                    ConversationId = lastMessage.ConversationId
+                    ConversationId = lastMessage.ConversationId,
+                    HasPhoto = lastMessage.HasPhoto,
+                    PhotoContentType = lastMessage.PhotoContentType
                 } : null,
                 UnreadCount = unreadCount
             };
@@ -156,7 +158,9 @@ namespace FurniTour.Server.Services
                     SenderName = (await _userManager.FindByIdAsync(lastMessage.SenderId))?.UserName ?? "",
                     ReceiverId = lastMessage.ReceiverId,
                     ReceiverName = (await _userManager.FindByIdAsync(lastMessage.ReceiverId))?.UserName ?? "",
-                    ConversationId = lastMessage.ConversationId
+                    ConversationId = lastMessage.ConversationId,
+                    HasPhoto = lastMessage.HasPhoto,
+                    PhotoContentType = lastMessage.PhotoContentType
                 } : null,
                 UnreadCount = unreadCount
             };
@@ -199,7 +203,9 @@ namespace FurniTour.Server.Services
                         SenderName = (await _userManager.FindByIdAsync(lastMessage.SenderId))?.UserName ?? "",
                         ReceiverId = lastMessage.ReceiverId,
                         ReceiverName = (await _userManager.FindByIdAsync(lastMessage.ReceiverId))?.UserName ?? "",
-                        ConversationId = lastMessage.ConversationId
+                        ConversationId = lastMessage.ConversationId,
+                        HasPhoto = lastMessage.HasPhoto,
+                        PhotoContentType = lastMessage.PhotoContentType
                     } : null,
                     UnreadCount = unreadCount
                 });
@@ -210,6 +216,16 @@ namespace FurniTour.Server.Services
 
         public async Task<List<MessageDTO>> GetMessagesAsync(int conversationId, int page = 1, int pageSize = 20)
         {
+            // First, get the conversation to verify it exists
+            var conversation = await _context.Conversations
+                .FirstOrDefaultAsync(c => c.Id == conversationId);
+
+            if (conversation == null)
+            {
+                return new List<MessageDTO>();
+            }
+
+            // Now get messages that belong ONLY to this specific conversation
             var messages = await _context.ChatMessages
                 .Include(m => m.Sender)
                 .Include(m => m.Receiver)
@@ -223,6 +239,13 @@ namespace FurniTour.Server.Services
 
             foreach (var message in messages)
             {
+                // Additional security check - ensure the message is between the users in this conversation
+                if (message.SenderId != conversation.User1Id && message.SenderId != conversation.User2Id ||
+                    message.ReceiverId != conversation.User1Id && message.ReceiverId != conversation.User2Id)
+                {
+                    continue; // Skip messages that don't belong to this conversation's users
+                }
+
                 result.Add(new MessageDTO
                 {
                     Id = message.Id,
@@ -233,7 +256,9 @@ namespace FurniTour.Server.Services
                     SenderName = message.Sender.UserName ?? "",
                     ReceiverId = message.ReceiverId,
                     ReceiverName = message.Receiver.UserName ?? "",
-                    ConversationId = message.ConversationId
+                    ConversationId = message.ConversationId,
+                    HasPhoto = message.HasPhoto,
+                    PhotoContentType = message.PhotoContentType
                 });
             }
 
@@ -399,6 +424,21 @@ namespace FurniTour.Server.Services
                 ConversationId = conversation.Id
             };
 
+            // Add photo if provided as base64 string
+            if (messageDto.HasPhoto && !string.IsNullOrEmpty(messageDto.PhotoData))
+            {
+                try
+                {
+                    message.PhotoData = Convert.FromBase64String(messageDto.PhotoData);
+                    message.PhotoContentType = messageDto.PhotoContentType ?? "image/jpeg";
+                    Console.WriteLine($"Photo received and processed. Size: {message.PhotoData.Length} bytes.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error processing photo: {ex.Message}");
+                }
+            }
+
             _context.ChatMessages.Add(message);
             await _context.SaveChangesAsync();
 
@@ -412,7 +452,9 @@ namespace FurniTour.Server.Services
                 SenderName = sender.UserName ?? "",
                 ReceiverId = message.ReceiverId,
                 ReceiverName = receiver.UserName ?? "",
-                ConversationId = message.ConversationId
+                ConversationId = message.ConversationId,
+                HasPhoto = message.HasPhoto,
+                PhotoContentType = message.PhotoContentType
             };
         }
 
@@ -523,6 +565,89 @@ namespace FurniTour.Server.Services
             
             // We primarily rely on _connectionMap which is directly updated by ChatHub
             // through OnConnectedAsync and OnDisconnectedAsync, not this method
+        }
+
+        public async Task<(bool HasPhoto, byte[]? PhotoData, string? PhotoContentType)> GetMessagePhotoAsync(int messageId)
+        {
+            var message = await _context.ChatMessages
+                .FirstOrDefaultAsync(m => m.Id == messageId);
+
+            if (message == null || !message.HasPhoto || message.PhotoData == null)
+            {
+                return (HasPhoto: false, PhotoData: null, PhotoContentType: null);
+            }
+
+            return (HasPhoto: true, PhotoData: message.PhotoData, PhotoContentType: message.PhotoContentType);
+        }
+        
+        public async Task<MessageDTO> SendPhotoMessageAsync(string senderId, SendMessageDTO messageDto, byte[] photoData)
+        {
+            if (!await CanCommunicateAsync(senderId, messageDto.ReceiverId))
+                throw new UnauthorizedAccessException("You cannot send messages to this user based on role restrictions.");
+
+            var sender = await _userManager.FindByIdAsync(senderId);
+            var receiver = await _userManager.FindByIdAsync(messageDto.ReceiverId);
+
+            if (sender == null || receiver == null)
+                throw new ArgumentException("Sender or receiver not found");
+
+            // Get or create conversation
+            var conversation = await _context.Conversations
+                .FirstOrDefaultAsync(c =>
+                    (c.User1Id == senderId && c.User2Id == messageDto.ReceiverId) ||
+                    (c.User1Id == messageDto.ReceiverId && c.User2Id == senderId));
+
+            if (conversation == null)
+            {
+                conversation = new Conversation
+                {
+                    User1Id = senderId,
+                    User2Id = messageDto.ReceiverId,
+                    LastActivity = DateTime.UtcNow
+                };
+
+                _context.Conversations.Add(conversation);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                conversation.LastActivity = DateTime.UtcNow;
+                _context.Conversations.Update(conversation);
+            }
+
+            // Create message
+            var message = new ChatMessage
+            {
+                Content = messageDto.Content,
+                SenderId = senderId,
+                ReceiverId = messageDto.ReceiverId,
+                SentAt = DateTime.UtcNow,
+                ConversationId = conversation.Id,
+                PhotoData = photoData,
+                PhotoContentType = messageDto.PhotoContentType ?? "image/jpeg"
+            };
+
+            _context.ChatMessages.Add(message);
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"Photo message saved. Photo size: {photoData.Length} bytes");
+
+            var result = new MessageDTO
+            {
+                Id = message.Id,
+                Content = message.Content,
+                SentAt = message.SentAt,
+                IsRead = message.IsRead,
+                SenderId = message.SenderId,
+                SenderName = sender.UserName ?? "",
+                ReceiverId = message.ReceiverId,
+                ReceiverName = receiver.UserName ?? "",
+                ConversationId = message.ConversationId,
+                HasPhoto = message.HasPhoto,
+                PhotoContentType = message.PhotoContentType
+            };
+
+            return result;
         }
     }
 } 

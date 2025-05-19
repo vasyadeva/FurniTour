@@ -33,5 +33,14 @@ namespace FurniTour.Server.Data.Entities
         
         [ForeignKey(nameof(ConversationId))]
         public Conversation? Conversation { get; set; }
+
+        // Photo attachment (nullable)
+        public byte[]? PhotoData { get; set; }
+        
+        // Photo content type (for displaying the image correctly)
+        public string? PhotoContentType { get; set; }
+        
+        // Flag to indicate if the message has a photo attachment
+        public bool HasPhoto => PhotoData != null && PhotoData.Length > 0;
     }
 } 

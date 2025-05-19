@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ChatService, Conversation, Message, SendMessage, UserOnline } from '../../services/chat.service';
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -15,14 +16,21 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
   @Input() conversation: Conversation | null = null;
   @Input() selectedUser: UserOnline | null = null;
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('fileInput') private fileInput!: ElementRef;
   
   messages: Message[] = [];
   newMessage: string = '';
   loading: boolean = false;
   error: string = '';
   userId: string = '';
+  selectedPhoto: File | null = null;
+  selectedPhotoUrl: SafeUrl | null = null;
   
-  constructor(private chatService: ChatService, private authService: AuthService) { }
+  constructor(
+    private chatService: ChatService, 
+    private authService: AuthService,
+    private sanitizer: DomSanitizer
+  ) { }
 
   ngOnInit(): void {
     this.chatService.messages$.subscribe(messages => {
@@ -64,7 +72,7 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
   }
 
   sendMessage(): void {
-    if (!this.newMessage.trim()) return;
+    if (!this.newMessage.trim() && !this.selectedPhoto) return;
     
     const receiverId = this.getRecipientId();
     if (!receiverId) {
@@ -77,8 +85,20 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
       content: this.newMessage.trim()
     };
     
+    // Add photo if selected
+    if (this.selectedPhoto) {
+      message.photoData = this.selectedPhoto;
+      message.photoContentType = this.selectedPhoto.type;
+    }
+    
     this.chatService.sendMessage(message);
     this.newMessage = '';
+    this.selectedPhoto = null;
+    
+    // Reset file input
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   getRecipientId(): string {
@@ -121,5 +141,50 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch (err) { }
+  }
+
+  openFileSelector(): void {
+    if (this.fileInput) {
+      this.fileInput.nativeElement.click();
+    }
+  }
+  
+  handleFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      
+      // Check if it's an image
+      if (!file.type.startsWith('image/')) {
+        this.error = 'Будь ласка, виберіть зображення';
+        return;
+      }
+      
+      // Check size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.error = 'Зображення занадто велике. Максимальний розмір 5MB';
+        return;
+      }
+      
+      this.selectedPhoto = file;
+      // Create a safe URL for the image preview
+      this.selectedPhotoUrl = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+      this.error = '';
+    }
+  }
+  
+  removeSelectedPhoto(): void {
+    if (this.selectedPhotoUrl) {
+      URL.revokeObjectURL(this.selectedPhotoUrl.toString());
+    }
+    this.selectedPhoto = null;
+    this.selectedPhotoUrl = null;
+    if (this.fileInput) {
+      this.fileInput.nativeElement.value = '';
+    }
+  }
+  
+  getPhotoUrl(message: Message): string | null {
+    return this.chatService.getPhotoUrl(message);
   }
 } 

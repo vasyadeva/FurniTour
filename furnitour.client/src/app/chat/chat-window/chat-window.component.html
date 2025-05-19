@@ -34,6 +34,11 @@
       <div class="message" [class.my-message]="isMyMessage(message)" [class.other-message]="!isMyMessage(message)">
         <div class="message-content">
           {{ message.content }}
+          
+          <!-- Display photo if message has one -->
+          <div class="message-photo" *ngIf="message.hasPhoto">
+            <img [src]="getPhotoUrl(message)" alt="Photo attachment" (click)="$event.stopPropagation()">
+          </div>
         </div>
         <div class="message-info">
           <span class="message-time">{{ formatTime(message.sentAt) }}</span>
@@ -46,12 +51,36 @@
   </div>
   
   <div class="chat-input">
+    <!-- Hidden file input for photo selection -->
+    <input 
+      #fileInput
+      type="file" 
+      accept="image/*" 
+      style="display: none;" 
+      (change)="handleFileSelect($event)">
+    
+    <!-- Selected photo preview -->
+    <div class="selected-photo" *ngIf="selectedPhoto && selectedPhotoUrl">
+      <div class="photo-preview">
+        <img [src]="selectedPhotoUrl" alt="Selected photo">
+        <button class="remove-photo" (click)="removeSelectedPhoto()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+    </div>
+    
     <textarea 
       [(ngModel)]="newMessage" 
       placeholder="Введіть повідомлення..." 
       (keydown.enter)="$event.preventDefault(); sendMessage()">
     </textarea>
-    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">
+    
+    <!-- Photo attachment button -->
+    <button class="attachment-btn" (click)="openFileSelector()">
+      <i class="fa fa-paperclip"></i>
+    </button>
+    
+    <button (click)="sendMessage()" [disabled]="!newMessage.trim() && !selectedPhoto">
       <i class="fa fa-paper-plane"></i>
     </button>
   </div>

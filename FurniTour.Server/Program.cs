@@ -31,7 +31,11 @@ builder.Services.AddScoped<IGuaranteeService, GuaranteeService>();
 builder.Services.AddScoped<IIndividualOrderService, IndividualOrderService>();
 builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
 builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => 
+{
+    options.MaximumReceiveMessageSize = 5 * 1024 * 1024; // 5MB
+    options.StreamBufferCapacity = 10; 
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

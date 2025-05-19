@@ -3,6 +3,8 @@ using FurniTour.Server.Models.Chat;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.Json;
+using System.Text;
 
 namespace FurniTour.Server.Controllers
 {
@@ -135,6 +137,72 @@ namespace FurniTour.Server.Controllers
 
             var users = await _chatService.SearchUsersAsync(userId, searchTerm);
             return Ok(users);
+        }
+
+        // GET: api/chat/message-photo/{id}
+        [HttpGet("message-photo/{id}")]
+        public async Task<IActionResult> GetMessagePhoto(int id)
+        {
+            var result = await _chatService.GetMessagePhotoAsync(id);
+            if (!result.HasPhoto || result.PhotoData == null)
+            {
+                return NotFound();
+            }
+
+            // Add cache control to prevent frequent reloading
+            Response.Headers.Add("Cache-Control", "private, max-age=3600");
+
+            return File(result.PhotoData, result.PhotoContentType ?? "image/jpeg");
+        }
+
+        [HttpPost("upload-photo")]
+        public async Task<IActionResult> UploadPhoto([FromForm] IFormFile file, [FromForm] string receiverId, [FromForm] string content)
+        {
+            var userId = _authService.GetUser().Id;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            if (file.Length > 5 * 1024 * 1024) // 5MB limit
+                return BadRequest("File too large");
+
+            // If content is missing or exactly "Photo attachment", use a single space to satisfy validation
+            // but prevent visible text in UI
+            if (string.IsNullOrWhiteSpace(content) || content == "Photo attachment")
+            {
+                content = " ";  // Single space - this passes validation but won't display visibly in UI
+            }
+
+            // Read the file into a byte array
+            using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            byte[] photoData = memoryStream.ToArray();
+
+            // Create the message DTO
+            var messageDto = new SendMessageDTO
+            {
+                ReceiverId = receiverId,
+                Content = content,
+                PhotoContentType = file.ContentType
+            };
+
+            // Manually set the photo data after creating the DTO
+            try 
+            {
+                // Send the message
+                var message = await _chatService.SendPhotoMessageAsync(userId, messageDto, photoData);
+                return Ok(message);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error sending message: {ex.Message}");
+            }
         }
     }
 } 
