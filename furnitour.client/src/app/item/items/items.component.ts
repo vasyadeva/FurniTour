@@ -101,6 +101,9 @@ export class ItemsComponent implements OnInit {
   // Add this property to track copilot expansion state
   copilotExpanded: boolean = false;
   
+  // Add this property to control welcome message visibility
+  showWelcomeMessage: boolean = true;
+  
   constructor(
     private itemService: ItemService, 
     private cartService: CartService, 
@@ -284,5 +287,25 @@ export class ItemsComponent implements OnInit {
   // Add this method to toggle copilot expansion
   toggleCopilot(): void {
     this.copilotExpanded = !this.copilotExpanded;
+    
+    // Show welcome message only if expanding and it hasn't been shown before
+    if (this.copilotExpanded && this.showWelcomeMessage) {
+      // Store in session storage that the message has been shown
+      const hasSeenWelcome = sessionStorage.getItem('copilotWelcomeSeen');
+      
+      if (!hasSeenWelcome) {
+        // First time in this session, show message
+        this.showWelcomeMessage = true;
+        sessionStorage.setItem('copilotWelcomeSeen', 'true');
+        
+        // Hide message after 3 seconds
+        setTimeout(() => {
+          this.showWelcomeMessage = false;
+        }, 3000);
+      } else {
+        // Already seen in this session, don't show
+        this.showWelcomeMessage = false;
+      }
+    }
   }
 }

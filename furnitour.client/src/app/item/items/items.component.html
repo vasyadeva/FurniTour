@@ -353,12 +353,23 @@
     </div>
     
     <div class="copilot-panel" *ngIf="copilotExpanded">
-      <div class="copilot-header">
-        <h5 class="mb-0"></h5>
+      <div class="copilot-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-robot me-2"></i>
+          <h5 class="mb-0">FurniTour Асистент</h5>
+        </div>
         <button class="close-btn" (click)="toggleCopilot()">
           <i class="fas fa-times"></i>
         </button>
       </div>
+      
+      <!-- Modified welcome message with showWelcomeMessage condition -->
+      <div class="copilot-welcome" *ngIf="showWelcomeMessage">
+        <div class="welcome-message">
+          <p>Напишіть <span class="highlight">"Привіт"</span>, щоб розпочати розмову з асистентом.</p>
+        </div>
+      </div>
+      
       <div class="copilot-body">
         <iframe [src]="CopilotUrl | safe" frameborder="0"></iframe>
       </div>
@@ -399,17 +410,37 @@
   .copilot-header {
     background-color: #1f3745;
     color: white;
-    padding: 10px;
+    padding: 15px;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
   }
 
+  .copilot-welcome {
+    background-color: #f0f5f7;
+    padding: 15px;
+    border-bottom: 1px solid #d8ebeb;
+  }
+
+  .welcome-message {
+    text-align: center;
+    color: #1f3745;
+  }
+
+  .welcome-message .highlight {
+    background-color: #e6f0f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #1f3745;
+    font-weight: bold;
+  }
+
   .copilot-body {
     background-color: #f8fafa;
-    padding: 10px;
+    padding: 0;
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
     overflow: hidden;
+    flex-grow: 1;
   }
 
   .close-btn {
@@ -428,8 +459,11 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   }
-
+  
   .copilot-panel iframe {
     flex-grow: 1;
     width: 100%;
