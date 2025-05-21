@@ -125,7 +125,7 @@ namespace FurniTour.Server.Controllers
 
             var request = new JsonObject
             {
-                ["model"] = "gemma2-9b-it",
+                ["model"] = "meta-llama/llama-4-maverick-17b-128e-instruct",
                 ["messages"] = new JsonArray
             {
                 new JsonObject

@@ -1,6 +1,8 @@
 ﻿using FurniTour.Server.Data;
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
+using FurniTour.Server.Models.Api.AI;
+using FurniTour.Server.Models.Item;
 using FurniTour.Server.Models.Profile;
 using GroqApiLibrary;
 using Microsoft.AspNetCore.Identity;
@@ -200,7 +202,7 @@ namespace FurniTour.Server.Services
             return null; // Ensure a return statement is present at the end of the method
         }
 
-        public async Task<List<MasterProfileModel>> GetMasterByDescription2(string description, int category, int pricePolicy)
+        public async Task<List<MasterProfileAIModel>> GetMasterByDescription2(string description, int category, int pricePolicy)
         {
             var masters = await userManager.GetUsersInRoleAsync("Master");
             var orders = context.Orders.
@@ -238,7 +240,7 @@ namespace FurniTour.Server.Services
 
             
 
-            var mastersList = new List<MasterProfileModel>();
+            var mastersList = new List<MasterProfileAIModel>();
             foreach (var master in masters)
             {
                 if (filteredMasters.Contains(master.Id))
@@ -249,16 +251,24 @@ namespace FurniTour.Server.Services
                         Rating = x.Rating,
                         Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
                     }).ToList();
-                    var masterProfile = new MasterProfileModel
+                    var itemReviews = context.FurnitureReviews.Include(c => c.Furniture).Where(c => c.Furniture.MasterId == master.Id).Select(x => new FurnitureReviewModel
+                    {
+                        Comment = x.Comment,
+                        Rating = x.Rating,
+                        Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
+                    }).ToList();
+                    var masterProfile = new MasterProfileAIModel
                     {
                         Username = master.UserName,
                         Email = master.Email,
                         PhoneNumber = master.PhoneNumber,
-                        Reviews = reviews
+                        Reviews = reviews,
+                        FurnitureReviews = itemReviews
                     };
                     mastersList.Add(masterProfile);
                 }
             }
+
 
             if (!string.IsNullOrEmpty(description))
             {
@@ -293,7 +303,7 @@ namespace FurniTour.Server.Services
                         if (filteredMastersList.Count > 0)
                         {
                             var Masters = filteredMastersList.Take(5).ToList();
-                            var AIMasters = new List<MasterProfileModel>();
+                            var AIMasters = new List<MasterProfileAIModel>();
                             foreach (var master in Masters)
                             {
                                 var reviews = context.MasterReviews.Where(c => c.MasterId == master.Username).Select(x => new MasterReviewsModel
@@ -302,12 +312,19 @@ namespace FurniTour.Server.Services
                                     Rating = x.Rating,
                                     Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
                                 }).ToList();
-                                var masterProfile = new MasterProfileModel
+                                var itemReviews = context.FurnitureReviews.Include(c => c.Furniture).Where(c => c.Furniture.MasterId == master.Username).Select(x => new FurnitureReviewModel
+                                {
+                                    Comment = x.Comment,
+                                    Rating = x.Rating,
+                                    Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
+                                }).ToList();
+                                var masterProfile = new MasterProfileAIModel
                                 {
                                     Username = master.Username,
                                     Email = master.Email,
                                     PhoneNumber = master.PhoneNumber,
-                                    Reviews = reviews
+                                    Reviews = reviews,
+                                    FurnitureReviews = itemReviews
                                 };
                                 AIMasters.Add(masterProfile);
                             }

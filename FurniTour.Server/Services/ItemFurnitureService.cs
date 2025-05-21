@@ -690,7 +690,7 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
                 Name = c.Name,
                 Description = c.Description,
                 Price = c.Price,
-                Image = "https://nextshinybag45.conveyor.cloud/api/item/image/" + c.Id.ToString(),
+                Image = "https://greatshinybike31.conveyor.cloud/api/item/image/" + c.Id.ToString(),
                 Category = c.Category.Name,
                 Color = c.Color.Name,
                 Manufacturer = c.ManufacturerId.HasValue ?
@@ -770,7 +770,8 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
             return string.Empty;
         }        public async Task<string> GetReviewsSummary(int itemId)
         {
-            var reviews = await GetFurnitureReviews(itemId);
+            var reviewsList = await GetFurnitureReviews(itemId);
+            var reviews = reviewsList.Select(c => c.Comment).ToList();
             Console.WriteLine($"GetReviewsSummary: Found {reviews.Count} reviews for item {itemId}");
             
             if (reviews == null || !reviews.Any())
@@ -783,18 +784,23 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
             if (string.IsNullOrEmpty(api))
             {
                 Console.WriteLine("GetReviewsSummary: API key is missing");
-                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок.";
+                return "";
             }
-            
+
+            string reviewstext = "";
+            foreach (var rev in reviews)
+            {
+                reviewstext += "," + rev;
+            }
             var groqApi = new GroqApiClient(api);            var request = new JsonObject
             {
-                ["model"] = "gemma2-9b-it",
+                ["model"] = "meta-llama/llama-4-maverick-17b-128e-instruct",
                 ["messages"] = new JsonArray
                 {
                     new JsonObject
                     {
                         ["role"] = "user",
-                        ["content"] = $"Тут відгуки для меблевого товару: {JsonSerializer.Serialize(reviews)}. Будь ласка, надайте коротке резюме 2-3 реченнями українською мовою про те, що клієнтам подобається і що не подобається в цьому товарі на основі цих відгуків. Формат: 'Резюме: <ваше резюме тут>'"
+                        ["content"] = $"Summarize the reviews without for item only in Ukraininan language!!! . reviews: {reviewstext}"
                     }
                 }
             };
@@ -813,11 +819,11 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
                     return aiResponse;
                 }                
                 // Fallback if AI doesn't respond as expected
-                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок";
+                return "";
             }
             catch (Exception ex)
             {
-                return "Середня оцінка: " + reviews.Average(r => r.Rating).ToString("0.0") + " з 5 зірок. " + ex.Message;
+                return "";
             }
         }
           public byte[] GetAdditionalImage(int photoId)

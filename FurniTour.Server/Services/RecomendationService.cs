@@ -65,7 +65,7 @@ namespace FurniTour.Server.Services
                 Color = item.Color?.Name,
                 Manufacturer = item.Manufacturer?.Name,
                 Master = item.Master?.UserName
-            }).ToList();
+            }).Take(10).ToList();
         }
 
         private List<Furniture> CalculateBPRRecommendations(List<Clicks> userClicks, List<Furniture> allFurniture)
