@@ -49,12 +49,44 @@
               </select>
             </div>
 
-            <!-- Виробник -->
+            <!-- Вибір типу фільтрації: виробник або майстер -->
             <div class="mb-3">
+              <label class="form-label fw-bold" style="color: #1f3745;">Фільтрувати за:</label>
+              <div class="d-flex">
+                <div class="form-check me-3">
+                  <input class="form-check-input" type="radio" name="filterType" id="manufacturerFilter" 
+                         [checked]="filterType === 'manufacturer'" 
+                         (change)="toggleFilterType('manufacturer')">
+                  <label class="form-check-label" for="manufacturerFilter">
+                    Виробник
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="filterType" id="masterFilter" 
+                         [checked]="filterType === 'master'" 
+                         (change)="toggleFilterType('master')">
+                  <label class="form-check-label" for="masterFilter">
+                    Майстер
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Виробник - показується якщо вибрано filterType === 'manufacturer' -->
+            <div class="mb-3" *ngIf="filterType === 'manufacturer'">
               <label for="manufacturerID" class="form-label">Виробник</label>
               <select class="form-select" id="manufacturerID" [(ngModel)]="filterModel.manufacturerID" name="manufacturerID">
                 <option [value]="0">Всі виробники</option>
                 <option *ngFor="let manufacturer of manufacturers" [value]="manufacturer.id">{{ manufacturer.name }}</option>
+              </select>
+            </div>
+
+            <!-- Майстер - показується якщо вибрано filterType === 'master' -->
+            <div class="mb-3" *ngIf="filterType === 'master'">
+              <label for="masterID" class="form-label">Майстер</label>
+              <select class="form-select" id="masterID" [(ngModel)]="filterModel.masterID" name="masterID">
+                <option value="">Всі майстри</option>
+                <option *ngFor="let master of masters" [value]="master.id">{{ master.userName }}</option>
               </select>
             </div>
 

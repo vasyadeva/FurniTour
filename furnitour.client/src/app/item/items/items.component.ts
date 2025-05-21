@@ -83,9 +83,13 @@ export class ItemsComponent implements OnInit {
   categories: CategoryModel[] = [];
   colors: ColorModel[] = [];
   manufacturers: any[] = [];
+  masters: any[] = [];
   UserName: string = '';
   ID : string = '';
   CopilotUrl: string = "";
+  
+  // Додати властивість для відстеження вибраного типу фільтра (виробник чи майстер)
+  filterType: 'manufacturer' | 'master' = 'manufacturer';
   
   // Модель фільтрації
   filterModel: ItemFilterModel = {
@@ -159,14 +163,42 @@ export class ItemsComponent implements OnInit {
     this.itemService.getManufacturers().subscribe(
       (manufacturers) => {
         this.manufacturers = manufacturers;
-        this.popupService.closeSnackBar();
       },
       (error) => {
         console.error('Error loading manufacturers:', error);
         this.popupService.openSnackBar('Помилка завантаження виробників');
+      }
+    );
+
+    // Завантаження майстрів
+    this.loadMasters();
+  }
+  
+  // Метод для завантаження майстрів
+  loadMasters(): void {
+    this.itemService.getMasters().subscribe(
+      (masters) => {
+        this.masters = masters;
+        this.popupService.closeSnackBar();
+      },
+      (error) => {
+        console.error('Error loading masters:', error);
+        this.popupService.openSnackBar('Помилка завантаження майстрів');
         this.popupService.closeSnackBar();
       }
     );
+  }
+  
+  // Метод для перемикання між вибором виробника та майстра
+  toggleFilterType(type: 'manufacturer' | 'master'): void {
+    this.filterType = type;
+    
+    // Скидаємо значення, що не використовується
+    if (type === 'manufacturer') {
+      this.filterModel.masterID = '';
+    } else {
+      this.filterModel.manufacturerID = 0;
+    }
   }
   
   // Завантаження всіх товарів

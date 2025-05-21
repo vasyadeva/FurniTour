@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using FurniTour.Server.Models.Api;
+using Microsoft.AspNetCore.Identity;
 
 namespace FurniTour.Server.Controllers
 {
@@ -87,6 +88,20 @@ namespace FurniTour.Server.Controllers
         {
             var credentials = authService.GetCredentials();
             return Ok(credentials);
+        }
+
+        [HttpGet("master/getall")]
+        public async Task<IActionResult> GetAllMasters([FromServices] UserManager<IdentityUser> userManager)
+        {
+            var masters = await userManager.GetUsersInRoleAsync("Master");
+            
+            var mastersList = masters.Select(m => new 
+            {
+                id = m.Id,
+                userName = m.UserName
+            }).ToList();
+            
+            return Ok(mastersList);
         }
 
         [HttpPost("changeprofile")]
