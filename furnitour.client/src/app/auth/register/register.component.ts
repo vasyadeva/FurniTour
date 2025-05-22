@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AppStatusService } from '../../services/auth/app.status.service'; 
@@ -9,7 +9,7 @@ import { AppStatusService } from '../../services/auth/app.status.service';
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule,RouterModule],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
@@ -65,7 +65,7 @@ export class RegisterComponent {
             isMaster: false,
             isUser: true
           });
-          this.router.navigate(['/login']);
+          this.router.navigate(['/logout']);
         }, 
         error => {
           console.error('Registration error:', error);

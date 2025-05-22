@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { IndividualOrderService } from '../../services/individual-order/individual-order.service';
 import { IndividualOrderModel } from '../../models/individual.order.model';
 import { AuthService } from '../../services/auth/auth.service';
+import { AppStatusService } from '../../services/auth/app.status.service';
 
 // Інтерфейс для статусів в процесі замовлення
 interface StatusItem {
@@ -48,6 +49,7 @@ export class IndividualOrderDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private individualOrderService: IndividualOrderService,
     private authService: AuthService,
+    public status: AppStatusService,
     private fb: FormBuilder
   ) {
     this.priceForm = this.fb.group({

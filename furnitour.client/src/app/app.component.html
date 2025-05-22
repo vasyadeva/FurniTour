@@ -92,9 +92,9 @@
             </div>
           </li>
           
-          <li class="nav-item" *ngIf="status.isAdmin">
+          <!-- <li class="nav-item" *ngIf="status.isAdmin">
             <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['admin']">Адмін</a>
-        </li>
+        </li> -->
           <li class="nav-item" *ngIf="!status.isSignedIn else signedInAlready">
             <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['login']">Увійти</a>
           </li>

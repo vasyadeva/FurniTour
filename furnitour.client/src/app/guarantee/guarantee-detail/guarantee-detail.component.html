@@ -1,6 +1,9 @@
 <div class="container mt-4">  <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="fade-in">Деталі гарантії</h1>
-    <button class="btn btn-outline-secondary slide-up" (click)="goBack()">
+    <button class="btn btn-outline-secondary slide-up" *ngIf="status.isAdmin" routerLink="/admin/guarantees">
+      <i class="fas fa-arrow-left"></i> Назад до списку
+    </button>
+    <button class="btn btn-outline-secondary slide-up" *ngIf="!status.isAdmin" routerLink="/guarantees">
       <i class="fas fa-arrow-left"></i> Назад до списку
     </button>
   </div>
@@ -45,10 +48,10 @@
           <div *ngIf="!guarantee.isIndividualOrder && guarantee.items && guarantee.items.length > 0">
             <div class="table-responsive">
               <table class="table table-striped">
-                <thead>
+                <thead >
                   <tr>
-                    <th>Назва товару</th>
-                    <th>Кількість</th>
+                    <th style="color: black !important;">Назва товару</th>
+                    <th style="color: black !important;">Кількість</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -104,7 +104,7 @@
 
             <!-- Кнопки -->
             <div class="d-grid gap-2 mt-4">
-              <button type="submit" class="btn text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); border-radius: 8px;">
+              <button type="submit" class="btn text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); border-radius: 8px;" (click)="scrollToProducts()">
                 <i class="fas fa-check me-2"></i>Застосувати фільтри
               </button>
               <button type="button" class="btn" style="background-color: #809da0; color: white; border-radius: 8px;" (click)="resetFilters()">
@@ -118,104 +118,7 @@
      
     <!-- Основний контент -->
     <div class="col-md-9">
-      <!-- Форма пошуку -->
-      <div class="row mb-4">
-        <div class="col-md-12">
-          <form (ngSubmit)="searchItem()">
-            <div class="input-group" style="box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border-radius: 10px; overflow: hidden;">
-              <input type="text" class="form-control" placeholder="Пошук за описом" 
-                     style="border: 2px solid #d8ebeb; border-right: none; padding: 12px 15px;"
-                     [(ngModel)]="searchDescription" name="searchDescription">
-              <button class="btn text-white" style="background-color: #1f3745;" type="submit">
-                <i class="fas fa-search"></i>
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Результат пошуку -->
-      <div class="row mb-5" *ngIf="searchResult.length > 0">
-        <div class="col-12">
-          <h3 class="mb-3 fw-bold" style="color: #1f3745; border-bottom: 3px solid #d8ebeb; padding-bottom: 10px;">
-            <i class="fas fa-search me-2"></i>Результати пошуку
-          </h3>
-        </div>
-        <div class="col-md-4" *ngFor="let item of searchResult">
-          <div class="card mb-4 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden; transition: all 0.3s ease;">
-            <div class="position-relative" style="height: 200px; overflow: hidden;">
-              <img [src]="'data:image/jpeg;base64,' + item.image" class="card-img-top" alt="{{ item.name }}"
-                   style="height: 100%; object-fit: cover; transition: transform 0.5s ease;">
-              <div class="position-absolute top-0 end-0 m-2">
-                <span class="badge" style="background-color: #1f3745; color: white;">{{ item.category }}</span>
-              </div>
-            </div>
-            <div class="card-body">
-              <h5 class="card-title text-center fw-bold" style="color: #1f3745;">{{ item.name }}</h5>
-              
-              <!-- Updated average rating display with better half-star handling -->
-              <div *ngIf="item.reviewCount > 0" class="d-flex justify-content-center align-items-center mb-2">
-                <span *ngFor="let i of getFullStars(item.averageRating)" class="text-warning">
-                  <i class="fas fa-star"></i>
-                </span>
-                <span *ngIf="getHalfStar(item.averageRating)" class="text-warning">
-                  <i class="fas fa-star-half-alt"></i>
-                </span>
-                <span *ngFor="let i of getEmptyStars(item.averageRating)" class="text-muted">
-                  <i class="fas fa-star"></i>
-                </span>
-                <span class="ms-2 text-muted small">({{ item.reviewCount }})</span>
-              </div>
-              
-              <p class="card-text small text-muted">{{ (item.description.length > 100) ? (item.description | slice:0:100) + '...' : item.description }}</p>
-              
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-bold" style="color: #771d17; font-size: 1.2rem;">{{ item.price }} грн</span>
-                <span class="badge" style="background-color: #809da0; color: white;">{{ item.color }}</span>
-              </div>
-
-              <p *ngIf="item.master !== ''" class="card-text">
-                <strong>Майстер:</strong>
-                <a [routerLink]="['/profile/master', item.master]">{{ item.master}}</a>
-              </p>
-              <p *ngIf="item.manufacturer !== ''" class="card-text">
-                <strong>Виробник:</strong>
-                <a [routerLink]="['/profile/manufacturer', item.manufacturer]">{{ item.manufacturer}}</a>
-              </p>
-              
-              <div *ngIf="status.isUser" class="mb-3">
-                <label for="quantity-search-{{item.id}}" class="form-label small fw-bold" style="color: #1f3745;">Кількість:</label>
-                <input type="number" id="quantity-search-{{item.id}}" [(ngModel)]="quantity[item.id]" min="1" 
-                       class="form-control" style="border: 2px solid #d8ebeb;" value="1">
-              </div>
-
-              <div class="d-grid gap-2 mt-3">
-                <button class="btn" style="background-color: #809da0; color: white;" [routerLink]="['/details', item.id]">
-                  <i class="fas fa-info-circle me-2"></i>Дивитися деталі
-                </button>
-                <div class="d-flex gap-2 mt-2">
-                  <button class="btn flex-grow-1" style="background-color: #1f3745; color: white;" *ngIf="status.isAdmin || status.isMaster" [routerLink]="['/edit', item.id]">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="btn flex-grow-1" style="background-color: #771d17; color: white;" *ngIf="status.isAdmin || status.isMaster" (click)="Delete(item.id)">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                  <button class="btn flex-grow-1" style="background-color: #1f3745; color: white;" *ngIf="status.isUser" (click)="AddToCart(item.id, quantity[item.id])">
-                    <i class="fas fa-cart-plus"></i>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Display message if no search results -->
-        <div class="col-12" *ngIf="searchResult.length === 0">
-          <div class="alert alert-info">
-            Товарів за вашим пошуковим запитом не знайдено.
-          </div>
-        </div>
-      </div>
+      
 
       <!-- Рекомендовані товари -->
       <div class="row mb-4" *ngIf="RecomendedItems && RecomendedItems.length">
@@ -296,7 +199,7 @@
       </div>
 
       <!-- Відфільтровані товари -->
-      <div class="row">
+      <div class="row" id="productsSection">
         <div class="col-12">
           <h3 class="mb-3 fw-bold" style="color: #1f3745; border-bottom: 3px solid #d8ebeb; padding-bottom: 10px;">
             <i class="fas fa-list me-2"></i>Товари

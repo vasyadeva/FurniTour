@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { GuaranteeService } from '../../services/guarantee/guarantee.service';
 import { GuaranteeModel } from '../../models/guarantee.model';
 import { AuthService } from '../../services/auth/auth.service';
+import { AppStatusService } from '../../services/auth/app.status.service';
 
 @Component({
   selector: 'app-guarantee-detail',
@@ -24,6 +25,7 @@ export class GuaranteeDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private guaranteeService: GuaranteeService,
+    public status: AppStatusService,
     private authService: AuthService
   ) { }
   

@@ -159,8 +159,11 @@
       </div>
     </div>
 
-    <div class="mt-4">
-      <a routerLink="/individual-orders" class="btn btn-secondary">
+    <div class="mt-4 mb-2">
+      <a *ngIf="status.isUser" routerLink="/individual-orders" class="btn btn-secondary">
+        &larr; Повернутися до списку замовлень
+      </a>
+      <a *ngIf="status.isAdmin" routerLink="/admin-individual-orders" class="btn btn-secondary">
         &larr; Повернутися до списку замовлень
       </a>
     </div>
@@ -171,8 +174,11 @@
     <h4 class="alert-heading">Замовлення не знайдено</h4>
     <p>Нам не вдалося знайти замовлення з вказаним ідентифікатором або у вас немає до нього доступу.</p>
     <hr>
-    <p class="mb-0">
-      <a routerLink="/individual-orders" class="btn btn-danger">
+    <p class="mb-2">
+      <a *ngIf="status.isUser" routerLink="/individual-orders" class="btn btn-danger">
+        &larr; Повернутися до списку замовлень
+      </a>
+      <a *ngIf="status.isAdmin" routerLink="/admin-individual-orders" class="btn btn-danger">
         &larr; Повернутися до списку замовлень
       </a>
     </p>

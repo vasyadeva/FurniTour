@@ -35,7 +35,7 @@ export class CartComponent implements OnInit {
       (response) => {
         this.popupService.closeSnackBar();
         console.log('Cart:', response);
-        this.cartItems = response; 
+        this.cartItems = response || []; // Ensure we have an array even if response is null/undefined
         
         // Initialize quantity object with current quantities
         this.cartItems.forEach(item => {
@@ -43,11 +43,18 @@ export class CartComponent implements OnInit {
         });
       },
       error => {
-        this.popupService.closeSnackBar();
+        this.popupService.closeSnackBar(); // Make sure to close the snackbar on error
         this.error = error?.error || 'Помилка при отриманні кошику';
         if (!error?.error?.isSuccess) {
-            this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
+          this.error = error?.error?.message || 'Сталася неочікувана помилка. Будь ласка, спробуйте пізніше.';
         }
+        
+        // Ensure cartItems is an empty array when there's an error
+        this.cartItems = [];
+      },
+      // Add complete handler to ensure snackbar is always closed
+      () => {
+        this.popupService.closeSnackBar();
       }
     );
 

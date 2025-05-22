@@ -126,7 +126,7 @@ export class ItemsComponent implements OnInit {
         console.log('Profile fetched successfully!', response);
         this.UserName = response.username;
         this.ID = response.id;
-        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID  + "&Username="+this.UserName + "&api=https://greatshinybike31.conveyor.cloud/";
+        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID  + "&Username="+this.UserName + "&api=https://littlepurplerock62.conveyor.cloud/";
   
       }
     );
@@ -173,7 +173,14 @@ export class ItemsComponent implements OnInit {
     // Завантаження майстрів
     this.loadMasters();
   }
-  
+  scrollToProducts(): void {
+  setTimeout(() => {
+    const productsSection = document.getElementById('productsSection');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, 100); // Small delay to ensure filters are applied first
+}
   // Метод для завантаження майстрів
   loadMasters(): void {
     this.itemService.getMasters().subscribe(
