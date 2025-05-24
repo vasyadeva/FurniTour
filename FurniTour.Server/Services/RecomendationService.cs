@@ -29,6 +29,62 @@ namespace FurniTour.Server.Services
 
             var userId = user.Id;
 
+            // Перевіряємо стан рекомендацій користувача
+            var userRecommendationState = await _context.UserRecomendationStates
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            // Якщо стан не існує, створюємо новий
+            if (userRecommendationState == null)
+            {
+                userRecommendationState = new UserRecomendationState
+                {
+                    UserId = userId,
+                    LastRecommendationCheck = DateTime.UtcNow
+                };
+                _context.UserRecomendationStates.Add(userRecommendationState);
+                await _context.SaveChangesAsync();
+            }
+
+            // Перевіряємо, чи минула хвилина з останнього оновлення
+            var timeSinceLastCheck = DateTime.UtcNow - userRecommendationState.LastRecommendationCheck;
+            var shouldUpdateRecommendations = timeSinceLastCheck.TotalMinutes >= 1;
+
+            // Якщо не потрібно оновлювати, спробуємо отримати з кешу
+            if (!shouldUpdateRecommendations)
+            {
+                var cachedRecommendation = await _context.CachedRecommendations
+                    .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                if (cachedRecommendation != null && cachedRecommendation.RecommendedFurnitureIds.Any())
+                {
+                    // Отримуємо товари з кешу
+                    var cachedFurniture = await _context.Furnitures
+                        .Where(f => cachedRecommendation.RecommendedFurnitureIds.Contains(f.Id))
+                        .Include(f => f.Category)
+                        .Include(f => f.Color)
+                        .Include(f => f.Master)
+                        .Include(f => f.Manufacturer)
+                        .ToListAsync();
+
+                    return cachedFurniture.Select(item => new ItemViewModel
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Description = item.Description,
+                        Price = item.Price,
+                        Image = Convert.ToBase64String(item.Image),
+                        Category = item.Category?.Name,
+                        Color = item.Color?.Name,
+                        Manufacturer = item.Manufacturer?.Name,
+                        Master = item.Master?.UserName
+                    }).ToList();
+                }
+            }
+
+            // Оновлюємо стан перевірки рекомендацій
+            userRecommendationState.LastRecommendationCheck = DateTime.UtcNow;
+            _context.UserRecomendationStates.Update(userRecommendationState);
+
             // Завантаження кліків користувача разом із пов'язаними сутностями
             var userClicks = await _context.Clicks
                 .Where(c => c.UserId == userId)
@@ -53,6 +109,9 @@ namespace FurniTour.Server.Services
             // Обчислюємо рекомендації за допомогою BPR та матричної факторизації
             var recommendations = CalculateBPRRecommendations(userClicks, allFurniture);
 
+            // Кешуємо рекомендації
+            await CacheRecommendationsAsync(userId, recommendations);
+
             // Формуємо модель для відображення
             return recommendations.Select(item => new ItemViewModel
             {
@@ -66,6 +125,29 @@ namespace FurniTour.Server.Services
                 Manufacturer = item.Manufacturer?.Name,
                 Master = item.Master?.UserName
             }).Take(10).ToList();
+        }
+
+        private async Task CacheRecommendationsAsync(string userId, List<Furniture> recommendations)
+        {
+            // Видаляємо старий кеш
+            var existingCache = await _context.CachedRecommendations
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (existingCache != null)
+            {
+                _context.CachedRecommendations.Remove(existingCache);
+            }
+
+            // Створюємо новий кеш
+            var newCache = new CachedRecommendation
+            {
+                UserId = userId,
+                CachedTime = DateTime.UtcNow,
+                RecommendedFurnitureIds = recommendations.Select(f => f.Id).ToList()
+            };
+
+            _context.CachedRecommendations.Add(newCache);
+            await _context.SaveChangesAsync();
         }
 
         private List<Furniture> CalculateBPRRecommendations(List<Clicks> userClicks, List<Furniture> allFurniture)

@@ -181,6 +181,14 @@ namespace FurniTour.Server.Data
                     Description = "Елітні матеріали"
                 }
             );
+
+            // Configure CachedRecommendation to store List<int> as JSON
+            builder.Entity<CachedRecommendation>()
+                .Property(e => e.RecommendedFurnitureIds)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToList()
+                );
         }
 
         public DbSet<Furniture> Furnitures { get; set; }
