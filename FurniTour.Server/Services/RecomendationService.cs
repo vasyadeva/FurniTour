@@ -66,7 +66,13 @@ namespace FurniTour.Server.Services
                         .Include(f => f.Manufacturer)
                         .ToListAsync();
 
-                    return cachedFurniture.Select(item => new ItemViewModel
+
+                    var orderedCachedFurniture = cachedRecommendation.RecommendedFurnitureIds
+                        .Select(id => cachedFurniture.FirstOrDefault(f => f.Id == id))
+                        .Where(f => f != null)
+                        .ToList();
+
+                    return orderedCachedFurniture.Select(item => new ItemViewModel
                     {
                         Id = item.Id,
                         Name = item.Name,
@@ -137,7 +143,7 @@ namespace FurniTour.Server.Services
             {
                 _context.CachedRecommendations.Remove(existingCache);
             }
-
+            await _context.SaveChangesAsync();
             // Створюємо новий кеш
             var newCache = new CachedRecommendation
             {
