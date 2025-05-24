@@ -32,6 +32,22 @@
   --shadow-heavy: 0 8px 16px rgba(31, 55, 69, 0.1);
 }
 
+/* Admin panel notification snackbars */
+.green-snackbar {
+  background: #43a047;
+  color: white;
+}
+
+.red-snackbar {
+  background: #d32f2f;
+  color: white;
+}
+
+.yellow-snackbar {
+  background: #ffa000;
+  color: black;
+}
+
 /* Анімації для інтерфейсу */
 @keyframes fadeIn {
   from { opacity: 0; }

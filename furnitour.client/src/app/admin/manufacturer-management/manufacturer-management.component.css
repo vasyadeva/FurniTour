@@ -1,0 +1,75 @@
+.card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 6px 12px rgba(31, 55, 69, 0.1);
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(31, 55, 69, 0.15);
+}
+
+.manufacturer-card {
+  transition: all 0.3s ease;
+}
+
+.manufacturer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(31, 55, 69, 0.15) !important;
+}
+
+.form-control {
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 0 3px rgba(31, 55, 69, 0.25);
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner-border {
+  animation-duration: 1s;
+}
+
+.manufacturer-actions .btn {
+  transition: all 0.2s ease;
+}
+
+.manufacturer-actions .btn:hover {
+  transform: scale(1.1);
+}
+
+.manufacturer-info h5 {
+  transition: color 0.3s ease;
+}
+
+.manufacturer-card:hover .manufacturer-info h5 {
+  color: #0f1c23 !important;
+}

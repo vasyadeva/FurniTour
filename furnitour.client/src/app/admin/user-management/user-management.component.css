@@ -1,0 +1,278 @@
+/* User Management Component Styles */
+.user-management-container {
+  background: linear-gradient(135deg, #d8ebeb 0%, #809da0 100%);
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.user-management-header {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #d8ebeb;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 15px rgba(31, 55, 69, 0.1);
+}
+
+.search-container {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.search-container input {
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 8px rgba(31, 55, 69, 0.2);
+}
+
+.user-table-card {
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.user-table thead {
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  color: #90a4a4;
+}
+
+.user-table th {
+  font-weight: 600;
+  border: none;
+  padding: 15px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  color: #90a4a4 !important;
+}
+
+/* Додатковий стиль для темного тексту заголовків, якщо потрібно */
+.user-table th.text-dark {
+  color: #d8ebeb !important;
+}
+
+.user-table td {
+  padding: 15px;
+  vertical-align: middle;
+  transition: all 0.3s ease;
+}
+
+.user-row {
+  transition: all 0.3s ease;
+}
+
+.user-row:hover {
+  background-color: #d8ebeb;
+  transform: scale(1.01);
+  box-shadow: 0 3px 10px rgba(31, 55, 69, 0.05);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, #1f3745, #0f1c23);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d8ebeb;
+  font-size: 16px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #1f3745;
+  font-size: 1rem;
+}
+
+.user-email {
+  color: #809da0;
+  font-size: 0.9rem;
+}
+
+.user-phone {
+  color: #809da0;
+  font-size: 0.9rem;
+}
+
+.role-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.badge-admin {
+  background: linear-gradient(to right, #1f3745, #0f1c23);
+  color: #d8ebeb;
+}
+
+.badge-master {
+  background: linear-gradient(to right, #809da0, #6a868a);
+  color: white;
+}
+
+.badge-user {
+  background: linear-gradient(to right, #d8ebeb, #c0d5d5);
+  color: #1f3745;
+}
+
+.role-select {
+  border: 2px solid #d8ebeb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  transition: all 0.3s ease;
+}
+
+.role-select:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 6px rgba(31, 55, 69, 0.2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f0f5f5;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: #809da0;
+  margin-bottom: 20px;
+}
+
+.empty-state h4 {
+  color: #1f3745;
+  margin-bottom: 15px;
+}
+
+.empty-state p {
+  color: #809da0;
+  margin-bottom: 25px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card {
+  transition: all 0.3s ease;
+  border-radius: 15px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 6px 12px rgba(31, 55, 69, 0.1);
+}
+
+.card:hover {
+  box-shadow: 0 8px 20px rgba(31, 55, 69, 0.15);
+}
+
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(31, 55, 69, 0.08);
+}
+
+.table th {
+  font-weight: 600;
+  border: none;
+  padding: 15px;
+}
+
+.table td {
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid #d8ebeb;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f5f5;
+  transform: scale(1.01);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-control, .form-select {
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #1f3745;
+  box-shadow: 0 0 0 3px rgba(31, 55, 69, 0.25);
+}
+
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.alert {
+  border-radius: 8px;
+  border: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spinner-border {
+  animation-duration: 1s;
+}
+
+.badge {
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: scale(1.05);
+}

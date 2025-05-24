@@ -32,6 +32,7 @@ builder.Services.AddScoped<IIndividualOrderService, IndividualOrderService>();
 builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddSignalR(options => 
 {
     options.MaximumReceiveMessageSize = 5 * 1024 * 1024; // 5MB

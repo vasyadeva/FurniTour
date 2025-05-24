@@ -18,7 +18,7 @@
                   </div>
                   <h4 style="color: #1f3745;">Управління користувачами</h4>
                   <p class="text-muted">Перегляд та редагування всіх користувачів системи</p>
-                  <a href="#" class="btn text-white w-100" style="background-color: #1f3745; border-radius: 8px;">
+                  <a routerLink="/admin/users" class="btn text-white w-100" style="background-color: #1f3745; border-radius: 8px;">
                     <i class="fas fa-chevron-right me-2"></i>Відкрити
                   </a>
                 </div>
@@ -29,11 +29,11 @@
               <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; background-color: #f0f4f4;">
                 <div class="card-body text-center p-4">
                   <div class="mb-3" style="width: 70px; height: 70px; background-color: #809da0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                    <i class="fas fa-cube" style="font-size: 30px; color: white;"></i>
+                    <i class="fas fa-industry" style="font-size: 30px; color: white;"></i>
                   </div>
-                  <h4 style="color: #1f3745;">Категорії та кольори</h4>
-                  <p class="text-muted">Керування категоріями та кольорами товарів</p>
-                  <a href="#" class="btn text-white w-100" style="background-color: #809da0; border-radius: 8px;">
+                  <h4 style="color: #1f3745;">Виробники</h4>
+                  <p class="text-muted">Керування виробниками товарів</p>
+                  <a routerLink="/admin/manufacturers" class="btn text-white w-100" style="background-color: #809da0; border-radius: 8px;">
                     <i class="fas fa-chevron-right me-2"></i>Відкрити
                   </a>
                 </div>
@@ -44,13 +44,18 @@
               <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; background-color: #f8e6e5;">
                 <div class="card-body text-center p-4">
                   <div class="mb-3" style="width: 70px; height: 70px; background-color: #771d17; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
-                    <i class="fas fa-chart-bar" style="font-size: 30px; color: white;"></i>
+                    <i class="fas fa-layer-group" style="font-size: 30px; color: white;"></i>
                   </div>
-                  <h4 style="color: #1f3745;">Звіти та статистика</h4>
-                  <p class="text-muted">Аналіз продажів та активності користувачів</p>
-                  <a href="#" class="btn text-white w-100" style="background-color: #771d17; border-radius: 8px;">
-                    <i class="fas fa-chevron-right me-2"></i>Відкрити
-                  </a>
+                  <h4 style="color: #1f3745;">Категорії та кольори</h4>
+                  <p class="text-muted">Керування категоріями та кольорами товарів</p>
+                  <div class="d-grid gap-2">
+                    <a routerLink="/admin/categories" class="btn text-white" style="background-color: #771d17; border-radius: 8px;">
+                      <i class="fas fa-layer-group me-2"></i>Категорії
+                    </a>
+                    <a routerLink="/admin/colors" class="btn text-white" style="background-color: #771d17; border-radius: 8px;">
+                      <i class="fas fa-palette me-2"></i>Кольори
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,0 +1,160 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+          <h3 class="mb-0 text-center">
+            <i class="fas fa-industry me-2"></i>Управління виробниками
+          </h3>
+        </div>
+        
+        <div class="card-body p-4" style="background-color: #f8fafa;">
+          <!-- Add Manufacturer Form -->
+          <form [formGroup]="manufacturerForm" (ngSubmit)="addManufacturer()" class="mb-4">
+            <div class="row">
+              <div class="col-md-9">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Введіть назву нового виробника..."
+                  formControlName="name"
+                  style="border: 2px solid #d8ebeb; border-radius: 8px; padding: 12px 15px;"
+                >
+                <div *ngIf="manufacturerForm.get('name')?.invalid && manufacturerForm.get('name')?.touched" 
+                     class="text-danger small mt-1">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  Назва виробника повинна містити принаймні 2 символи
+                </div>
+              </div>
+              <div class="col-md-3">
+                <button 
+                  type="submit" 
+                  class="btn w-100" 
+                  [disabled]="manufacturerForm.invalid || isLoading"
+                  style="background-color: #1f3745; color: white; border-radius: 8px; padding: 12px;"
+                >
+                  <i class="fas fa-plus me-2"></i>Додати виробника
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Search Section -->
+          <div class="row mb-4">
+            <div class="col-md-8">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Пошук виробників..."
+                  [(ngModel)]="searchTerm" 
+                  (input)="filterManufacturers()"
+                  style="border: 2px solid #d8ebeb; border-radius: 8px 0 0 8px; padding: 12px 15px;"
+                >
+                <button 
+                  class="btn" 
+                  type="button" 
+                  (click)="resetSearch()"
+                  style="background-color: #809da0; color: white; border-radius: 0 8px 8px 0; border: 2px solid #809da0;"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4 text-end">
+              <span class="text-muted">
+                Знайдено: {{ filteredManufacturers.length }} з {{ manufacturers.length }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Success/Error Messages -->
+          <div *ngIf="successMessage" class="alert alert-success mb-4" style="border-radius: 8px; border-left: 4px solid #1f3745;">
+            <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+          </div>
+          
+          <div *ngIf="error" class="alert alert-danger mb-4" style="border-radius: 8px; border-left: 4px solid #771d17;">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+          </div>
+
+          <!-- Loading Spinner -->
+          <div *ngIf="isLoading" class="text-center py-4">
+            <div class="spinner-border" style="color: #1f3745;" role="status">
+              <span class="visually-hidden">Завантаження...</span>
+            </div>
+          </div>
+
+          <!-- Manufacturers List -->
+          <div *ngIf="!isLoading && filteredManufacturers.length > 0">
+            <div class="row">
+              <div *ngFor="let manufacturer of filteredManufacturers; trackBy: trackByManufacturerId" class="col-md-6 col-lg-4 mb-3">
+                <div class="manufacturer-card" style="background-color: white; border-radius: 10px; padding: 20px; box-shadow: 0 3px 10px rgba(31, 55, 69, 0.1); transition: all 0.3s ease;">
+                  
+                  <!-- View Mode -->
+                  <div *ngIf="!manufacturer.isEditing" class="d-flex justify-content-between align-items-center">
+                    <div class="manufacturer-info">
+                      <h5 class="mb-0" style="color: #1f3745; font-weight: 600;">
+                        <i class="fas fa-industry me-2" style="color: #809da0;"></i>{{ manufacturer.name }}
+                      </h5>
+                    </div>
+                    <div class="manufacturer-actions">
+                      <button 
+                        class="btn btn-sm me-1" 
+                        (click)="startEdit(manufacturer)"
+                        style="background-color: #809da0; color: white; border-radius: 6px; padding: 6px 10px;"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button 
+                        class="btn btn-sm" 
+                        (click)="deleteManufacturer(manufacturer)"
+                        style="background-color: #771d17; color: white; border-radius: 6px; padding: 6px 10px;"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Edit Mode -->
+                  <div *ngIf="manufacturer.isEditing">
+                    <div class="mb-3">
+                      <input 
+                        type="text" 
+                        class="form-control" 
+                        [(ngModel)]="manufacturer.editName"
+                        style="border: 2px solid #d8ebeb; border-radius: 6px; padding: 8px 12px;"
+                      >
+                    </div>
+                    <div class="text-end">
+                      <button 
+                        class="btn btn-sm me-2" 
+                        (click)="saveManufacturer(manufacturer)"
+                        style="background-color: #1f3745; color: white; border-radius: 6px; padding: 6px 12px;"
+                      >
+                        <i class="fas fa-save me-1"></i>Зберегти
+                      </button>
+                      <button 
+                        class="btn btn-sm" 
+                        (click)="cancelEdit(manufacturer)"
+                        style="background-color: #809da0; color: white; border-radius: 6px; padding: 6px 12px;"
+                      >
+                        <i class="fas fa-times me-1"></i>Скасувати
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Results -->
+          <div *ngIf="!isLoading && filteredManufacturers.length === 0" class="text-center py-5">
+            <i class="fas fa-search" style="font-size: 48px; color: #809da0; opacity: 0.5;"></i>
+            <h5 class="mt-3" style="color: #809da0;">Виробників не знайдено</h5>
+            <p style="color: #809da0;">Спробуйте змінити критерії пошуку або додайте нового виробника</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

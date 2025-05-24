@@ -9,14 +9,30 @@
           <!-- <li class="nav-item">
             <a class="nav-link active" aria-current="page" [routerLink]="['home']">Home</a>
           </li> -->
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" *ngIf="status.isAdmin" routerLink="adminorders">Керування замовленнями</a>
+          <li class="nav-item dropdown" *ngIf="status.isAdmin">
+            <a class="nav-link dropdown-toggle" href="#" id="adminReferencesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Адміністрування довідників
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="adminReferencesDropdown">
+              <li><a class="dropdown-item" routerLink="admin/users">Користувачі</a></li>
+              <li><a class="dropdown-item" routerLink="/manufacturers">Виробники</a></li>
+              <li><a class="dropdown-item" routerLink="admin/colors">Кольори</a></li>
+              <li><a class="dropdown-item" routerLink="admin/categories">Категорії</a></li>
+              <li><a class="dropdown-item" routerLink="items">Товари</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" *ngIf="status.isAdmin" routerLink="manufacturers">Керування виробниками</a>
+          <li class="nav-item dropdown" *ngIf="status.isAdmin">
+            <a class="nav-link dropdown-toggle" href="#" id="customerServiceDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Обслуговування клієнтів
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="customerServiceDropdown">
+              <li><a class="dropdown-item" routerLink="adminorders">Керування замовленнями</a></li>
+              <li><a class="dropdown-item" routerLink="admin-individual-orders">Індивідуальні замовлення</a></li>
+              <li><a class="dropdown-item" routerLink="admin/guarantees">Адміністрування гарантій</a></li>
+            </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" routerLink="items">Товари</a>
+          <li class="nav-item" *ngIf="status.isMaster">
+            <a class="nav-link active" aria-current="page" routerLink="admin-individual-orders">Індивідуальні замовлення</a>
           </li>
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" *ngIf="status.isUser" routerLink="cart">Кошик</a>
@@ -31,9 +47,7 @@
               <li><a class="dropdown-item" routerLink="individual-orders">Мої замовлення</a></li>
             </ul>
           </li>
-          <li class="nav-item" *ngIf="status.isAdmin || status.isMaster">
-            <a class="nav-link active" aria-current="page" routerLink="admin-individual-orders">Індивідуальні замовлення</a>
-          </li>          <!-- Guarantee Section -->
+          <!-- Guarantee Section -->
           <li class="nav-item dropdown" *ngIf="status.isUser">
             <a class="nav-link dropdown-toggle" href="#" id="guaranteeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Гарантії
@@ -42,9 +56,6 @@
               <li><a class="dropdown-item" routerLink="guarantees">Перегляд гарантій</a></li>
               <li><a class="dropdown-item" routerLink="guarantees/create">Подати запит на гарантію</a></li>
             </ul>
-          </li>
-          <li class="nav-item" *ngIf="status.isAdmin">
-            <a class="nav-link active" aria-current="page" routerLink="admin/guarantees">Адміністрування гарантій</a>
           </li>
           <li class="nav-item" *ngIf="status.isSignedIn">
             <a class="nav-link active" aria-current="page" routerLink="chat">
@@ -90,11 +101,7 @@
                 <a routerLink="/notifications" (click)="showNotificationsDropdown = false">Переглянути всі сповіщення</a>
               </div>
             </div>
-          </li>
-          
-          <!-- <li class="nav-item" *ngIf="status.isAdmin">
-            <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['admin']">Адмін</a>
-        </li> -->
+          </li>          
           <li class="nav-item" *ngIf="!status.isSignedIn else signedInAlready">
             <a class="nav-link" tabindex="-1" aria-disabled="true" [routerLink]="['login']">Увійти</a>
           </li>
