@@ -166,11 +166,8 @@ namespace FurniTour.Server.Services
                                 
                                 // Update user's total spent
                                 await loyaltyService.UpdateUserSpendingAsync(user.Id, originalTotalPrice);
-                                
-                                // Відправка сповіщення про нове замовлення
-                                var orderState = context.OrderStates.FirstOrDefault(os => os.Id == 1);
-                                var stateName = orderState != null ? orderState.Name : "Нове замовлення";
-                                await _notificationService.NotifyOrderStatusChangedAsync(Order.Id, stateName);
+                                  // Відправка сповіщення адміністраторам про нове замовлення
+                                await _notificationService.NotifyNewOrderAsync(Order.Id);
                                 
                                 return string.Empty; // Успішне виконання
                             }

@@ -16,9 +16,8 @@ namespace FurniTour.Server.Interfaces
         
         // Get unread notifications for a user
         Task<List<NotificationDTO>> GetUnreadNotificationsAsync(string userId);
-        
-        // Get notification by id
-        Task<NotificationDTO> GetNotificationByIdAsync(int notificationId);
+          // Get notification by id
+        Task<NotificationDTO?> GetNotificationByIdAsync(int notificationId);
         
         // Mark a notification as read
         Task<bool> MarkAsReadAsync(int notificationId);
@@ -43,8 +42,13 @@ namespace FurniTour.Server.Interfaces
         
         // New individual order notification
         Task NotifyNewIndividualOrderAsync(int individualOrderId);
-        
-        // Guarantee status changed notification
+          // Guarantee status changed notification
         Task NotifyGuaranteeStatusChangedAsync(int guaranteeId, string status);
+        
+        // New order notification for admins
+        Task NotifyNewOrderAsync(int orderId);
+        
+        // New guarantee notification for admins
+        Task NotifyNewGuaranteeAsync(int guaranteeId);
     }
-} 
+}

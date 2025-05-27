@@ -27,7 +27,7 @@ namespace FurniTour.Server.Services
             _notificationService = notificationService;
         }
 
-        public string AddGuarantee(GuaranteeAddModel guarantee)
+        public async Task<string> AddGuarantee(GuaranteeAddModel guarantee)
         {
             if (guarantee == null)
             {
@@ -172,9 +172,8 @@ namespace FurniTour.Server.Services
             }
             
             context.SaveChanges();
-            
-            // Відправка сповіщення про нову гарантійну заявку
-            _notificationService.NotifyGuaranteeStatusChangedAsync(guaranteeEntity.Id, "Нова заявка").Wait();
+              // Відправка сповіщення адміністраторам про нову гарантійну заявку
+            await _notificationService.NotifyNewGuaranteeAsync(guaranteeEntity.Id);
             
             return string.Empty;
         }

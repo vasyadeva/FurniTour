@@ -69,11 +69,9 @@ namespace FurniTour.Server.Controllers
                 return Unauthorized();
             }
             return Ok(guarantees);
-        }
-
-        [Authorize]
+        }        [Authorize]
         [HttpPost("add")]
-        public ActionResult AddGuarantee([FromBody] GuaranteeAddModel model)
+        public async Task<ActionResult> AddGuarantee([FromBody] GuaranteeAddModel model)
         {
             // Log request details for debugging
             logger.LogInformation($"Received guarantee request: {JsonSerializer.Serialize(model)}");
@@ -121,7 +119,7 @@ namespace FurniTour.Server.Controllers
                 }
             }
             
-            var result = guaranteeService.AddGuarantee(model);
+            var result = await guaranteeService.AddGuarantee(model);
             if (!string.IsNullOrEmpty(result))
             {
                 return BadRequest(result);

@@ -110,9 +110,7 @@ namespace FurniTour.Server.Services
                 .ToListAsync();
 
             return notifications.Select(MapToDTO).ToList();
-        }
-
-        public async Task<NotificationDTO> GetNotificationByIdAsync(int notificationId)
+        }        public async Task<NotificationDTO?> GetNotificationByIdAsync(int notificationId)
         {
             var notification = await _context.Notifications.FindAsync(notificationId);
             return notification != null ? MapToDTO(notification) : null;
@@ -273,9 +271,7 @@ namespace FurniTour.Server.Services
             }
 
             await CreateNotificationsAsync(notificationsDto);
-        }
-
-        public async Task NotifyGuaranteeStatusChangedAsync(int guaranteeId, string status)
+        }        public async Task NotifyGuaranteeStatusChangedAsync(int guaranteeId, string status)
         {
             var guarantee = await _context.Guarantees
                 .Include(g => g.User)
@@ -294,6 +290,64 @@ namespace FurniTour.Server.Services
             };
 
             await CreateNotificationAsync(notificationDto);
+        }
+
+        public async Task NotifyNewOrderAsync(int orderId)
+        {
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null) return;
+
+            // Get all administrators
+            var admins = await _userManager.GetUsersInRoleAsync("Administrator");
+
+            // Create notifications for all administrators
+            var notificationsDto = new List<CreateNotificationDTO>();
+            foreach (var admin in admins)
+            {
+                notificationsDto.Add(new CreateNotificationDTO
+                {
+                    UserId = admin.Id,
+                    Title = "Нове замовлення",
+                    Message = $"Отримано нове замовлення №{orderId} від {order.User.UserName}",
+                    NotificationType = NotificationType.Order,
+                    OrderId = orderId,
+                    RedirectUrl = $"/admin-orders/{orderId}"
+                });
+            }
+
+            await CreateNotificationsAsync(notificationsDto);
+        }
+
+        public async Task NotifyNewGuaranteeAsync(int guaranteeId)
+        {
+            var guarantee = await _context.Guarantees
+                .Include(g => g.User)
+                .FirstOrDefaultAsync(g => g.Id == guaranteeId);
+
+            if (guarantee == null) return;
+
+            // Get all administrators
+            var admins = await _userManager.GetUsersInRoleAsync("Administrator");
+
+            // Create notifications for all administrators
+            var notificationsDto = new List<CreateNotificationDTO>();
+            foreach (var admin in admins)
+            {
+                notificationsDto.Add(new CreateNotificationDTO
+                {
+                    UserId = admin.Id,
+                    Title = "Нова гарантійна заявка",
+                    Message = $"Отримано нову гарантійну заявку №{guaranteeId} від {guarantee.User.UserName}",
+                    NotificationType = NotificationType.Guarantee,
+                    GuaranteeId = guaranteeId,
+                    RedirectUrl = $"/admin-guarantees/{guaranteeId}"
+                });
+            }
+
+            await CreateNotificationsAsync(notificationsDto);
         }
 
         private NotificationDTO MapToDTO(Notification notification)
