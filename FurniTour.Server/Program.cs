@@ -72,7 +72,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 {
                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     context.Response.ContentType = "application/json";
-                    var jsonResponse = new { message = "Access Denied: You do not have permission to access this resource." };
+                    var jsonResponse = new { message = "Доступ заборонено! Ви не маєте доступу до цього ресурсу." };
                     return context.Response.WriteAsync(System.Text.Json.JsonSerializer.Serialize(jsonResponse));
 
                 }

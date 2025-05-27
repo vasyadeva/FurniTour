@@ -690,7 +690,7 @@ If no relevant keywords can be extracted, respond with: 'keywords: none'"
                 Name = c.Name,
                 Description = c.Description,
                 Price = c.Price,
-                Image = "https://littlepurplerock62.conveyor.cloud/api/item/image/" + c.Id.ToString(),
+                Image = "https://goodorangepage50.conveyor.cloud/api/item/image/" + c.Id.ToString(),
                 Category = c.Category.Name,
                 Color = c.Color.Name,
                 Manufacturer = c.ManufacturerId.HasValue ?

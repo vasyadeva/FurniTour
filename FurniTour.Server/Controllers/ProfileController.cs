@@ -131,7 +131,7 @@ namespace FurniTour.Server.Controllers
                 new JsonObject
                 {
                     ["role"] = "user",
-                    ["content"] = $"Summarize the reviews without for manufacturer only in Ukraininan language {id}: {reviewstext}"
+                    ["content"] = $"Summarize the reviews without for manufacturer from 3-rd person only in Ukraininan language {id}: {reviewstext}"
                 }
             }
             };

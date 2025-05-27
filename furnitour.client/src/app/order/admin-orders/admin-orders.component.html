@@ -35,7 +35,7 @@
               <div class="col-md-6">
                 <p><strong><i class="fas fa-user me-2"></i>Ім'я:</strong> {{ order.name }}</p>
                 <p *ngIf="order.address"><strong><i class="fas fa-map-marker-alt me-2"></i>Адреса:</strong> {{ order.address }}</p>
-                <p *ngIf="order.phone"><strong><i class="fas fa-phone me-2"></i>Телефон:</strong> {{ order.phone }}</p>
+                <p *ngIf="order.phone"><strong><i class="fas fa-phone me-2"></i>Телефон:</strong>+380{{ order.phone }}</p>
               </div>
               <div class="col-md-6">
                 <p><strong><i class="fas fa-calendar-alt me-2"></i>Дата створення:</strong> {{ order.dateCreated | date:'dd.MM.yyyy HH:mm' }}</p>
