@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ProfileService } from '../../../services/profile/profile.service';
 import { ProfileModel } from '../../../models/profile.model';
 import { LoyaltyService } from '../../../services/loyalty/loyalty.service';
@@ -24,26 +24,64 @@ export class ProfileComponent implements OnInit {
     role: ''
   };
   loyalty: LoyaltyModel | null = null;
+  isOwnProfile: boolean = true;
+  targetUsername: string | null = null;
 
   constructor(
     private profileService: ProfileService,
     private loyaltyService: LoyaltyService,
     private authService: AuthService,
+    private route: ActivatedRoute,
     public status: AppStatusService
   ) { }
-
   ngOnInit(): void {
+    // Check if there's a username parameter in the route
+    this.route.paramMap.subscribe(params => {
+      this.targetUsername = params.get('username');
+      
+      if (this.targetUsername) {
+        // Viewing another user's profile
+        this.isOwnProfile = false;
+        this.loadUserProfile(this.targetUsername);
+      } else {
+        // Viewing own profile
+        this.isOwnProfile = true;
+        this.loadOwnProfile();
+      }
+    });
+  }
+
+  loadOwnProfile(): void {
     this.authService.getProfile().subscribe(
       (response: ProfileModel) => {
         console.log('Profile fetched successfully!', response);
         this.profile = response;
+        this.loadLoyaltyInfo();
       },
       (error: any) => {
         console.error('Error fetching profile:', error);
       }
     );
-    
-    this.loadLoyaltyInfo();
+  }
+  loadUserProfile(username: string): void {
+    // Use the new API to load public user profile
+    this.profileService.getPublicProfile(username).subscribe({
+      next: (response: ProfileModel) => {
+        console.log('Public profile fetched successfully!', response);
+        this.profile = response;
+        // Don't load loyalty info for other users' profiles
+      },
+      error: (error: any) => {
+        console.error('Error fetching public profile:', error);
+        // If API endpoint doesn't exist yet, show a placeholder
+        this.profile = {
+          username: username,
+          email: 'Приватна інформація',
+          phonenumber: 'Приватна інформація', 
+          role: 'Невідома роль'
+        };
+      }
+    });
   }
 
   loadLoyaltyInfo(): void {

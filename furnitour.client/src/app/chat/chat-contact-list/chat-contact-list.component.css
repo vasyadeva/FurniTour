@@ -184,4 +184,30 @@
   text-align: center;
   color: #809da0;
   font-style: italic;
-} 
+}
+
+/* Clickable name styles */
+.clickable-name {
+  cursor: pointer;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.clickable-name:hover {
+  color: #1f3745;
+  text-decoration: underline;
+}
+
+.clickable-name:active {
+  color: #0f1c23;
+}
+
+/* Non-clickable name styles - for users without viewable profiles */
+.name:not(.clickable-name) {
+  cursor: default;
+  color: #809da0;
+}
+
+.name:not(.clickable-name):hover {
+  color: #809da0;
+  text-decoration: none;
+}

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Conversation, UserOnline } from '../../services/chat.service';
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -27,7 +28,7 @@ export class ChatContactListComponent implements OnInit, OnChanges {
   hasOnlineUsers: boolean = false;
   hasOfflineUsers: boolean = false;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
   
   ngOnInit(): void {
     this.authService.credentials().subscribe(creds => {
@@ -92,4 +93,24 @@ export class ChatContactListComponent implements OnInit, OnChanges {
   trackByUserId(index: number, user: UserOnline): string {
     return user.userId;
   }
-} 
+  // Navigate to user profile - now supports all user types
+  navigateToProfile(user: UserOnline): void {
+    this.router.navigate(['/profile/user', user.userName]);
+  }
+
+  // Navigate to profile from conversation
+  navigateToConversationUserProfile(conversation: Conversation): void {
+    const otherUserName = this.getOtherUserName(conversation);
+    this.router.navigate(['/profile/user', otherUserName]);
+  }
+
+  // All users now have viewable profiles
+  hasViewableProfile(user: UserOnline): boolean {
+    return true; // All users can have their profiles viewed
+  }
+
+  // All conversation users now have viewable profiles
+  conversationUserHasProfile(conversation: Conversation): boolean {
+    return true; // All users can have their profiles viewed
+  }
+}

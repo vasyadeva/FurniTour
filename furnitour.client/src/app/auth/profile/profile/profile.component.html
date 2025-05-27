@@ -1,10 +1,10 @@
 <div class="container mt-5 mb-5">
   <div class="row justify-content-center">
     <div class="col-lg-8">
-      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">
-        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
+      <div class="card border-0 shadow-lg" style="border-radius: 15px; overflow: hidden;">        <div class="card-header text-white" style="background: linear-gradient(135deg, #1f3745, #0f1c23); padding: 20px;">
           <h3 class="card-title mb-0 text-center">
-            <i class="fas fa-user-circle me-2"></i>Інформація профілю
+            <i class="fas fa-user-circle me-2"></i>
+            {{ isOwnProfile ? 'Інформація профілю' : 'Профіль користувача ' + profile.username }}
           </h3>
         </div>
         
@@ -64,9 +64,8 @@
               </div>
             </div>
           </div>
-          
-          <!-- Loyalty Card -->
-          <div class="card border-0 shadow-sm mt-4" *ngIf="loyalty">
+            <!-- Loyalty Card -->
+          <div class="card border-0 shadow-sm mt-4" *ngIf="loyalty && isOwnProfile">
             <div class="card-header" style="background: linear-gradient(135deg, #1f3745, #0f1c23); color: white;">
               <h5 class="mb-0"><i class="fas fa-gem me-2"></i>Програма лояльності</h5>
             </div>
@@ -98,9 +97,14 @@
               </div>
             </div>
           </div>
+          
+          <!-- Message for viewing other user profiles -->
+          <div class="alert alert-info mt-4" *ngIf="!isOwnProfile">
+            <i class="fas fa-info-circle me-2"></i>
+            Ви переглядаєте публічний профіль користувача. Деталі контактів та лояльність не відображаються.
+          </div>
         </div>
-        
-        <div class="card-footer p-4 text-center" style="background-color: #d8ebeb; border: none;">
+          <div class="card-footer p-4 text-center" style="background-color: #d8ebeb; border: none;" *ngIf="isOwnProfile">
           <a class="btn" style="background-color: #1f3745; color: white; border-radius: 8px; padding: 10px 20px;" [routerLink]="['/changeprofile']">
             <i class="fas fa-user-edit me-2"></i>Змінити профіль
           </a>

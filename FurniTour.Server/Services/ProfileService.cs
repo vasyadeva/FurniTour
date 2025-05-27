@@ -2,6 +2,7 @@
 using FurniTour.Server.Data.Entities;
 using FurniTour.Server.Interfaces;
 using FurniTour.Server.Models.Api.AI;
+using FurniTour.Server.Models.Auth;
 using FurniTour.Server.Models.Item;
 using FurniTour.Server.Models.Profile;
 using GroqApiLibrary;
@@ -336,8 +337,25 @@ namespace FurniTour.Server.Services
 
                 }
 
+            }            return mastersList.Take(5).ToList();
+        }
+
+        public async Task<ProfileModel> GetPublicProfile(string username)
+        {
+            var user = await userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                var publicProfile = new ProfileModel
+                {
+                    Username = user.UserName,
+                    Email = "Приватна інформація", // Hide email for public profiles
+                    Phonenumber = "Приватна інформація", // Hide phone for public profiles
+                    Role = roles.FirstOrDefault() ?? "User"
+                };
+                return publicProfile;
             }
-            return mastersList.Take(5).ToList();
+            return null;
         }
 
     }

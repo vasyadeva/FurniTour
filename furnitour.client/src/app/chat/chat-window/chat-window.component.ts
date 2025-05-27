@@ -2,6 +2,7 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ElementR
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { ChatService, Conversation, Message, SendMessage, UserOnline } from '../../services/chat.service';
 import { AuthService } from '../../services/auth/auth.service';
 
@@ -25,11 +26,11 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
   userId: string = '';
   selectedPhoto: File | null = null;
   selectedPhotoUrl: SafeUrl | null = null;
-  
-  constructor(
+    constructor(
     private chatService: ChatService, 
     private authService: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -200,5 +201,19 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
 
   isPhotoOnlyMessage(message: Message): boolean {
     return message.hasPhoto === true && message.content === 'Photo attachment';
+  }  // Navigate to recipient profile - now supports all user types
+  navigateToRecipientProfile(): void {
+    if (this.conversation) {
+      const recipientName = this.getRecipientName();
+      this.router.navigate(['/profile/user', recipientName]);
+    } else if (this.selectedUser) {
+      this.router.navigate(['/profile/user', this.selectedUser.userName]);
+    }
   }
-} 
+
+  // All users now have viewable profiles
+  recipientHasViewableProfile(): boolean {
+    return true; // All users can have their profiles viewed
+  }
+
+}

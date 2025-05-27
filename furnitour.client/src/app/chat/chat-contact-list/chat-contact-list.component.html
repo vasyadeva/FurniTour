@@ -24,10 +24,12 @@
       <div class="profile-pic">
         <!-- Use avatar or initials based on username -->
         <div class="initials">{{ getOtherUserName(conversation).charAt(0) }}</div>
-      </div>
-      <div class="info">
-        <div class="name-time">
-          <div class="name">{{ getOtherUserName(conversation) }}</div>
+      </div>      <div class="info">
+        <div class="name-time">          <div class="name" 
+               [class.clickable-name]="conversationUserHasProfile(conversation)"
+               (click)="conversationUserHasProfile(conversation) && navigateToConversationUserProfile(conversation); $event.stopPropagation()">
+            {{ getOtherUserName(conversation) }}
+          </div>
           <div class="time">{{ getConversationTime(conversation) }}</div>
         </div>
         <div class="last-message" *ngIf="conversation.lastMessage">
@@ -44,9 +46,7 @@
       У вас поки немає розмов
     </div>
   </div>
-  
-  <div class="contact-list" *ngIf="view === 'online'">
-    <!-- Only display users who are actually online -->
+    <div class="contact-list" *ngIf="view === 'online'">    <!-- Only display users who are actually online -->
     <div class="section-title">Користувачі онлайн</div>
     <div class="contact" *ngFor="let user of onlineFilteredUsers; trackBy: trackByUserId" 
          (click)="selectUser(user)">
@@ -55,7 +55,11 @@
         <div class="status online"></div>
       </div>
       <div class="info">
-        <div class="name">{{ user.userName }}</div>
+        <div class="name" 
+             [class.clickable-name]="hasViewableProfile(user)"
+             (click)="hasViewableProfile(user) && navigateToProfile(user); $event.stopPropagation()">
+          {{ user.userName }}
+        </div>
         <div class="role">{{ user.role }}</div>
       </div>
     </div>
@@ -66,8 +70,7 @@
   
   <div class="contact-list" *ngIf="view === 'search'">
     <!-- Search results - includes both online and offline users -->
-    <ng-container *ngIf="searchTerm">
-      <!-- Online users first -->
+    <ng-container *ngIf="searchTerm">      <!-- Online users first -->
       <div class="section-title" *ngIf="hasOnlineUsers">Користувачі онлайн</div>
       <div class="contact" *ngFor="let user of onlineFilteredUsers; trackBy: trackByUserId" 
            (click)="selectUser(user)">
@@ -76,12 +79,14 @@
           <div class="status online"></div>
         </div>
         <div class="info">
-          <div class="name">{{ user.userName }}</div>
+          <div class="name" 
+               [class.clickable-name]="hasViewableProfile(user)"
+               (click)="hasViewableProfile(user) && navigateToProfile(user); $event.stopPropagation()">
+            {{ user.userName }}
+          </div>
           <div class="role">{{ user.role }}</div>
         </div>
-      </div>
-      
-      <!-- Offline users next -->
+      </div>        <!-- Offline users next -->
       <div class="section-title" *ngIf="hasOfflineUsers">Користувачі офлайн</div>
       <div class="contact" *ngFor="let user of offlineFilteredUsers; trackBy: trackByUserId" 
            (click)="selectUser(user)">
@@ -90,7 +95,11 @@
           <div class="status"></div>
         </div>
         <div class="info">
-          <div class="name">{{ user.userName }}</div>
+          <div class="name" 
+               [class.clickable-name]="hasViewableProfile(user)"
+               (click)="hasViewableProfile(user) && navigateToProfile(user); $event.stopPropagation()">
+            {{ user.userName }}
+          </div>
           <div class="role">{{ user.role }}</div>
         </div>
       </div>

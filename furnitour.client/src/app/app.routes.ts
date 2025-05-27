@@ -45,9 +45,9 @@ export const routes: Routes = [
     {path: 'user', component: UserComponent},
     {path: 'logout', component: SignOutComponent},
     {path: 'register', component: RegisterComponent},
-    {path: 'login', component: LoginComponent},
-    {path: 'forbidden', component: ForbiddenComponent},
+    {path: 'login', component: LoginComponent},    {path: 'forbidden', component: ForbiddenComponent},
     {path: 'profile', component: ProfileComponent},
+    {path: 'profile/user/:username', component: ProfileComponent},
     {path: 'changeprofile', component: ChangeProfileComponent},
 
     {path: 'home', component: HomeComponent},

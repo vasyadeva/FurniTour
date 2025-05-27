@@ -45,8 +45,12 @@ export class ProfileService {
   {
     return this.http.post(this.api + 'addmanufacturer', model, { withCredentials: true });
   }
-
   profile(): Observable<ProfileModel> {
     return this.http.get<ProfileModel>(api + '/auth/profile', { withCredentials: true });
+  }
+
+  // Get public profile by username
+  getPublicProfile(username: string): Observable<ProfileModel> {
+    return this.http.get<ProfileModel>(this.api + 'public/' + username, { withCredentials: true });
   }
 }

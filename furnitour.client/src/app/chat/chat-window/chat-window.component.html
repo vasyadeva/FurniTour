@@ -4,7 +4,11 @@
       <div class="profile-pic">
         <div class="initials">{{ getRecipientName().charAt(0) }}</div>
       </div>
-      <div class="name">{{ getRecipientName() }}</div>
+      <div class="name" 
+           [class.clickable-name]="recipientHasViewableProfile()"
+           (click)="recipientHasViewableProfile() && navigateToRecipientProfile()">
+        {{ getRecipientName() }}
+      </div>
     </div>
   </div>
   

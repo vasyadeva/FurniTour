@@ -1,4 +1,5 @@
 ﻿using FurniTour.Server.Models.Api.AI;
+using FurniTour.Server.Models.Auth;
 using FurniTour.Server.Models.Profile;
 
 namespace FurniTour.Server.Interfaces
@@ -11,6 +12,6 @@ namespace FurniTour.Server.Interfaces
         public string MakeMasterReview(AddMasterReview review);
         Task<MasterProfileModel> GetMasterByDescription(string description);
         Task<List<MasterProfileAIModel>> GetMasterByDescription2(string description, int category, int pricePolicy);
-        
-        }
+        Task<ProfileModel> GetPublicProfile(string username);
+    }
 }
