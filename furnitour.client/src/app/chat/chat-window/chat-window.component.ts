@@ -111,18 +111,26 @@ export class ChatWindowComponent implements OnInit, OnChanges, AfterViewChecked 
       this.fileInput.nativeElement.value = '';
     }
   }
-
   getRecipientId(): string {
+    console.log('=== getRecipientId called ===');
+    console.log('conversation:', this.conversation);
+    console.log('selectedUser:', this.selectedUser);
+    console.log('userId:', this.userId);
+    
     if (this.conversation) {
-      return this.conversation.user1Id === this.userId 
+      const recipientId = this.conversation.user1Id === this.userId 
         ? this.conversation.user2Id 
         : this.conversation.user1Id;
+      console.log('Using conversation, recipientId:', recipientId);
+      return recipientId;
     }
     
     if (this.selectedUser) {
+      console.log('Using selectedUser, recipientId:', this.selectedUser.userId);
       return this.selectedUser.userId;
     }
     
+    console.log('No recipient found, returning empty string');
     return '';
   }
 

@@ -60,10 +60,8 @@ namespace FurniTour.Server.Hubs
                         await Clients.Client(connectionId).SendAsync("UserOnline", userId);
                     }
                 }
-                
-                // Refresh online users for current user
+                  // Refresh online users for current user
                 var onlineUsers = await _chatService.GetOnlineUsersAsync(userId);
-                Console.WriteLine($"Sending {onlineUsers.Count} online users to {userId}");
                 await Clients.Caller.SendAsync("OnlineUsers", onlineUsers);
             }
 

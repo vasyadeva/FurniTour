@@ -111,11 +111,17 @@ export class ChatDashboardComponent implements OnInit, OnDestroy {
     this.chatService.joinConversation(conversation.id);
     this.chatService.markAsRead(conversation.id).subscribe();
   }
-
   selectUser(user: UserOnline): void {
+    console.log('=== selectUser called ===');
     console.log('Selected user:', user);
+    console.log('Current selectedUserId before:', this.selectedUserId);
+    console.log('Current selectedConversation before:', this.selectedConversation);
+    
     this.selectedUserId = user.userId;
     this.selectedConversation = null;
+    
+    console.log('Updated selectedUserId to:', this.selectedUserId);
+    console.log('Updated selectedConversation to:', this.selectedConversation);
     
     // Try to find or create a conversation with this user
     this.chatService.getConversationWithUser(user.userId).subscribe({
@@ -124,9 +130,10 @@ export class ChatDashboardComponent implements OnInit, OnDestroy {
         this.selectedConversation = conversation;
         this.chatService.joinConversation(conversation.id);
       },
-      error: () => {
+      error: (error) => {
         // No existing conversation, just keep the user selected
         console.log('No existing conversation with user:', user.userName);
+        console.log('Error details:', error);
       }
     });
   }
@@ -199,14 +206,20 @@ export class ChatDashboardComponent implements OnInit, OnDestroy {
       ? conversation.user2Id 
       : conversation.user1Id;
   }
-  
-  getSelectedUser(): UserOnline | null {
+    getSelectedUser(): UserOnline | null {
+    console.log('=== getSelectedUser called ===');
+    console.log('selectedUserId:', this.selectedUserId);
+    console.log('onlineUsers:', this.onlineUsers);
+    console.log('searchResults:', this.searchResults);
+    
     if (!this.selectedUserId) {
+      console.log('No selectedUserId, returning null');
       return null;
     }
     
     // Check both online users and search results
     const user = [...this.onlineUsers, ...this.searchResults].find(u => u.userId === this.selectedUserId);
+    console.log('Found user:', user);
     return user || null;
   }
 
