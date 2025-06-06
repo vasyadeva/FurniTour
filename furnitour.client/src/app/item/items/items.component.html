@@ -282,7 +282,7 @@
   </div>
 
   <!-- Floating Copilot button and panel -->
-  <div class="copilot-container" [class.expanded]="copilotExpanded">
+  <div class="copilot-container" [class.expanded]="copilotExpanded" *ngIf="status.isUser">
     <div class="copilot-button" (click)="toggleCopilot()" *ngIf="!copilotExpanded">
       <i class="fas fa-robot"></i>
     </div>

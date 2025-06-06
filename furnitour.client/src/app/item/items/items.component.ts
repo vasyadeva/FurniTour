@@ -15,6 +15,7 @@ import { ColorModel } from '../../models/color.model';
 import { Pipe, PipeTransform } from '@angular/core';
 import {DomSanitizer} from "@angular/platform-browser";
 import { AuthService } from '../../services/auth/auth.service';
+import { api, copilotUrl } from '../../../environments/app.environment';
 
 @Pipe({
   name: 'safe',
@@ -126,7 +127,7 @@ export class ItemsComponent implements OnInit {
         console.log('Profile fetched successfully!', response);
         this.UserName = response.username;
         this.ID = response.id;
-        this.CopilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2?&userID=" + this.ID + "&Username=" + this.UserName + "&api=https://goodorangepage50.conveyor.cloud/";
+        this.CopilotUrl = copilotUrl+"?&userID=" + this.ID + "&Username=" + this.UserName + "&api=" + "https://firstmintbox82.conveyor.cloud/";
   
       }
     );

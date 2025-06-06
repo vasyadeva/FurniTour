@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 
 export interface ManufacturerAdminModel {
   id: number;

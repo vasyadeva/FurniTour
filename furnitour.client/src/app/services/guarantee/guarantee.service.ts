@@ -5,7 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 import { GuaranteeAddModel, GuaranteeViewModel, GuaranteeModel } from '../../models/guarantee.model';
 import { OrderService } from '../order/order.service';
 import { AuthService } from '../auth/auth.service';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 
 @Injectable({
   providedIn: 'root'

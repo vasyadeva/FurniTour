@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Observable, from, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { api} from '../../environments/app.environment';
 
 export interface Notification {
   id: number;
@@ -26,8 +26,8 @@ export interface NotificationCount {
   providedIn: 'root'
 })
 export class NotificationService {
-  private baseUrl = `${environment.apiUrl}/api/notification`;
-  private hubUrl = `${environment.apiUrl}/notificationHub`;
+  private baseUrl = `${api}/notification`;
+  private hubUrl = `${api.replace('/api', '')}/notificationHub`;
   private hubConnection!: HubConnection;
   private notificationsSource = new BehaviorSubject<Notification[]>([]);
   notifications$ = this.notificationsSource.asObservable();

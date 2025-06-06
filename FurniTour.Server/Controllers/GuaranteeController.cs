@@ -7,11 +7,10 @@ using FurniTour.Server.Constants;
 
 namespace FurniTour.Server.Controllers
 {
-    // Define the bulk update model within the controller namespace for now
     public class GuaranteeBulkUpdateModel
     {
         public int Id { get; set; }
-        public string Status { get; set; } = string.Empty; // Set default value for non-nullable property
+        public string Status { get; set; } = string.Empty; 
     }
 
     [Route("api/[controller]")]
@@ -21,7 +20,7 @@ namespace FurniTour.Server.Controllers
         private readonly IGuaranteeService guaranteeService;
         private readonly ILogger<GuaranteeController> logger;
 
-        // Fix: Ensure there's only a single constructor
+
         public GuaranteeController(IGuaranteeService guaranteeService, ILogger<GuaranteeController> logger)
         {
             this.guaranteeService = guaranteeService ?? throw new ArgumentNullException(nameof(guaranteeService));
@@ -73,7 +72,7 @@ namespace FurniTour.Server.Controllers
         [HttpPost("add")]
         public async Task<ActionResult> AddGuarantee([FromBody] GuaranteeAddModel model)
         {
-            // Log request details for debugging
+  
             logger.LogInformation($"Received guarantee request: {JsonSerializer.Serialize(model)}");
             
             if (model == null)
@@ -81,7 +80,7 @@ namespace FurniTour.Server.Controllers
                 return BadRequest("Request cannot be null");
             }
             
-            // Validate based on order type
+
             if (model.IsIndividualOrder)
             {
                 if (!model.IndividualOrderId.HasValue)
@@ -100,13 +99,13 @@ namespace FurniTour.Server.Controllers
                 
                 logger.LogInformation($"Processing regular order guarantee: OrderId={model.OrderId}, Items Count: {model.Items?.Count ?? 0}");
                 
-                // Validate items for regular orders
+ 
                 if (model.Items == null || model.Items.Count == 0)
                 {
                     return BadRequest("At least one item must be selected for regular orders");
                 }
                 
-                // Additional validation: Ensure all item IDs are valid integers
+     
                 var invalidItems = model.Items.Where(id => id <= 0).ToList();
                 if (invalidItems.Any())
                 {
@@ -131,7 +130,6 @@ namespace FurniTour.Server.Controllers
         [HttpPost("update/{id}")]
         public ActionResult UpdateGuarantee(int id, [FromBody] string status)
         {
-            // Validate if the status is valid
             if (!GuaranteeStatusConst.ValidStatuses.Contains(status))
             {
                 return BadRequest("Invalid guarantee status");
@@ -233,75 +231,7 @@ namespace FurniTour.Server.Controllers
             }
         }
 
-        [HttpGet("admin/export")]
-        [Authorize(Roles = Roles.Administrator)]
-        public async Task<ActionResult> ExportGuaranteesToCsv(
-            [FromQuery] string? status = null,
-            [FromQuery] string? user = null,
-            [FromQuery] DateTime? dateFrom = null,
-            [FromQuery] DateTime? dateTo = null)
-        {
-            try
-            {
-                var guarantees = await guaranteeService.GetGuarantees();
-                
-                // Apply filters (same as in GetFilteredGuarantees)
-                if (!string.IsNullOrEmpty(status))
-                {
-                    guarantees = guarantees.Where(g => g.Status == status).ToList();
-                }
-                
-                if (!string.IsNullOrEmpty(user))
-                {
-                    guarantees = guarantees.Where(g => g.UserName == user).ToList();
-                }
-                
-                if (dateFrom.HasValue)
-                {
-                    guarantees = guarantees.Where(g => g.DateCreated >= dateFrom.Value).ToList();
-                }
-                
-                if (dateTo.HasValue)
-                {
-                    var endDate = dateTo.Value.AddDays(1).AddTicks(-1);
-                    guarantees = guarantees.Where(g => g.DateCreated <= endDate).ToList();
-                }
-                
-                // Create CSV content
-                var csvContent = new System.Text.StringBuilder();
-                csvContent.AppendLine("ID,ID замовлення,Користувач,Статус,Дата створення,Остання зміна,Коментар");
-                
-                foreach (var guarantee in guarantees)
-                {
-                    // Escape comment to handle commas and quotes
-                    var escapedComment = guarantee.Comment?.Replace("\"", "\"\"") ?? "";
-                    
-                    csvContent.AppendLine(string.Join(",",
-                        guarantee.Id,
-                        guarantee.OrderId,
-                        guarantee.UserName,
-                        guarantee.Status,
-                        guarantee.DateCreated.ToString("yyyy-MM-dd HH:mm:ss"),
-                        guarantee.DateModified.ToString("yyyy-MM-dd HH:mm:ss"),
-                        $"\"{escapedComment}\""
-                    ));
-                }
-                
-                // Return CSV file
-                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                var fileName = $"guarantees_export_{timestamp}.csv";
-                
-                return File(System.Text.Encoding.UTF8.GetBytes(csvContent.ToString()), 
-                    "text/csv", 
-                    fileName);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error exporting guarantees to CSV");
-                return StatusCode(500, "Не вдалося експортувати гарантії");
-            }
-        }
-
+       
         [HttpGet("admin/users")]
         [Authorize(Roles = Roles.Administrator)]
         public async Task<ActionResult<List<string>>> GetGuaranteeUsers()
@@ -330,7 +260,7 @@ namespace FurniTour.Server.Controllers
                     return BadRequest("Не вказані гарантії для оновлення");
                 }
                 
-                // Validate all status values before making any changes
+
                 foreach (var update in updates)
                 {
                     if (!GuaranteeStatusConst.ValidStatuses.Contains(update.Status))
@@ -339,7 +269,7 @@ namespace FurniTour.Server.Controllers
                     }
                 }
                 
-                // Apply all updates
+
                 foreach (var update in updates)
                 {
                     guaranteeService.UpdateGuarantee(update.Id, update.Status);

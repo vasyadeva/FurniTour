@@ -5,7 +5,7 @@ import { ProfileMasterModel } from '../../models/profile.master.model';
 import { MasterAddReviewModel } from '../../models/master.add.review.model';
 import { ProfileManufacturerModel } from '../../models/profile.manufacturer.model';
 import { ManufacturerAddReviewModel } from '../../models/manufacturer.add.review.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 import { AIReviewModel } from '../../models/ai.review.model';
 import { ProfileModel } from '../../models/profile.model';
 @Injectable({

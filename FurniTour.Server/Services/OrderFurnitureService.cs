@@ -75,7 +75,6 @@ namespace FurniTour.Server.Services
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,
                                         Description = Furniture.Description,
-                                        //Photo = Furniture.Image,
                                         Master = Master,
                                         Manufacturer = Manufacturer,
                                         Category = category,
@@ -132,8 +131,8 @@ namespace FurniTour.Server.Services
                                 UserId = user.Id,
                                 OrderStateId = 1,
                                 DateCreated = DateTime.Now,
-                                TotalPrice = (int)Math.Round(discountedTotalPrice), // Store discounted price
-                                OriginalPrice = (int)Math.Round(originalTotalPrice), // Store original price
+                                TotalPrice = (int)Math.Round(discountedTotalPrice), 
+                                OriginalPrice = (int)Math.Round(originalTotalPrice), 
                                 AppliedDiscount = discount,
                                 Name = order.Name,
                                 Address = order.Address,
@@ -164,12 +163,12 @@ namespace FurniTour.Server.Services
                                 }
                                 await context.SaveChangesAsync();
                                 
-                                // Update user's total spent
+
                                 await loyaltyService.UpdateUserSpendingAsync(user.Id, originalTotalPrice);
-                                  // Відправка сповіщення адміністраторам про нове замовлення
+
                                 await _notificationService.NotifyNewOrderAsync(Order.Id);
                                 
-                                return string.Empty; // Успішне виконання
+                                return string.Empty; 
                             }
                             return "Виникла помилка під час створення замовлення";
                         }
@@ -221,7 +220,6 @@ namespace FurniTour.Server.Services
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,
                                         Description = Furniture.Description,
-                                       // Photo = Furniture.Image,
                                         Master = Master,
                                         Manufacturer = Manufacturer,
                                         Category = category,
@@ -407,7 +405,6 @@ namespace FurniTour.Server.Services
                                         Price = Furniture.Price,
                                         Quantity = OrderItem.Quantity,
                                         Description = Furniture.Description,
-                                        //Photo = Furniture.Image,
                                         Master = Master,
                                         Manufacturer = Manufacturer,
                                         Category = category,

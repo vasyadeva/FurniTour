@@ -1,0 +1,2 @@
+export const api = "https://localhost:7043/api";
+export const copilotUrl = "https://copilotstudio.microsoft.com/environments/Default-70a28522-969b-451f-bdb2-abfea3aaa5bf/bots/crc2d_furniTourAssistant/webchat?__version__=2";

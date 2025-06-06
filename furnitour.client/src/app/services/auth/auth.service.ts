@@ -7,7 +7,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { AppStatusService } from './app.status.service';
 import { ProfileModel } from '../../models/profile.model';
 import { ProfileChangeModel } from '../../models/profile.change.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 import { CredentialsModel } from '../../models/credentials.model';
 @Injectable({
   providedIn: 'root'

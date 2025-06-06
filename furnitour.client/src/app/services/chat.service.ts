@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Observable, from, tap, map } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { api } from '../../environments/app.environment';
 
 export interface Message {
   id: number;
@@ -15,10 +15,10 @@ export interface Message {
   receiverName: string;
   conversationId?: number;
   
-  // Photo attachment properties
+
   hasPhoto?: boolean;
   photoContentType?: string;
-  photoId?: number; // Same as message ID if photo exists
+  photoId?: number;
 }
 
 export interface Conversation {
@@ -52,8 +52,8 @@ export interface SendMessage {
   providedIn: 'root'
 })
 export class ChatService {
-  private baseUrl = `${environment.apiUrl}/api/chat`;
-  private hubUrl = `${environment.apiUrl}/chatHub`;
+  private baseUrl = `${api}/chat`;
+  private hubUrl = `${api.replace('/api', '')}/chatHub`;
   private hubConnection!: HubConnection;
   private messagesSource = new BehaviorSubject<Message[]>([]);
   messages$ = this.messagesSource.asObservable();

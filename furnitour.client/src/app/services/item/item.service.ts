@@ -4,7 +4,7 @@ import { itemSend } from '../../models/item.send.model';
 import { Observable } from 'rxjs';
 import { itemGet } from '../../models/item.get.model';
 import { itemUpdate } from '../../models/item.update.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 import { ColorModel } from '../../models/color.model';
 import { CategoryModel } from '../../models/category.model';
 import { ItemFilterModel }  from '../../models/item.filter.model';

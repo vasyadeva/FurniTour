@@ -46,7 +46,8 @@ namespace FurniTour.Server.Data
                 .HasOne(oi => oi.Furniture)
                 .WithMany()
                 .HasForeignKey(oi => oi.FurnitureId)
-                .OnDelete(DeleteBehavior.Cascade);            builder.Entity<MasterReview>()
+                .OnDelete(DeleteBehavior.Cascade);            
+            builder.Entity<MasterReview>()
        .HasOne(mr => mr.Master)
        .WithMany()
        .HasForeignKey(mr => mr.MasterId)
@@ -105,14 +106,13 @@ namespace FurniTour.Server.Data
                 .HasForeignKey(gi => gi.OrderItemId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Налаштування зв'язку для IndividualOrder -> User
             builder.Entity<IndividualOrder>()
                 .HasOne(o => o.User)
                 .WithMany()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Налаштування зв'язку для IndividualOrder -> Master, з відключенням каскадного видалення
+ 
             builder.Entity<IndividualOrder>()
                 .HasOne(o => o.Master)
                 .WithMany()
@@ -182,7 +182,6 @@ namespace FurniTour.Server.Data
                 }
             );
 
-            // Configure CachedRecommendation to store List<int> as JSON
             builder.Entity<CachedRecommendation>()
                 .Property(e => e.RecommendedFurnitureIds)
                 .HasConversion(

@@ -128,82 +128,8 @@ namespace FurniTour.Server.Services
             return check;
         }
 
-        public async Task<MasterProfileModel> GetMasterByDescription(string description)
-        {
-            var MasterRole = context.Roles.FirstOrDefault(c => c.Name == "Master");
-            var usersWithPermission = userManager.GetUsersInRoleAsync("Master").Result;
 
-            // Then get a list of the ids of these users
-            var idsWithPermission = usersWithPermission.Select(u => u.Id);
-
-            // Now get the users in our database with the same ids
-            var users = context.Users.Where(u => idsWithPermission.Contains(u.Id)).ToListAsync();
-
-            if (users == null)
-            {
-                return null;
-            }
-
-            var MasterProfileModels = users.Result.Select(u => new MasterProfileModel
-            {
-                Username = u.UserName,
-                Email = u.Email,
-                PhoneNumber = u.PhoneNumber,
-                Reviews = context.MasterReviews.Where(c => c.MasterId == u.Id).Select(x => new MasterReviewsModel
-                {
-                    Comment = x.Comment,
-                    Rating = x.Rating,
-                    Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
-                }).ToList()
-            }).ToList();
-
-            var api = configuration["key:api"];
-
-            var groqApi = new GroqApiClient(api);
-
-            var request = new JsonObject
-            {
-                ["model"] = "deepseek-r1-distill-llama-70b",
-                ["messages"] = new JsonArray
-            {
-                new JsonObject
-                {
-                    ["role"] = "user",
-                    ["content"] = $"Here is a list of masters of furniture: {JsonSerializer.Serialize(MasterProfileModels)}. Please return the username of the most relevant master in the format 'username: <username>'. User wants: {description}"
-                }
-            }
-
-            };
-            var result = await groqApi.CreateChatCompletionAsync(request);
-            var aiResponse = result?["choices"]?[0]?["message"]?["content"]?.ToString();
-
-            var match = System.Text.RegularExpressions.Regex.Match(aiResponse, @"username:\s*(\w+)");
-            if (match.Success)
-            {
-                var username = match.Groups[1].Value;
-                var master = await context.Users.FirstOrDefaultAsync(c => c.UserName == username);
-                if (master != null)
-                {
-                    var reviews = context.MasterReviews.Where(c => c.MasterId == master.Id).Select(x => new MasterReviewsModel
-                    {
-                        Comment = x.Comment,
-                        Rating = x.Rating,
-                        Username = context.Users.Where(c => c.Id == x.UserId).FirstOrDefault().UserName
-                    }).ToList();
-                    var masterProfile = new MasterProfileModel
-                    {
-                        Username = master.UserName,
-                        Email = master.Email,
-                        PhoneNumber = master.PhoneNumber,
-                        Reviews = reviews
-                    };
-                    return masterProfile;
-                }
-            }
-            return null; // Ensure a return statement is present at the end of the method
-        }
-
-        public async Task<List<MasterProfileAIModel>> GetMasterByDescription2(string description, int category, int pricePolicy)
+        public async Task<List<MasterProfileAIModel>> GetMasterByDescription(string description, int category, int pricePolicy)
         {
             var masters = await userManager.GetUsersInRoleAsync("Master");
             var orders = context.Orders.
@@ -231,15 +157,23 @@ namespace FurniTour.Server.Services
                     break;
             }
 
-            var filteredMasters = orders
-      .SelectMany(order => order.OrderItems)
-      .Where(item => item.Furniture != null && item.Furniture.MasterId != null)
-      .Select(item => item.Furniture.MasterId)
-      .Distinct()
-      .ToList();
+                    var filteredMasters = orders
+              .SelectMany(order => order.OrderItems)
+              .Where(item => item.Furniture != null && item.Furniture.MasterId != null)
+              .Select(item => item.Furniture.MasterId)
+              .Distinct()
+              .ToList();
+
+            var filteredMastersByIndividualOrders = context.IndividualOrders
+                .Where(io => io.IndividualOrderStatusId == 8)
+                .Select(io => io.MasterId)
+                .Where(masterId => masterId != null)
+                .Distinct()
+                .ToList();
+
+            filteredMasters.AddRange(filteredMastersByIndividualOrders);
 
 
-            
 
             var mastersList = new List<MasterProfileAIModel>();
             foreach (var master in masters)
@@ -299,7 +233,7 @@ namespace FurniTour.Server.Services
                         var keywords = match.Groups[1].Value.Split(',').Select(k => k.Trim()).ToList();
                         var filteredMastersList = mastersList.Where(m =>
                             keywords.Any(k => m.Username.Contains(k, StringComparison.OrdinalIgnoreCase))).ToList();
-                        //return filteredMastersList.FirstOrDefault();
+                        
 
                         if (filteredMastersList.Count > 0)
                         {
@@ -349,8 +283,8 @@ namespace FurniTour.Server.Services
                 var publicProfile = new ProfileModel
                 {
                     Username = user.UserName,
-                    Email = "Приватна інформація", // Hide email for public profiles
-                    Phonenumber = "Приватна інформація", // Hide phone for public profiles
+                    Email = "Приватна інформація", 
+                    Phonenumber = "Приватна інформація",
                     Role = roles.FirstOrDefault() ?? "User"
                 };
                 return publicProfile;

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { IndividualOrderModel } from '../../models/individual.order.model';
 import { CreateIndividualOrderModel } from '../../models/create.individual.order.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 import { PriceCategoryModel } from '../../models/price.category.model';
 import { MasterModel } from '../../models/master.model';
 

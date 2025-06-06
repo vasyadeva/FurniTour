@@ -13,13 +13,11 @@ namespace FurniTour.Server.Interfaces
         public ItemViewModel Details(int id);
         public Task<string> Edit(int id, ItemUpdateModel itemModel);
         public Task<string> DeleteItem(int id);
-        public Task<ItemViewModel> GetItemsByDescriptionAsync(string description);
-        Task<List<ItemViewModel>> GetItemsByDescriptionAsync2(string description, int category,
-    decimal minprice, decimal maxprice, int color);
+        Task<List<ItemViewModel>> GetItemsByDescriptionAsync(string description, int category,
+             decimal minprice, decimal maxprice, int color);
         byte[] GetImage(int id);
-          // New methods for reviews and additional photos
         Task<List<FurnitureReviewModel>> GetFurnitureReviews(int itemId);
-        Task<List<FurnitureReviewModel>> GetItemReviews(int itemId);  // Alias for backward compatibility
+        Task<List<FurnitureReviewModel>> GetItemReviews(int itemId);
         Task<string> AddItemReview(AddFurnitureReviewModel reviewModel);
         Task<string> GetReviewsSummary(int itemId);
         byte[] GetAdditionalImage(int photoId);

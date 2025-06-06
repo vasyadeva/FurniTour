@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ManufacturerModel } from '../../models/manufacturer.model';
 import { AddManufacturerModel } from '../../models/add.manufacturer.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 
 @Injectable({
   providedIn: 'root'

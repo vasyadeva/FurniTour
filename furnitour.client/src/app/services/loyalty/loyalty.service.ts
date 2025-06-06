@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LoyaltyModel } from '../../models/loyalty.model';
-import { api } from '../../app.api';
+import { api } from '../../../environments/app.environment';
 
 @Injectable({
   providedIn: 'root'
